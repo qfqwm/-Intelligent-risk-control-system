@@ -22,7 +22,7 @@
   "dependencies": {
     "@types/lodash-es": "^4.17.6",
     "@vueuse/head": "0.7.6",
-    "ant-design-vue": "^3.2.7",
+    "ant-design-vue": "^3.2.10",
     "axios": "^0.27.2",
     "lodash-es": "^4.17.21",
     "pinia": "2.0.14",
