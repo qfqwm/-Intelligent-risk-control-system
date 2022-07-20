@@ -14,7 +14,6 @@
   </div>
   <!-- 五个按钮区域 -->
   <div class="button">
-    1
     <div class="left">
       <a-button type="primary" size="small">批量发布</a-button>
       <a-button type="primary" size="small">批量停用</a-button>
