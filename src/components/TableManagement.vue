@@ -11,6 +11,7 @@
     <span>码表名称：</span><input v-model="Codetablename" type="text" />
     <a-button class="Reset" @click="Reset">重置</a-button>
     <a-button class="query">查询</a-button>
+    123
   </div>
   <!-- 五个按钮区域 -->
   <div class="button">
