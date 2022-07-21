@@ -134,4 +134,8 @@
   .site-layout-background {
     background: #fff;
   }
+
+  .ant-layout-content {
+    position: relative;
+  }
 </style>

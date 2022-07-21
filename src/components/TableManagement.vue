@@ -25,7 +25,7 @@
     </div>
   </div>
   <!-- 表格区域 -->
-  <a-table bordered :data-source="dataSource" :columns="columns" :row-selection="rowSelection">
+  <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :pagination="{ pageSize: pageSize, current: current }">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'id'">
         <a href="#" @click.prevent="showcode">{{ record.id }}</a>
@@ -57,6 +57,13 @@
       </template>
     </template>
   </a-table>
+  <!-- 分页 -->
+  <a-pagination v-model:current="current" v-model:page-size="pageSize" :page-size-options="pageSizeOptions" :total="total" show-size-changer @showSizeChange="onShowSizeChange">
+    <template #buildOptionText="props">
+      <span v-if="props.value !== '50'">{{ props.value }}条/页</span>
+      <span v-else>全部</span>
+    </template>
+  </a-pagination>
   <!-- 蒙版区域 -->
   <div v-show="show.outmask" class="mask">
     <!-- 新增/编辑码表 -->
@@ -142,6 +149,7 @@
 <script lang="ts">
   import { computed, defineComponent, reactive, ref } from 'vue';
   import type { Ref, UnwrapRef } from 'vue';
+  import { log } from 'console';
   interface DataItem {
     key: string;
     id: string;
@@ -205,6 +213,151 @@
           name: '111',
           explain: '222',
           state: '已停用',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
+          time: '32',
+        },
+        {
+          key: '3',
+          id: 'MZB00004',
+          name: '111',
+          explain: '222',
+          state: '已发布',
           time: '32',
         },
         {
@@ -300,6 +453,15 @@
           console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows, '111111111');
         },
       });
+      // 分页
+      const pageSizeOptions = ref<string[]>(['10', '15', '18', '20']);
+      const current = ref(1);
+      const pageSizeRef = ref(20);
+      const total = ref(dataSource.value.length);
+      const onShowSizeChange = (current: number, pageSize: number) => {
+        console.log(current, pageSize);
+        pageSizeRef.value = pageSize;
+      };
       return {
         columns,
         onDelete,
@@ -323,6 +485,12 @@
         Reset,
         rowSelection,
         change_add_edit,
+        // 分页
+        pageSizeOptions,
+        current,
+        pageSize: pageSizeRef,
+        total,
+        onShowSizeChange,
       };
     },
   });
@@ -425,6 +593,14 @@
 
   .editable-cell:hover .editable-cell-icon {
     display: inline-block;
+  }
+
+  .ant-table-tbody {
+    tr {
+      td {
+        padding: 3px 16px !important;
+      }
+    }
   }
 
   tbody tr {
@@ -625,5 +801,17 @@
         }
       }
     }
+  }
+  // 隐藏table表带的分页
+  #app > section > section > section > main > div.ant-table-wrapper > div > div > ul {
+    display: none;
+  }
+  // 分页
+  .ant-pagination {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    text-align: center;
+    transform: translateX(-50%);
   }
 </style>
