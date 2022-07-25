@@ -9,76 +9,44 @@
         <a-menu v-model:selectedKeys="selectedKeys2" v-model:openKeys="openKeys" mode="inline" :style="{ height: '100%', borderRight: 0 }">
           <a-sub-menu key="sub1">
             <template #title>
-              <span>
-                <user-outlined />
-                数据源管理
-              </span>
+              <span> 数据源管理 </span>
             </template>
-            <a-menu-item key="1">接口管理</a-menu-item>
-            <a-menu-item key="2">数据库管理</a-menu-item>
+            <a-menu-item key="1"> <router-link to="/interface">接口管理</router-link></a-menu-item>
+            <a-menu-item key="2"><router-link to="/database">数据库管理</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub2">
             <template #title>
-              <span>
-                <laptop-outlined />
-                数据标准管理
-              </span>
+              <span> 数据标准管理 </span>
             </template>
-            <a-menu-item key="3">数据标准目录</a-menu-item>
-            <a-menu-item key="4">码表管理</a-menu-item>
+            <a-menu-item key="3"> <router-link to="/catalogue">数据标准目录</router-link></a-menu-item>
+            <a-menu-item key="4">
+              <router-link to="/tablemanagement">码表管理</router-link>
+            </a-menu-item>
           </a-sub-menu>
-          <a-sub-menu key="sub3">
-            <template #title>
-              <span>
-                <notification-outlined />
-                数据资产管理
-              </span>
-            </template>
-            <a-menu-item key="5"> 数据资产管理</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub4">
-            <template #title>
-              <span>
-                <notification-outlined />
-                脚本管理
-              </span>
-            </template>
-            <a-menu-item key="6">脚本管理</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub5">
-            <template #title>
-              <span>
-                <notification-outlined />
-                任务管理
-              </span>
-            </template>
-            <a-menu-item key="7">任务管理</a-menu-item>
-          </a-sub-menu>
+          <a-menu-item key="5"> <router-link to="/management">数据资产管理</router-link></a-menu-item>
+          <a-menu-item key="6"><span>脚本管理</span> </a-menu-item>
+          <a-menu-item key="7">
+            <span> 任务管理 </span>
+          </a-menu-item>
         </a-menu>
       </a-layout-sider>
       <a-layout style="padding: 0 24px 24px">
         <a-breadcrumb style="margin: 16px 0">
           <a-breadcrumb-item>数据工厂</a-breadcrumb-item>
-          <a-breadcrumb-item>数据标准管理</a-breadcrumb-item>
-          <a-breadcrumb-item>码表管理</a-breadcrumb-item>
+          <a-breadcrumb-item><a href="">Application Center</a></a-breadcrumb-item>
+          <a-breadcrumb-item><a href="">Application List</a></a-breadcrumb-item>
         </a-breadcrumb>
+
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-          <TableManagement></TableManagement>
+          <router-view></router-view>
         </a-layout-content>
       </a-layout>
     </a-layout>
   </a-layout>
 </template>
 <script lang="ts">
-  import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons-vue';
-  import TableManagement from '../components/TableManagement.vue';
   import { defineComponent, ref } from 'vue';
   export default defineComponent({
-    components: {
-      UserOutlined,
-      LaptopOutlined,
-      NotificationOutlined,
-    },
     setup() {
       return {
         selectedKeys1: ref<string[]>(['2']),

@@ -1,0 +1,325 @@
+// 搜索区域
+.search {
+  margin: 0 auto;
+  width: 601px;
+
+  select {
+    margin-right: 20px;
+    width: 100px;
+    height: 28px;
+  }
+
+  button {
+    margin-left: 10px;
+  }
+
+  .Reset {
+    border-color: #379dd4;
+    border-radius: 5px;
+  }
+
+  .query {
+    border-radius: 5px;
+    color: white;
+    background: #379dd4;
+  }
+}
+
+// 第二行按钮区
+.button {
+  display: flex;
+  justify-content: space-between;
+
+  .left {
+    button {
+      border-color: #d7d7d7;
+      background: #d7d7d7;
+    }
+
+    button:hover {
+      background: #379dd4;
+    }
+  }
+
+  .right {
+    button {
+      background: #379dd4;
+    }
+  }
+
+  button {
+    margin: 5px;
+    border-radius: 5px;
+  }
+}
+
+// 表格
+.editable-cell {
+  position: relative;
+
+  .editable-cell-input-wrapper,
+  .editable-cell-text-wrapper {
+    padding-right: 24px;
+  }
+
+  .editable-cell-text-wrapper {
+    padding: 5px 24px 5px 5px;
+  }
+
+  .editable-cell-icon,
+  .editable-cell-icon-check {
+    position: absolute;
+    right: 0;
+    width: 20px;
+    cursor: pointer;
+  }
+
+  .editable-cell-icon {
+    display: none;
+    margin-top: 4px;
+  }
+
+  .editable-cell-icon-check {
+    line-height: 28px;
+  }
+
+  .editable-cell-icon:hover,
+  .editable-cell-icon-check:hover {
+    color: #108ee9;
+  }
+
+  .editable-add-btn {
+    margin-bottom: 8px;
+  }
+}
+
+.editable-cell:hover .editable-cell-icon {
+  display: inline-block;
+}
+
+.ant-table-tbody {
+  tr {
+    td {
+      padding: 3px 16px !important;
+    }
+  }
+}
+
+tbody tr {
+  button {
+    margin: 0 5px;
+  }
+
+  .ant-btn-primary {
+    border-radius: 10px;
+    background: #379dd4;
+  }
+}
+
+// 蒙版
+.mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+
+  // 新增编码弹框
+  .add {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    border: 1px #797979 solid;
+    padding-right: 20px;
+    padding-left: 20px;
+    width: 550px;
+    height: 626px;
+    background: white;
+    transform: translate(-50%, -50%);
+
+    h3 {
+      padding-top: 5px;
+      text-align: center;
+    }
+
+    input {
+      padding-left: 10px;
+      width: 400px;
+    }
+
+    textarea {
+      border: 2px black solid;
+      padding-left: 10px;
+      width: 400px;
+      height: 100px;
+      resize: none;
+      vertical-align: top;
+    }
+
+    .addcode {
+      float: right;
+    }
+
+    // 新增编码弹框表格
+    .codetable {
+      margin-top: 10px;
+      width: 100%;
+      text-align: center;
+
+      thead {
+        tr {
+          th:nth-of-type(1) {
+            width: 60px;
+          }
+
+          th:nth-of-type(2) {
+            width: 100px;
+          }
+
+          th:nth-of-type(3) {
+            width: 250px;
+          }
+
+          th {
+            border: 1px black solid;
+          }
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        td {
+          border: 1px black solid;
+
+          a:hover {
+            color: red;
+          }
+        }
+      }
+    }
+  }
+
+  .bottom {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+
+    button {
+      margin: 10px;
+    }
+  }
+
+  .PopupMask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+
+    .codediv {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 410px;
+      height: 300px;
+      background: #797979;
+      transform: translate(-50%, -50%);
+
+      h4 {
+        padding: 5px 0;
+        font-weight: 700;
+        text-align: center;
+        color: #108ee9;
+      }
+
+      .content {
+        padding: 5px;
+      }
+    }
+  }
+
+  // 人员性别码表弹框
+  .PersonnelGender {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 2px gray solid;
+    width: 600px;
+    background: white;
+    transform: translate(-50%, -50%);
+
+    h1 {
+      margin-right: 10px;
+      text-align: right;
+
+      .close {
+        font-size: 25px;
+      }
+    }
+
+    h2 {
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .PersonnelGendertable {
+      margin: 10px auto;
+      margin-bottom: 30px;
+      width: 90%;
+      text-align: center;
+
+      thead {
+        tr {
+          th:nth-of-type(1) {
+            width: 60px;
+          }
+
+          th:nth-of-type(2) {
+            width: 100px;
+          }
+
+          th:nth-of-type(3) {
+            width: 250px;
+          }
+
+          th {
+            border: 1px black solid;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          td {
+            border: 1px black solid;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 隐藏table表带的分页
+#app > section > section > section > main > div.ant-table-wrapper > div > div > ul {
+  display: none;
+}
+
+// 分页
+.ant-pagination {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.tips {
+  text-align: center;
+  color: red;
+}
