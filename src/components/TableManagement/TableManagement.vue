@@ -8,6 +8,7 @@
       <option value="已停用">已停用</option>
       <option value="" selected></option>
     </select>
+    123
     <span>码表名称：</span><input v-model="Codetablename" type="text" />
     <a-button class="Reset" @click="Reset">重置</a-button>
     <a-button class="query" @click="query">查询</a-button>
