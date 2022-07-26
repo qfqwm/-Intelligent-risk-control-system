@@ -70,6 +70,7 @@
       <span v-else>全部</span>
     </template>
   </a-pagination>
+
   <!-- 蒙版区域 -->
   <div v-show="show.outmask" class="mask">
     <!-- 新增/编辑码表 -->
@@ -293,7 +294,7 @@
           message.success('码表新增成功！');
           selectCodeTable_way();
         } else {
-          message.error('请检查编码名称');
+          message.error('请输入正确的编码名称');
         }
       });
     } else {
@@ -316,7 +317,7 @@
           selectCodeTable_way();
           message.success('码表更新成功！');
         } else {
-          message.error('请检查码表名称!');
+          message.error('请输入正确的码表名称!');
         }
       });
     }
@@ -420,6 +421,16 @@
   };
   // 确定编辑编码配置添加按钮
   const confirmeditcodeconfigure = () => {
+    let checkname = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+    if (!checkname.test(editincode_name.value)) return message.error('请输入正确的码值名称');
+    let morename = [];
+    console.log(codepztable.value);
+    for (let i = 0; i < codepztable.value.length; i++) {
+      morename.push(codepztable.value[i].configureName);
+    }
+    morename = [...new Set(morename)];
+    if (morename.indexOf(editincode_name.value) !== -1) return message.error('码值名字重复');
+
     codepztable.value[edit_index.value].configureName = editincode_name.value;
     codepztable.value[edit_index.value].configureMean = editincode_meaning.value;
     if (!change_add_edit.value) {
