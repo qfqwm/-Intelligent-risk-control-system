@@ -15,6 +15,10 @@ enum Api {
   Select_Code_Configure = '/selectCodeConfigure',
   // 编辑码表
   Update_Code = '/updateCode',
+  //下载模板
+  Down_execel = '/downExportExcel',
+  //模板导入
+  Import_execel = '/importExcel',
 }
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
 export const AddCodeTable = (object: object) => api.post(Api.Add_Code_Table, object);
@@ -32,3 +36,10 @@ export const SelectCodeConfigure = (code_id: string) =>
     params: { code_id: code_id },
   });
 export const UpdateCode = (object: any) => api.post(Api.Update_Code, object);
+export const down = () => api.get(Api.Down_execel, { responseType: 'blob' });
+export const importExcel = (data: any) =>
+  api({
+    method: 'get',
+    url: Api.Import_execel,
+    params: data,
+  });

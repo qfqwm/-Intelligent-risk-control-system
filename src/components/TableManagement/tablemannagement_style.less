@@ -97,14 +97,6 @@
   display: inline-block;
 }
 
-.ant-table-tbody {
-  tr {
-    td {
-      padding: 3px 16px !important;
-    }
-  }
-}
-
 tbody tr {
   button {
     margin: 0 5px;
@@ -125,10 +117,9 @@ tbody tr {
   width: 100%;
   height: 100%;
   opacity: 1;
-
   // 新增编码弹框
   .add {
-    position: relative;
+    position: fixed;
     top: 50%;
     left: 50%;
     border: 1px #797979 solid;
@@ -193,10 +184,6 @@ tbody tr {
       tr {
         td {
           border: 1px black solid;
-
-          a:hover {
-            color: red;
-          }
         }
       }
     }
@@ -243,10 +230,9 @@ tbody tr {
       }
     }
   }
-
   // 人员性别码表弹框
   .PersonnelGender {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     border: 2px gray solid;
@@ -303,23 +289,4 @@ tbody tr {
       }
     }
   }
-}
-
-// 隐藏table表带的分页
-#app > section > section > section > main > div.ant-table-wrapper > div > div > ul {
-  display: none;
-}
-
-// 分页
-.ant-pagination {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  text-align: center;
-  transform: translateX(-50%);
-}
-
-.tips {
-  text-align: center;
-  color: red;
 }

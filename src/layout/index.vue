@@ -30,8 +30,8 @@
           </a-menu-item>
         </a-menu>
       </a-layout-sider>
-      <a-layout style="padding: 0 24px 24px">
-        <a-breadcrumb style="margin: 16px 0" >
+      <a-layout style="padding: 0 24px 24px" :style="{ marginLeft: '201px', marginTop: '50px' }">
+        <a-breadcrumb style="margin: 16px 0">
           <a-breadcrumb-item>数据工厂</a-breadcrumb-item>
             <a-breadcrumb-item><router-link :to=route.meta.url @click="jump">{{route.meta.title}}</router-link></a-breadcrumb-item>
             <a-breadcrumb-item v-if="route.meta.module"><router-link :to=route.meta.url>{{route.meta.module}}</router-link></a-breadcrumb-item>
@@ -43,6 +43,7 @@
     </a-layout>
   </a-layout>
 </template>
+
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useRoute } from 'vue-router'
@@ -67,9 +68,9 @@ import { useRoute } from 'vue-router'
     }
   })
 </script>
-<style>
+<style lang="less" scoped>
   .sidelan {
-    height: 100vh;
+    min-height: 100vh;
   }
 
   #app > section > header {
@@ -114,7 +115,19 @@ import { useRoute } from 'vue-router'
     background: #fff;
   }
 
-  .ant-layout-content {
-    position: relative;
+  .ant-layout-header {
+    position: fixed;
+    z-index: 2;
+    overflow: 'auto';
+    width: 100%;
+  }
+
+  .ant-layout-sider,
+  .ant-layout-sider-dark {
+    position: fixed;
+    top: 50px;
+    z-index: 1;
+    overflow: 'auto';
+    height: 100vh;
   }
 </style>
