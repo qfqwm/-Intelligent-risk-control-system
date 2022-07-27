@@ -57,9 +57,9 @@
     },
   });
 </script>
-<style>
+<style lang="less" scoped>
   .sidelan {
-    height: 100vh;
+    min-height: 100vh;
   }
 
   #app > section > header {

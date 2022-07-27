@@ -29,7 +29,14 @@
     :data-source="dataSource"
     :columns="columns"
     :row-selection="rowSelection"
-    :pagination="{ pageSize: pageSizeRef, current: current }"
+    :pagination="{
+    pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
+    showSizeChanger: true,
+    defaultPageSize: 20,
+    buildOptionText: (size: any) => {
+      return Number(size.value) + ' 项' + '/' + '页'
+    }
+  }"
     :row-key="(dataSource: any) => { return dataSource.codeId }"
   >
     <template #bodyCell="{ column, record }">
@@ -63,14 +70,6 @@
       </template>
     </template>
   </a-table>
-  <!-- 分页 -->
-  <a-pagination v-model:current="current" v-model:page-size="pageSizeRef" :page-size-options="pageSizeOptions" :total="total" show-size-changer @showSizeChange="onShowSizeChange">
-    <template #buildOptionText="props">
-      <span v-if="props.value !== '50'">{{ props.value }}条/页</span>
-      <span v-else>全部</span>
-    </template>
-  </a-pagination>
-
   <!-- 蒙版区域 -->
   <div v-show="show.outmask" class="mask">
     <!-- 新增/编辑码表 -->
@@ -159,7 +158,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { computed, defineComponent, reactive, ref } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import type { Ref } from 'vue';
   import { selectCodeTable, AddCodeTable, OnChange, DeleteCode, SelectCodeConfigure, UpdateCode } from '@/api/test/index';
   import { message } from 'ant-design-vue';
@@ -232,7 +231,6 @@
           item.codeType = '已停用';
         }
       });
-      total.value = dataSource.value.length;
     });
   };
   selectCodeTable_way();
@@ -521,15 +519,7 @@
       } else return message.error('更新失败！');
     });
   };
-  // 分页
-  const pageSizeOptions = ref<string[]>(['10', '15', '18', '20']);
-  const current = ref(1);
-  const pageSizeRef = ref(20);
-  const total = ref(dataSource.value.length);
-  const onShowSizeChange = (current: number, pageSize: number) => {
-    pageSizeRef.value = pageSize;
-    selectCodeTable_way();
-  };
+
   const addoreditcodename = ref('');
   const addoreditcodeexplain = ref('');
   // 编码配置
@@ -557,6 +547,6 @@
 
   const judge = reactive({ Formaterror: false, Rename: false });
 </script>
-<style lang="less">
-  @import './style.less';
+<style lang="less" scoped>
+  @import './tablemannagement_style.less';
 </style>
