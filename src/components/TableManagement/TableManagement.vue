@@ -19,8 +19,9 @@
       <a-button type="primary" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
     </div>
     <div class="right">
-      <a-button type="primary" size="small">码表模板下载</a-button>
-      <a-button type="primary" size="small">码表导入</a-button>
+      <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
+      <a-button type="primary" size="small" @click="importexe()">码表导入</a-button>
+      <input ref="uploadInput" type="file" style="display: none" name="icon" enctype="multipart/form-data" @change="dealfilechange" />
       <a-button type="primary" size="small" @click="codetable('add', {})">新增码表</a-button>
     </div>
   </div>
@@ -160,8 +161,9 @@
 <script lang="ts" setup>
   import { computed, defineComponent, reactive, ref } from 'vue';
   import type { Ref } from 'vue';
-  import { selectCodeTable, AddCodeTable, OnChange, DeleteCode, SelectCodeConfigure, UpdateCode } from '@/api/test/index';
+  import { selectCodeTable, AddCodeTable, OnChange, DeleteCode, SelectCodeConfigure, UpdateCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
+  import { object } from 'vue-types';
   interface DataItem {
     key: string;
     codeId: string;
@@ -510,6 +512,47 @@
       } else return message.error('更新失败！');
     });
   };
+
+  //模板下载
+  const downexecel = () => {
+    down().then(function (res: any) {
+      let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+      let downloadElement = document.createElement('a');
+      let href = window.URL.createObjectURL(blob); //创建下载的链接
+      downloadElement.href = href;
+      downloadElement.download = 'xxx.xlsx'; //下载后文件名
+      document.body.appendChild(downloadElement);
+      downloadElement.click(); //点击下载
+      document.body.removeChild(downloadElement); //下载完成移除元素
+      window.URL.revokeObjectURL(href); //释放掉blob对象
+    });
+  };
+
+  //模板导入
+
+  const uploadInput = ref<HTMLElement | null>(null);
+  const dealfilechange = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    let files = input.files;
+    if (files) {
+      console.log(files[0]);
+    }
+    importExcel(files).then(function (res: any) {
+      console.log(res);
+    });
+  };
+
+  const importexe = () => {
+    console.log(uploadInput.value);
+
+    let oBtn = uploadInput.value as HTMLInputElement;
+    oBtn.click();
+
+    importExcel(uploadInput.value).then(function (res: any) {
+      console.log(res);
+    });
+  };
+
   // 分页
   const pageSizeOptions = ref<string[]>(['10', '15', '18', '20']);
   const current = ref(1);
