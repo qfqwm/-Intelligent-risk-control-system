@@ -4,6 +4,7 @@ import InterFace from '@/components/InterFace/InterFace.vue';
 import DataBase from '@/components/DataBase/DataBase.vue';
 import Catalogue from '@/components/Catalogue/Catalogue.vue';
 import ManageMent from '@/components/management/ManageMent.vue';
+import AddAssets from '@/components/management/AddAssets/AddAssets.vue';
 export default {
   path: '/',
   component: Index,
@@ -36,6 +37,11 @@ export default {
       path: 'management',
       name: 'management',
       component: ManageMent,
+    },
+    {
+      path: 'addassets',
+      name: 'addassets',
+      component: AddAssets,
     },
   ],
 };

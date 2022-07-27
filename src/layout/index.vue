@@ -57,10 +57,10 @@
     },
   });
 </script>
-<style>
-  .sidelan {
-    height: 100vh;
-  }
+<style lang="less" scoped>
+  // .sidelan {
+  //   height: 100vh;
+  // }
 
   #app > section > header {
     padding-left: 10px;
