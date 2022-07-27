@@ -4,6 +4,8 @@ import InterFace from '@/components/InterFace/InterFace.vue';
 import DataBase from '@/components/DataBase/DataBase.vue';
 import Catalogue from '@/components/Catalogue/Catalogue.vue';
 import ManageMent from '@/components/management/ManageMent.vue';
+import Scriptment from '@/components/Scriptment/Scriptment.vue';
+import Taskment from '@/components/Taskment/Taskment.vue';
 export default {
   path: '/',
   component: Index,
@@ -16,26 +18,43 @@ export default {
       path: 'interface',
       name: 'interface',
       component: InterFace,
+      meta: { title: '数据源管理', module: '接口管理', url: '/interface' },
     },
     {
       path: 'database',
       name: 'database',
       component: DataBase,
-    },
-    {
-      path: 'tablemanagement',
-      name: 'tablemanagement',
-      component: TableManagement,
+      meta: { title: '数据源管理', module: '数据库管理', url: '/interface' },
     },
     {
       path: 'catalogue',
       name: 'catalogue',
       component: Catalogue,
+      meta: { title: '数据标准管理', module: '数据标准目录', url: '/catalogue' },
+    },
+    {
+      path: 'tablemanagement',
+      name: 'tablemanagement',
+      component: TableManagement,
+      meta: { title: '数据标准管理', module: '码表管理', url: '/catalogue' },
     },
     {
       path: 'management',
       name: 'management',
       component: ManageMent,
+      meta: { title: '数据资产管理', url: '/management' },
+    },
+    {
+      path: 'scriptment',
+      name: 'scriptment',
+      component: Scriptment,
+      meta: { title: '脚本管理', url: '/scriptment' },
+    },
+    {
+      path: 'taskment',
+      name: 'taskment',
+      component: Taskment,
+      meta: { title: '任务管理', url: '/taskment' },
     },
   ],
 };
