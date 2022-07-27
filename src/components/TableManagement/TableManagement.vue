@@ -32,7 +32,14 @@
     :data-source="dataSource"
     :columns="columns"
     :row-selection="rowSelection"
-    :pagination="{ pageSize: pageSizeRef, current: current }"
+    :pagination="{
+    pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
+    showSizeChanger: true,
+    defaultPageSize: 20,
+    buildOptionText: (size: any) => {
+      return Number(size.value) + ' 项' + '/' + '页'
+    }
+  }"
     :row-key="(dataSource: any) => { return dataSource.codeId }"
   >
     <template #bodyCell="{ column, record }">
@@ -66,13 +73,6 @@
       </template>
     </template>
   </a-table>
-  <!-- 分页 -->
-  <a-pagination v-model:current="current" v-model:page-size="pageSizeRef" :page-size-options="pageSizeOptions" :total="total" show-size-changer @showSizeChange="onShowSizeChange">
-    <template #buildOptionText="props">
-      <span v-if="props.value !== '50'">{{ props.value }}条/页</span>
-      <span v-else>全部</span>
-    </template>
-  </a-pagination>
   <!-- 蒙版区域 -->
   <div v-show="show.outmask" class="mask">
     <!-- 新增/编辑码表 -->
@@ -161,7 +161,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { computed, defineComponent, reactive, ref } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import type { Ref } from 'vue';
   import { selectCodeTable, AddCodeTable, OnChange, DeleteCode, SelectCodeConfigure, UpdateCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
@@ -235,7 +235,6 @@
           item.codeType = '已停用';
         }
       });
-      total.value = dataSource.value.length;
     });
   };
   selectCodeTable_way();
@@ -290,14 +289,20 @@
       codeExplain: addoreditcodeexplain.value,
       codeConfigureList: codepztable.value,
     };
+    if (codepztable.value[0].configureName == '') {
+      object.codeConfigureList = [];
+    }
+
     if (change_add_edit.value) {
+      console.log(object);
+
       AddCodeTable(object).then(function (res: any) {
         if (res.data.msg == '有重复值，请检查后重新输入') return message.error('码表名字重复');
         if (res.data.msg == '新增码表成功') {
           message.success('码表新增成功！');
           selectCodeTable_way();
         } else {
-          message.error('请检查编码名称');
+          message.error('请输入正确的编码名称');
         }
       });
     } else {
@@ -320,7 +325,7 @@
           selectCodeTable_way();
           message.success('码表更新成功！');
         } else {
-          message.error('请检查码表名称!');
+          message.error('请输入正确的码表名称!');
         }
       });
     }
@@ -345,7 +350,6 @@
     let checkname = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
     if (!checkname.test(addcodename.value)) return message.error('请输入正确的码值名称');
     let morename = [];
-    console.log(codepztable.value);
     for (let i = 0; i < codepztable.value.length; i++) {
       morename.push(codepztable.value[i].configureName);
     }
@@ -424,6 +428,16 @@
   };
   // 确定编辑编码配置添加按钮
   const confirmeditcodeconfigure = () => {
+    let checkname = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+    if (!checkname.test(editincode_name.value)) return message.error('请输入正确的码值名称');
+    let morename = [];
+    console.log(codepztable.value);
+    for (let i = 0; i < codepztable.value.length; i++) {
+      morename.push(codepztable.value[i].configureName);
+    }
+    morename = [...new Set(morename)];
+    if (morename.indexOf(editincode_name.value) !== -1) return message.error('码值名字重复');
+
     codepztable.value[edit_index.value].configureName = editincode_name.value;
     codepztable.value[edit_index.value].configureMean = editincode_meaning.value;
     if (!change_add_edit.value) {
@@ -567,6 +581,7 @@
     pageSizeRef.value = pageSize;
     selectCodeTable_way();
   };
+
   const addoreditcodename = ref('');
   const addoreditcodeexplain = ref('');
   // 编码配置
@@ -591,9 +606,8 @@
     });
   };
   // 判断正则表达以编码名是否重复
-
   const judge = reactive({ Formaterror: false, Rename: false });
 </script>
-<style lang="less">
-  @import './style.less';
+<style lang="less" scoped>
+  @import './tablemannagement_style.less';
 </style>
