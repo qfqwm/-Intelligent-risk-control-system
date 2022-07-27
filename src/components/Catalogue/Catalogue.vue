@@ -24,9 +24,9 @@
       <a-button type="primary" size="small">批量停用</a-button>
     </div>
     <div class="right">
-      <a-button type="primary" size="small">码表模板下载</a-button>
-      <a-button type="primary" size="small">码表导入</a-button>
-      <a-button type="primary" size="small">新增码表</a-button>
+      <a-button type="primary" size="small">导入模板下载</a-button>
+      <a-button type="primary" size="small">标准导入</a-button>
+      <a-button type="primary" size="small" @click="showDrawer">新增标准</a-button>
     </div>
   </div>
   <!-- 表格区域 -->
@@ -165,6 +165,34 @@
   <template>
     <div>
       <a-modal v-model:visible="Detailsvisible" title="Basic Modal">
+        <span> 标准编号：</span>dasdasdasdwq<br />
+        <span> 中文名称：</span>dasdasdasdwq<br />
+        <span> 英文名称：</span>dasdasdasdwq<br />
+        <span> 标准说明：</span>dasdasdasdwq<br />
+        <span> 来源机构：</span>dasdasdasdwq<br />
+        <span> 是否为空：</span>dasdasdasdwq<br />
+        <span> 数据类型：</span>dasdasdasdwq<br />
+        <!-- int -->
+        <div v-show="true">
+          <span> 取值范围：</span>dasdasdasdwq<br />
+          <span> 默认值：</span>dasdasdasdwq<br />
+        </div>
+        <!-- float -->
+        <div v-show="true">
+          <span> 数据精度：</span>dasdasdasdwq<br />
+          <span> 取值范围：</span>dasdasdasdwq<br />
+          <span> 默认值：</span>dasdasdasdwq<br />
+        </div>
+        <!-- enum -->
+        <div v-show="true">
+          <span> 枚举范围精度：</span>dasdasdasdwq<br />
+          <span> 默认值：</span>dasdasdasdwq<br />
+        </div>
+        <!-- string -->
+        <div v-show="true">
+          <span> 数据长度：</span>dasdasdasdwq<br />
+          <span> 默认值：</span>dasdasdasdwq<br />
+        </div>
         <template #footer>
           <a-button @click="handleCancel">关闭</a-button>
         </template>

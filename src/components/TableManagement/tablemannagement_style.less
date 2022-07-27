@@ -119,7 +119,7 @@ tbody tr {
   opacity: 1;
   // 新增编码弹框
   .add {
-    position: relative;
+    position: fixed;
     top: 50%;
     left: 50%;
     border: 1px #797979 solid;
@@ -184,10 +184,6 @@ tbody tr {
       tr {
         td {
           border: 1px black solid;
-
-          a:hover {
-            color: red;
-          }
         }
       }
     }
@@ -236,7 +232,7 @@ tbody tr {
   }
   // 人员性别码表弹框
   .PersonnelGender {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     border: 2px gray solid;
@@ -293,18 +289,4 @@ tbody tr {
       }
     }
   }
-}
-
-// 分页
-.ant-pagination {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  text-align: center;
-  transform: translateX(-50%);
-}
-
-.tips {
-  text-align: center;
-  color: red;
 }

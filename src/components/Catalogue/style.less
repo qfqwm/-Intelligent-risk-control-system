@@ -4,7 +4,7 @@
 /* stylelint-disable order/properties-order */
 // 搜索区域
 .search {
-  width: 1269px;
+  width: 1280px;
   margin: 0 auto;
 
   select {
@@ -32,6 +32,7 @@
     background: #379dd4;
   }
 }
+
 // 第二行按钮区
 .button {
   display: flex;
@@ -88,12 +89,35 @@
   position: absolute;
   bottom: 0;
   justify-content: right;
+
   button {
     margin: auto 10px;
   }
 }
+
 .num_rang {
   line-height: 32px;
   display: flex;
   justify-content: space-between;
+}
+
+tbody tr {
+  button {
+    margin: 0 5px;
+  }
+
+  .ant-btn-primary {
+    border-radius: 10px;
+    background: #379dd4;
+  }
+}
+
+.ant-modal-content {
+  span {
+    text-align: right;
+    display: inline-block;
+    width: 110px;
+    font-size: 15px;
+    color: gray;
+  }
 }

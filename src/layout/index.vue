@@ -30,7 +30,7 @@
           </a-menu-item>
         </a-menu>
       </a-layout-sider>
-      <a-layout style="padding: 0 24px 24px">
+      <a-layout style="padding: 0 24px 24px" :style="{ marginLeft: '201px', marginTop: '50px' }">
         <a-breadcrumb style="margin: 16px 0">
           <a-breadcrumb-item>数据工厂</a-breadcrumb-item>
           <a-breadcrumb-item><a href="">Application Center</a></a-breadcrumb-item>
@@ -49,10 +49,10 @@
   export default defineComponent({
     setup() {
       return {
-        selectedKeys1: ref<string[]>(['2']),
-        selectedKeys2: ref<string[]>(['1']),
-        collapsed: ref<boolean>(false),
-        openKeys: ref<string[]>(['sub1']),
+        // selectedKeys1: ref<string[]>(['2']),
+        selectedKeys2: ref<string[]>(['7']),
+        // collapsed: ref<boolean>(false),
+        // openKeys: ref<string[]>(['sub2']),
       };
     },
   });
@@ -103,7 +103,19 @@
     background: #fff;
   }
 
-  .ant-layout-content {
-    position: relative;
+  .ant-layout-header {
+    position: fixed;
+    z-index: 2;
+    overflow: 'auto';
+    width: 100%;
+  }
+
+  .ant-layout-sider,
+  .ant-layout-sider-dark {
+    position: fixed;
+    top: 50px;
+    z-index: 1;
+    overflow: 'auto';
+    height: 100vh;
   }
 </style>

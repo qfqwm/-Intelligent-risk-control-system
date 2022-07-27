@@ -285,7 +285,13 @@
       codeExplain: addoreditcodeexplain.value,
       codeConfigureList: codepztable.value,
     };
+    if (codepztable.value[0].configureName == '') {
+      object.codeConfigureList = [];
+    }
+
     if (change_add_edit.value) {
+      console.log(object);
+
       AddCodeTable(object).then(function (res: any) {
         if (res.data.msg == '有重复值，请检查后重新输入') return message.error('码表名字重复');
         if (res.data.msg == '新增码表成功') {
@@ -340,7 +346,6 @@
     let checkname = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
     if (!checkname.test(addcodename.value)) return message.error('请输入正确的码值名称');
     let morename = [];
-    console.log(codepztable.value);
     for (let i = 0; i < codepztable.value.length; i++) {
       morename.push(codepztable.value[i].configureName);
     }
@@ -544,7 +549,6 @@
     });
   };
   // 判断正则表达以编码名是否重复
-
   const judge = reactive({ Formaterror: false, Rename: false });
 </script>
 <style lang="less" scoped>
