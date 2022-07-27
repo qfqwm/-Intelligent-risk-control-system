@@ -21,7 +21,9 @@
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
       <a-button type="primary" size="small" @click="importexe()">码表导入</a-button>
-      <input ref="uploadInput" type="file" style="display: none" name="icon" enctype="multipart/form-data" @change="dealfilechange" />
+      <form action="/" method="get" enctype="multipart/form-data">
+        <input ref="uploadInput" type="file" style="display: none" name="icon" @change="dealfilechange" />
+      </form>
       <a-button type="primary" size="small" @click="codetable('add', {})">新增码表</a-button>
     </div>
   </div>
@@ -537,7 +539,10 @@
     if (files) {
       console.log(files[0]);
     }
-    importExcel(files).then(function (res: any) {
+    let forms = new FormData();
+    //下面的file是后端要求的key
+
+    importExcel(forms).then(function (res: any) {
       console.log(res);
     });
   };
@@ -548,9 +553,9 @@
     let oBtn = uploadInput.value as HTMLInputElement;
     oBtn.click();
 
-    importExcel(uploadInput.value).then(function (res: any) {
-      console.log(res);
-    });
+    // importExcel(uploadInput.value).then(function (res: any) {
+    //   console.log(res);
+    // });
   };
 
   // 分页
