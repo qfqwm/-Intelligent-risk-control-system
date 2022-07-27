@@ -21,10 +21,10 @@
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
       <a-button type="primary" size="small" @click="importexe()">码表导入</a-button>
+      <a-button type="primary" size="small" @click="codetable('add', {})">新增码表</a-button>
       <form action="/" method="get" enctype="multipart/form-data">
         <input ref="uploadInput" type="file" style="display: none" name="icon" @change="dealfilechange" />
       </form>
-      <a-button type="primary" size="small" @click="codetable('add', {})">新增码表</a-button>
     </div>
   </div>
   <!-- 表格区域 -->
