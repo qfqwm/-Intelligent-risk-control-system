@@ -19,6 +19,12 @@ enum Api {
   Down_execel = '/downExportExcel',
   //模板导入
   Import_execel = '/importExcel',
+  //数据资产目录表新增一级目录
+  Add_Directory = '/addDirectory',
+  //数据资产目录表新增子目录
+  Insert_Directory = '/insertDirectory',
+  //数据资产表目录按表名称或目录名称查询表
+  Select_Directory = '/selectDirectory',
 }
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
 export const AddCodeTable = (object: object) => api.post(Api.Add_Code_Table, object);
@@ -43,3 +49,6 @@ export const importExcel = (data: any) =>
     url: Api.Import_execel,
     params: data,
   });
+export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
+export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
+export const SelectDirectory = () => api.get(Api.Select_Directory, );

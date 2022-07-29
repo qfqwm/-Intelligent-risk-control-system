@@ -6,9 +6,6 @@
     width: 18%;
     height: 100%;
     background-color: #eee;
-    /* stylelint-disable-next-line order/properties-order */
-    border: 1px solid #bbb;
-    /* stylelint-disable-next-line order/properties-order */
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
@@ -29,12 +26,23 @@
     }
 
     .left_menu {
-      span {
-        margin-left: 0.6rem;
+      width: 100%;
+      ::v-deep .ant-tree .ant-tree-treenode{
+        width: 100%;
       }
-
-      ::v-deep .ant-menu-sub.ant-menu-inline {
-        background-color: #eee;
+      ::v-deep .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected{
+        width: 100%;
+      }
+      ::v-deep .ant-tree .ant-tree-node-content-wrapper{
+        width: 100%;
+      }
+      ::v-deep .ant-tree-title{
+        display: flex;
+        justify-content: space-between;
+        text-align: right;
+        span {
+          margin-right: 0.2rem;
+        }
       }
     }
   }
