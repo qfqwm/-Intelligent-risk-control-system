@@ -6,78 +6,20 @@
         <PlusCircleOutlined @click="stairAdd" />
       </div>
       <div class="left_search">
-        <a-input-search v-model:value="value" placeholder="按数据资产表名称或目录名称查询" enter-button @search="onSearch" />
+        <a-input-search v-model:value="search" placeholder="按资产表名称或目录名称查询" enter-button @search="onSearch" />
       </div>
       <div class="left_menu">
-        <a-menu
-          v-for="item in data"
-          id="dddddd"
-          :key="item.stairId"
-          v-model:openKeys="openKeys"
-          v-model:selectedKeys="selectedKeys"
-          style="width: 280px; background-color: #eee"
-          mode="inline"
-          @click="handleClick"
-        >
-          <a-sub-menu :key="item.stairId" @titleClick="titleClick">
-            <template #icon>
-              <MailOutlined />
-            </template>
-            <template #title
-              >{{ item.stairTitle
-              }}<span>
-                <PlusCircleOutlined @click="add" />
-                <MinusCircleOutlined @click="remove" />
-                <EditOutlined @click="edit" /> </span
-            ></template>
-            <div v-for="p in item.secondLevel" :key="p.secondId">
-              <a-menu-item :key="p.secondId"
-                >{{ p.secondTitle }}
-                <span>
-                  <PlusCircleOutlined @click="add" />
-                  <MinusCircleOutlined @click="remove" />
-                  <EditOutlined @click="edit" />
-                </span>
-              </a-menu-item>
-            </div>
-          </a-sub-menu>
-          <!-- <a-sub-menu key="sub1" @titleClick="titleClick">
-            <template #icon>
-              <MailOutlined />
-            </template>
-            <template #title>启信宝数据</template>
-              <a-menu-item key="1">企业工商信息
-                <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-              </a-menu-item>
-              <a-menu-item key="2">企业司法信息
-                <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-              </a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub2" @titleClick="titleClick">
-            <template #icon>
-              <AppstoreOutlined />
-            </template>
-            <template #title>元素数据</template>
-            <a-menu-item key="3">企业工商信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-              </a-menu-item>
-            <a-menu-item key="4">企业司法信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-            </a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub3">
-            <template #icon>
-              <SettingOutlined />
-            </template>
-            <template #title>企业信息</template>
-            <a-menu-item key="5">企业工商信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-            </a-menu-item>
-            <a-menu-item key="6">企业司法信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-            </a-menu-item>
-          </a-sub-menu> -->
-        </a-menu>
+        <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
+          <template #title="{ title, key }">
+            <span v-if="key === '0-0-1-0'" style="color: #1890ff">{{ title }}</span>
+            <template v-else>{{ title }}</template>
+            <span>
+              <PlusCircleOutlined @click="add" />
+              <MinusCircleOutlined @click="remove" />
+              <EditOutlined @click="edit" />
+            </span>
+          </template>
+        </a-tree>
       </div>
       <!-- 数据资产表目录新增目录弹框 -->
       <a-modal
@@ -263,74 +205,97 @@
 
 <script lang="ts" setup>
   import { ref, watch, createVNode, computed, reactive } from 'vue';
-  import type { MenuProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref } from 'vue';
   import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
-  import { MailOutlined, AppstoreOutlined, SettingOutlined, PlusCircleOutlined, MinusCircleOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+  import { PlusCircleOutlined, MinusCircleOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+  import { InsertDirectory, SelectDirectory } from '@/api/test/index';
+  import type { TreeProps } from 'ant-design-vue';
+  import _, { filter } from 'lodash';
 
-  const selectedKeys = ref<string[]>(['1']);
-  const openKeys = ref<string[]>(['sub1']);
-  const handleClick: MenuProps['onClick'] = e => {
-    console.log('click', e);
-  };
-  const titleClick = (e: Event) => {
-    console.log('titleClick', e);
-  };
-  watch(
-    () => openKeys,
-    val => {
-      console.log('openKeys', val);
-    },
-  );
-
-  const value = ref<string>('');
-
+  //数据资产表目录按表名称或目录名称查询
+  const search = ref<string>('');
   const onSearch = (searchValue: string) => {
-    console.log('use value', searchValue);
-    console.log('or use this.value', value.value);
+    console.log(searchValue);
+    // console.log(search.value);
   };
-  const data = ref([
+
+  const treeData: TreeProps['treeData'] = [
     {
-      stairId: 'sub1',
-      stairTitle: '启信宝数据',
-      secondLevel: [
+      title: '工商司法',
+      key: '0-0',
+      children: [
         {
-          secondId: '1',
-          secondTitle: '企业工商信息',
+          title: '企业基本信息',
+          key: '0-0-0',
+          children: [
+            { title: '企业文化', key: '0-0-0-0' },
+            { title: '企业职员', key: '0-0-0-1' },
+          ],
         },
         {
-          secondId: '2',
-          secondTitle: '企业工商信息',
-        },
-        {
-          secondId: '3',
-          secondTitle: '企业工商信息',
-        },
-        {
-          secondId: '4',
-          secondTitle: '企业工商信息',
+          title: '企业详细信息',
+          key: '0-0-1',
+          children: [{ title: '高层领导', key: '0-0-1-0' }],
         },
       ],
+    },
+    {
+      title: '企业资产',
+      key: '1-0',
+      children: [
+        {
+          title: '工商司法',
+          key: '1-0-0',
+        },
+        {
+          title: '税务信息',
+          key: '2-0-1',
+        },
+      ],
+    },
+  ];
+  const expandedKeys = ref<string[]>([]);
+  const selectedKeys = ref<string[]>([]);
+  const checkedKeys = ref<string[]>([]);
+  watch(expandedKeys, () => {
+    console.log('expandedKeys', expandedKeys.value);
+  });
+  watch(selectedKeys, () => {
+    console.log('selectedKeys', selectedKeys.value);
+  });
+  watch(checkedKeys, () => {
+    console.log('checkedKeys', checkedKeys.value);
+  });
+  const handleExpand = (keys: string[], { expanded, node }) => {
+    const tempKeys = ((node.parent ? node.parent.children : treeData) || []).map(({ key }) => key);
+    console.log(keys);
+
+    if (expanded) {
+      expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
+    } else {
+      expandedKeys.value = keys;
+    }
+  };
+
+  const insertDirectory = ref([
+    {
+      parentId: 'sub1',
+      directoryName: '启信宝数据',
     },
   ]);
   const data1 = ref([
     {
-      stairId: '',
-      stairTitle: '',
-      secondLevel: [
-        {
-          secondId: '',
-          secondTitle: '',
-        },
-      ],
+      key: '',
+      title: '',
+      children: [],
     },
   ]);
 
   //数据资产表目录新增目录
   const stair_add = ref<boolean>(false);
-  const addStair = ref<string>();
+  const addStair = ref<string>('');
   const stairAdd = () => {
     stair_add.value = true;
     addStair.value = '';
@@ -339,7 +304,14 @@
     stair_add.value = false;
     console.log(addStair.value);
 
-    data.value.push();
+    data1.value[0].key = treeData.length + 1 + '-0';
+    data1.value[0].title = addStair.value;
+    console.log(data1.value[0]);
+
+    treeData.push(data1.value[0]);
+    // InsertDirectory(insertDirectory).then((res) => {
+    //   console.log(res.data.data);
+    // })
   };
   //数据资产表目录新增下级目录
   const visible_add = ref<boolean>(false);
@@ -351,6 +323,7 @@
   const handleOkAdd = () => {
     visible_add.value = false;
     console.log(addSecond.value);
+    console.log(selectedKeys.value);
   };
   //数据资产表目录删除
   const remove = () => {
@@ -377,6 +350,7 @@
   const handleOkEdit = () => {
     visible_edit.value = false;
     console.log(editSecond.value);
+    console.log(selectedKeys.value);
   };
 
   interface DataItem {
