@@ -16,7 +16,7 @@
     <span>标准编号：</span><input v-model.trim="standardId" type="text" placeholder="请输入标准编号" /> <span>中文名称：</span
     ><input v-model.trim="chineseName" type="text" placeholder="请输入中文名称" /> <span>英文名称：</span><input v-model.trim="englishName" type="text" placeholder="请输入英文名称" />
     <a-button class="Reset" @click="Reset">重置</a-button>
-    <a-button class="query" @click="query">查询</a-button>
+    <a-button class="query">查询</a-button>
   </div>
   <!-- 五个按钮区域 -->
   <div class="button">
@@ -43,15 +43,15 @@
       return Number(size.value) + ' 项' + '/' + '页'
     }
   }"
-    :row-key="(dataSource: any) => { return dataSource.codeId }"
+    :row-key="(dataSource: any) => { return dataSource.standardId }"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'codeId'">
-        <a href="#" @click.prevent="showModal">{{ record.codeId }}</a>
+        <a href="#" @click.prevent="showModal">{{ record.standardId }}</a>
       </template>
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
-        <div v-if="record.operation == '未发布'">
+        <div v-if="record.standardType == '未发布'">
           <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
@@ -61,13 +61,13 @@
           </a-popconfirm>
         </div>
         <!-- 已发布显示按钮 -->
-        <div v-if="record.operation == '已发布'">
+        <div v-if="record.standardType == '已发布'">
           <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
             <a-button type="primary" size="small">停用</a-button>
           </a-popconfirm>
         </div>
         <!-- 已停用显示按钮 -->
-        <div v-if="record.operation == '已停用'">
+        <div v-if="record.standardType == '已停用'">
           <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
@@ -202,18 +202,66 @@
 </template>
 <script lang="ts" setup>
   import type { SelectProps } from 'ant-design-vue';
-  import { ref } from 'vue';
-  // import type { Ref } from 'vue';
-  // interface DataItem {
-  //     key: string;
-  //     codeId: string;
-  //     codeName: string;
-  //     codeExplain: string;
-  //     codeType: any;
-  //     codeUpdatetime: string;
-  //     codeCreattime: string;
-  //     allCodeTable: object;
-  //   }
+  import { Catalog } from '@/api/test/index';
+  import { ref, onMounted } from 'vue';
+  import type { Ref } from 'vue';
+  interface DataItem {
+    chineseName: string;
+    creatTime: string;
+    dataDefault: string;
+    dataLength: any;
+    dataMax: string;
+    dataMin: string;
+    dataPrecision: any;
+    dataRange: string;
+    dataType: string;
+    del: number;
+    englishName: string;
+    enumRange: any;
+    isNull: string;
+    sourceAgencies: string;
+    standardExplain: string;
+    standardId: string;
+    standardType: string;
+    updateTime: string;
+  }
+
+  onMounted(() => {
+    show();
+  });
+
+  //页面数据展示
+  const dataSource: Ref<DataItem[]> = ref([]);
+  const show = function () {
+    Catalog().then(function (res) {
+      console.log(res);
+      dataSource.value = res.data.data;
+      dataSource.value.forEach((item: any) => {
+        if (item.standardType == 0) {
+          item.standardType = '未发布';
+        }
+        if (item.standardType == 1) {
+          item.standardType = '已发布';
+        }
+        if (item.standardType == 2) {
+          item.standardType = '已停用';
+        }
+        if (item.dataType == 1) {
+          item.dataType = 'Int';
+        }
+        if (item.dataType == 2) {
+          item.dataType = 'Float';
+        }
+        if (item.dataType == 3) {
+          item.dataType = 'Enum';
+        }
+        if (item.dataType == 4) {
+          item.dataType = 'String';
+        }
+      });
+    });
+  };
+
   const columns = [
     {
       title: '标准编号',
@@ -222,37 +270,37 @@
     },
     {
       title: '中文名称',
-      dataIndex: 'Chinesename',
+      dataIndex: 'chineseName',
       width: '9%',
     },
     {
       title: '英文名称',
-      dataIndex: 'Englishname',
+      dataIndex: 'englishName',
       width: '12%',
     },
     {
       title: '标准说明',
-      dataIndex: 'Standarddescription',
+      dataIndex: 'standardExplain',
       width: '20%',
     },
     {
       title: '来源机构',
-      dataIndex: 'Sourceinstitution',
+      dataIndex: 'sourceAgencies',
       width: '8%',
     },
     {
       title: '数据类型',
-      dataIndex: 'datatype',
+      dataIndex: 'dataType',
       width: '8%',
     },
     {
       title: '标准状态',
-      dataIndex: 'Standardstatus',
+      dataIndex: 'standardType',
       width: '8%',
     },
     {
       title: '更新日期',
-      dataIndex: 'Updatedate',
+      dataIndex: 'updateTime',
       width: '12%',
     },
     {
@@ -261,159 +309,7 @@
       width: '14%',
     },
   ];
-  // const dataSource: Ref<DataItem[]> = ref([
-  // ]);
-  const dataSource = ref([
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已发布',
-      Updatedate: '2022--11-11 20:20:20',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '未发布',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-    {
-      codeId: 1132312321,
-      Chinesename: 'dferfregtrghtyhyt',
-      Englishname: 'dewferfgregregregregerger',
-      Standarddescription: 'asdasdsadasdghasjdhasuidhsiu',
-      operation: '已停用',
-    },
-  ]);
-  //
+
   // const form = reactive({
   //   name: '',
   //   url: '',

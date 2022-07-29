@@ -2,8 +2,8 @@
 import api from '@/utils/axios';
 import { SelectCodeTable } from './model';
 
-// 码表管理
 enum Api {
+  // 码表管理
   // 码表模糊查询
   Code_Table_Fuzzy_Query = '/selectCodeTable',
   // 新增码表
@@ -21,18 +21,20 @@ enum Api {
   //模板导入
   Import_execel = '/importExcel',
 
+  //数据资产管理
   //数据资产目录表新增一级目录
   Add_Directory = '/addDirectory',
   //数据资产目录表新增子目录
   Insert_Directory = '/insertDirectory',
   //数据资产表目录按表名称或目录名称查询表
   Select_Directory = '/selectDirectory',
+
+  //数据标准管理
+  //数据标准目录页面查询
+  Data_standard_catalog_Query = '/selectAllStandard',
 }
 
-// 数据标准管理
-// enum Data_Standard_Api{
-//   Select_Standard='/selectStandard',
-// }
+//码表管理
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
 export const AddCodeTable = (object: object) => api.post(Api.Add_Code_Table, object);
 export const OnChange = (array: any) => api.post(Api.On_Change, array);
@@ -56,6 +58,11 @@ export const importExcel = (data: any) =>
     url: Api.Import_execel,
     params: data,
   });
+
+//数据资产管理
 export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
+
+//数据标准管理
+export const Catalog = () => api.get(Api.Data_standard_catalog_Query);
