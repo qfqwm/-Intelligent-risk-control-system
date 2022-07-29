@@ -2,6 +2,7 @@
 import api from '@/utils/axios';
 import { SelectCodeTable } from './model';
 
+// 码表管理
 enum Api {
   // 码表模糊查询
   Code_Table_Fuzzy_Query = '/selectCodeTable',
@@ -19,7 +20,13 @@ enum Api {
   Down_execel = '/downExportExcel',
   //模板导入
   Import_execel = '/importExcel',
+  selectStandard = '/selectStandard',
 }
+
+// 数据标准管理
+// enum Data_Standard_Api{
+//   Select_Standard='/selectStandard',
+// }
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
 export const AddCodeTable = (object: object) => api.post(Api.Add_Code_Table, object);
 export const OnChange = (array: any) => api.post(Api.On_Change, array);

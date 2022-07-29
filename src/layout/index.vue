@@ -11,21 +11,21 @@
             <template #title>
               <span> 数据源管理 </span>
             </template>
-            <a-menu-item key="1"> <router-link to="/interface">接口管理</router-link></a-menu-item>
-            <a-menu-item key="2"><router-link to="/database">数据库管理</router-link></a-menu-item>
+            <a-menu-item key="/interface"> <router-link to="/interface">接口管理</router-link></a-menu-item>
+            <a-menu-item key="/database"><router-link to="/database">数据库管理</router-link></a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="sub2">
             <template #title>
               <span> 数据标准管理 </span>
             </template>
-            <a-menu-item key="3"> <router-link to="/catalogue">数据标准目录</router-link></a-menu-item>
-            <a-menu-item key="4">
+            <a-menu-item key="/catalogue"> <router-link to="/catalogue">数据标准目录</router-link></a-menu-item>
+            <a-menu-item key="/tablemanagement">
               <router-link to="/tablemanagement">码表管理</router-link>
             </a-menu-item>
           </a-sub-menu>
-          <a-menu-item key="5"> <router-link to="/management">数据资产管理</router-link></a-menu-item>
-          <a-menu-item key="6"><router-link to="/scriptment">脚本管理</router-link></a-menu-item>
-          <a-menu-item key="7">
+          <a-menu-item key="/management"> <router-link to="/management">数据资产管理</router-link></a-menu-item>
+          <a-menu-item key="/scriptment"><router-link to="/scriptment">脚本管理</router-link></a-menu-item>
+          <a-menu-item key="/taskment">
             <router-link to="/taskment">任务管理</router-link>
           </a-menu-item>
         </a-menu>
@@ -52,19 +52,21 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   const route = useRoute();
-  // console.log(route);
-  const selectedKeys2 = ref<string[]>(['1']);
+  const selectedKeys2 = ref<string[]>([route.path]);
   const openKeys = ref<string[]>(['sub1']);
-
-  console.log(selectedKeys2.value[0]);
-  console.log(openKeys.value[0]);
-
+  if (route.path === '/interface' || route.path === '/database') {
+    openKeys.value = ['sub1'];
+  } else if (route.path === '/catalogue' || route.path === '/tablemanagement') {
+    openKeys.value = ['sub2'];
+  } else {
+    openKeys.value = [''];
+  }
   const jump = () => {
-    if (selectedKeys2.value[0] == '2') {
-      selectedKeys2.value[0] = '1';
+    if (selectedKeys2.value[0] == '/database') {
+      selectedKeys2.value[0] = '/interface';
     }
-    if (selectedKeys2.value[0] == '4') {
-      selectedKeys2.value[0] = '3';
+    if (selectedKeys2.value[0] == '/tablemanagement') {
+      selectedKeys2.value[0] = '/catalogue';
     }
   };
 </script>

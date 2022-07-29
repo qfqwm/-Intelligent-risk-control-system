@@ -6,9 +6,9 @@
       <option value="未发布">未发布</option>
       <option value="已发布">已发布</option>
       <option value="已停用">已停用</option>
-      <option value="" selected></option>
+      <option value="" selected style="display: none">请选择</option>
     </select>
-    <span>码表名称：</span><input v-model="Codetablename" type="text" />
+    <span>码表名称：</span><input v-model="Codetablename" type="text" placeholder="请输入码表名称" />
     <a-button class="Reset" @click="Reset">重置</a-button>
     <a-button class="query" @click="query">查询</a-button>
   </div>

@@ -2,20 +2,21 @@
   <!-- 搜索区域 -->
   <div class="search">
     <span>来源机构：</span>
-    <select>
+    <select v-model="sourceAgencies">
       <option value="数宜信">数宜信</option>
-      <option value="" selected></option>
+      <option value="" selected style="display: none">请选择</option>
     </select>
     <span>标准状态：</span>
-    <select>
+    <select v-model="standardType">
       <option value="未发布">未发布</option>
       <option value="已发布">已发布</option>
       <option value="已停用">已停用</option>
-      <option value="" selected></option>
+      <option value="" selected style="display: none">请选择</option>
     </select>
-    <span>标准编号：</span><input type="text" /> <span>中文名称：</span><input type="text" /> <span>英文名称：</span><input type="text" />
-    <a-button class="Reset">重置</a-button>
-    <a-button class="query">查询</a-button>
+    <span>标准编号：</span><input v-model.trim="standardId" type="text" placeholder="请输入标准编号" /> <span>中文名称：</span
+    ><input v-model.trim="chineseName" type="text" placeholder="请输入中文名称" /> <span>英文名称：</span><input v-model.trim="englishName" type="text" placeholder="请输入英文名称" />
+    <a-button class="Reset" @click="Reset">重置</a-button>
+    <a-button class="query" @click="query">查询</a-button>
   </div>
   <!-- 五个按钮区域 -->
   <div class="button">
@@ -162,49 +163,47 @@
     </div>
   </a-drawer>
   <!-- 显示详情 -->
-  <template>
-    <div>
-      <a-modal v-model:visible="Detailsvisible" title="Basic Modal">
-        <span> 标准编号：</span>dasdasdasdwq<br />
-        <span> 中文名称：</span>dasdasdasdwq<br />
-        <span> 英文名称：</span>dasdasdasdwq<br />
-        <span> 标准说明：</span>dasdasdasdwq<br />
-        <span> 来源机构：</span>dasdasdasdwq<br />
-        <span> 是否为空：</span>dasdasdasdwq<br />
-        <span> 数据类型：</span>dasdasdasdwq<br />
-        <!-- int -->
-        <div v-show="true">
-          <span> 取值范围：</span>dasdasdasdwq<br />
-          <span> 默认值：</span>dasdasdasdwq<br />
-        </div>
-        <!-- float -->
-        <div v-show="true">
-          <span> 数据精度：</span>dasdasdasdwq<br />
-          <span> 取值范围：</span>dasdasdasdwq<br />
-          <span> 默认值：</span>dasdasdasdwq<br />
-        </div>
-        <!-- enum -->
-        <div v-show="true">
-          <span> 枚举范围精度：</span>dasdasdasdwq<br />
-          <span> 默认值：</span>dasdasdasdwq<br />
-        </div>
-        <!-- string -->
-        <div v-show="true">
-          <span> 数据长度：</span>dasdasdasdwq<br />
-          <span> 默认值：</span>dasdasdasdwq<br />
-        </div>
-        <template #footer>
-          <a-button @click="handleCancel">关闭</a-button>
-        </template>
-      </a-modal>
-    </div>
-  </template>
-</template>
 
+  <div>
+    <a-modal v-model:visible="Detailsvisible" title="Basic Modal">
+      <span> 标准编号：</span>dasdasdasdwq<br />
+      <span> 中文名称：</span>dasdasdasdwq<br />
+      <span> 英文名称：</span>dasdasdasdwq<br />
+      <span> 标准说明：</span>dasdasdasdwq<br />
+      <span> 来源机构：</span>dasdasdasdwq<br />
+      <span> 是否为空：</span>dasdasdasdwq<br />
+      <span> 数据类型：</span>dasdasdasdwq<br />
+      <!-- int -->
+      <div v-show="true">
+        <span> 取值范围：</span>dasdasdasdwq<br />
+        <span> 默认值：</span>dasdasdasdwq<br />
+      </div>
+      <!-- float -->
+      <div v-show="true">
+        <span> 数据精度：</span>dasdasdasdwq<br />
+        <span> 取值范围：</span>dasdasdasdwq<br />
+        <span> 默认值：</span>dasdasdasdwq<br />
+      </div>
+      <!-- enum -->
+      <div v-show="true">
+        <span> 枚举范围精度：</span>dasdasdasdwq<br />
+        <span> 默认值：</span>dasdasdasdwq<br />
+      </div>
+      <!-- string -->
+      <div v-show="true">
+        <span> 数据长度：</span>dasdasdasdwq<br />
+        <span> 默认值：</span>dasdasdasdwq<br />
+      </div>
+      <template #footer>
+        <a-button @click="handleCancel">关闭</a-button>
+      </template>
+    </a-modal>
+  </div>
+</template>
 <script lang="ts" setup>
   import type { SelectProps } from 'ant-design-vue';
   import { ref } from 'vue';
-  import type { Ref } from 'vue';
+  // import type { Ref } from 'vue';
   // interface DataItem {
   //     key: string;
   //     codeId: string;
@@ -415,15 +414,15 @@
     },
   ]);
   //
-  const form = reactive({
-    name: '',
-    url: '',
-    owner: '',
-    type: '',
-    approver: '',
-    dateTime: null,
-    description: '',
-  });
+  // const form = reactive({
+  //   name: '',
+  //   url: '',
+  //   owner: '',
+  //   type: '',
+  //   approver: '',
+  //   dateTime: null,
+  //   description: '',
+  // });
   const editvisible = ref<boolean>(false);
 
   const showDrawer = () => {
@@ -440,8 +439,6 @@
       Selectall_invert.value = selectedRows;
     },
   });
-  // 分页
-  const pageSizeRef = ref(20);
   // 编辑页面
   // 下拉菜单
   // 数据类型
@@ -472,6 +469,21 @@
   const handleCancel = () => {
     Detailsvisible.value = false;
   };
+
+  // 查询功能
+  const sourceAgencies = ref<string>('');
+  const standardType = ref<string>('');
+  const standardId = ref<string>('');
+  const chineseName = ref<string>('');
+  const englishName = ref<string>('');
+  const Reset = () => {
+    sourceAgencies.value = '';
+    standardType.value = '';
+    standardId.value = '';
+    chineseName.value = '';
+    englishName.value = '';
+  };
+  // const query=()=>{}
 </script>
 
 <style lang="less" scoped>
