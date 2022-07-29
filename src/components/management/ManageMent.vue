@@ -1,5 +1,6 @@
 <template>
   <div class="all">
+    <!-- 左边资产目录区域 -->
     <div class="left">
       <div class="left_title">
         <span>数据资产表目录</span>
@@ -41,42 +42,6 @@
               </a-menu-item>
             </div>
           </a-sub-menu>
-          <!-- <a-sub-menu key="sub1" @titleClick="titleClick">
-            <template #icon>
-              <MailOutlined />
-            </template>
-            <template #title>启信宝数据</template>
-              <a-menu-item key="1">企业工商信息
-                <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-              </a-menu-item>
-              <a-menu-item key="2">企业司法信息
-                <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-              </a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub2" @titleClick="titleClick">
-            <template #icon>
-              <AppstoreOutlined />
-            </template>
-            <template #title>元素数据</template>
-            <a-menu-item key="3">企业工商信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-              </a-menu-item>
-            <a-menu-item key="4">企业司法信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-            </a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub3">
-            <template #icon>
-              <SettingOutlined />
-            </template>
-            <template #title>企业信息</template>
-            <a-menu-item key="5">企业工商信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-            </a-menu-item>
-            <a-menu-item key="6">企业司法信息
-              <span><PlusCircleOutlined @click="add"/><MinusCircleOutlined @click="remove"/><EditOutlined @click="edit"/></span>
-            </a-menu-item>
-          </a-sub-menu> -->
         </a-menu>
       </div>
       <!-- 数据资产表目录新增目录弹框 -->
@@ -91,8 +56,6 @@
         @ok="handleOkStairAdd"
       >
         <p class="tk"><span>*</span>目录名称：<input v-model="addStair" type="text" /></p>
-        <!-- <template slot="footer" style="margin: 0 auto;">
-        </template> -->
       </a-modal>
       <!-- 数据资产表目录新增下级目录弹框 -->
       <a-modal
@@ -121,7 +84,7 @@
         <p class="tk"><span>*</span>目录名称：<input v-model="editSecond" type="text" /></p>
       </a-modal>
     </div>
-
+    <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
       <div class="search">
@@ -143,41 +106,116 @@
           <a-button type="primary" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
         </div>
         <div class="right1">
-          <!-- <a-button type="primary" size="small">
-            <router-link to="addassets">新增资产表</router-link>
-          </a-button> -->
-
           <!-- 抽屉区域 -->
           <a-button type="primary" @click="showDrawer"> 新增资产表 </a-button>
-          <a-drawer title="数据资产表基础信息" :width="1000" :visible="visible" :body-style="{ paddingBottom: '80px' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
-            <a-form :model="form" :rules="rules" layout="vertical">
-              <a-row :gutter="16">
-                <a-col :span="12">
-                  <a-form-item label="＊中文名称：" name="＊中文名称：">
-                    <a-input v-model:value="form.name" placeholder="请输入数据资产表名称" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="＊英文名称：" name="＊英文名称：">
-                    <a-input v-model:value="form.url" placeholder="请输入数据资产表名称" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="16">
-                <a-col :span="24">
-                  <a-form-item label="资产表描述：" name="资产表描述：">
-                    <a-textarea v-model:value="form.description" :rows="4" placeholder="请输入资产表描述" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="16">
-                <a-col :span="24">
-                  <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
-                    <a-input v-model:value="form.description" :rows="4" placeholder="请输入资产表描述" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-            </a-form>
+          <a-drawer title="数据资产表基础信息" :width="1500" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
+            <!-- 数据资产表基础信息区域 -->
+            <div style=" margin-top: -15px;background-color: white">
+              <span style=" margin-left: 10px;font-size: 18px; line-height: 40px">数据资产表基础信息</span>
+              <hr />
+              <a-form :model="form" :rules="rules" layout="vertical" style="margin-left: 50px">
+                <a-row :gutter="16">
+                  <a-col :span="12">
+                    <a-form-item label="＊中文名称：" name="＊中文名称：">
+                      <a-input v-model:value="form.name" placeholder="请输入数据资产表名称" />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row :gutter="16">
+                  <a-col :span="12">
+                    <a-form-item label="＊英文名称：" name="＊英文名称：">
+                      <a-input v-model:value="form.url" placeholder="请输入数据资产表名称" />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row :gutter="16">
+                  <a-col :span="12">
+                    <a-form-item label="资产表描述：" name="资产表描述：">
+                      <a-textarea v-model:value="form.description" :rows="4" placeholder="请输入资产表描述" />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row :gutter="16">
+                  <a-col :span="12">
+                    <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
+                      <a-form ref="formRef" name="dynamic_form_nest_item" :model="dynamicValidateForm">
+                        <div style=" overflow-y: scroll; border: 1px solid #eee; padding: 5px;width: 470px; min-height: 50px; max-height: 110px">
+                          <!-- <a-select v-model:value="dynamicValidateForm.area" :options="areas"
+                            style="width: 415px; margin-top: 5px" placeholder="请选择所属目录" /> -->
+                          <a-tree-select v-model="test" show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeSelectData"></a-tree-select>
+                          <a-space v-for="sight in dynamicValidateForm.sights" :key="sight.id" style="display: flex; margin-bottom: 8px" align="baseline">
+                            <a-form-item>
+                              <!-- <a-select v-model:value="dynamicValidateForm.area" :options="areas"
+                                style="width: 415px; margin-top: 5px" placeholder="请选择所属目录"></a-select> -->
+                              <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeSelectData"></a-tree-select>
+                            </a-form-item>
+                            <MinusCircleOutlined @click="removeSight(sight)" />
+                          </a-space>
+                        </div>
+                        <a-form-item>
+                          <a-button type="dashed" block style=" margin-top: 30px; border: 1px solid blue; border-style: dashed;width: 470px; color: blue" @click="addSight">
+                            <PlusOutlined />
+                            添加一行
+                          </a-button>
+                        </a-form-item>
+                      </a-form>
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+              </a-form>
+            </div>
+            <!-- 字段配置区域 -->
+            <div style=" display: flex; margin-top: 10px;background-color: white; flex-direction: row; flex-wrap: wrap">
+              <div style=" margin-left: 10px; padding-top: 10px; width: 100px;font-size: 18px">＊字段配置</div>
+              <a-button class="editable-add-btn" style=" margin-top: -30px;margin-bottom: 8px; margin-left: 1330px" @click="handleAdd1">添加字段</a-button>
+              <a-table bordered :data-source="dataSource1" :columns="columns1" style=" margin-left: 10px;width: 1400px" :scroll="{ y: 170 }" :pagination="false">
+                <template #bodyCell="{ column, text, record }">
+                  <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
+                    <div>
+                      <a-input v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="margin: -5px 0" placeholder="请输入" />
+                      <template v-else>
+                        {{ text }}
+                      </template>
+                    </div>
+                  </template>
+                  <template v-if="['address1'].includes(column.dataIndex)">
+                    <div>
+                      <a-tree-select
+                        v-if="editableData1[record.key1]"
+                        v-model:value="editableData1[record.key1][column.dataIndex]"
+                        show-search
+                        style="width: 100%"
+                        placeholder="请输入标准编号、标准中英文名进行检索"
+                        :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                        allow-clear
+                        tree-default-expand-all
+                        :tree-data="treeSelectData"
+                      ></a-tree-select>
+                      <template v-else>
+                        {{ text }}
+                      </template>
+                    </div>
+                  </template>
+                  <template v-else-if="column.dataIndex === 'operation'">
+                    <div class="editable-row-operations">
+                      <span v-if="editableData1[record.key1]">
+                        <a-typography-link @click="save1(record.key1)">保存</a-typography-link>
+                        <a-typography-link style="margin-left: 10px" @click="cancel1(record.key1)">取消 </a-typography-link>
+                        <!-- <a-popconfirm @click="cancel1(record.key1)">
+                          <a style="margin-left: 10px">取消</a>
+                        </a-popconfirm> -->
+                      </span>
+                      <span v-else>
+                        <a @click="edit1(record.key1)">编辑</a>
+                        <a style="margin-left: 10px" @click="onDelete1(record.key1)">删除</a>
+                      </span>
+                    </div>
+                  </template>
+                </template>
+              </a-table>
+            </div>
+
+            <!-- 底部区域 -->
             <template #footer>
               <a-space>
                 <a-button @click="onClose">取消</a-button>
@@ -263,12 +301,82 @@
 
 <script lang="ts" setup>
   import { ref, watch, createVNode, computed, reactive } from 'vue';
-  import type { MenuProps } from 'ant-design-vue';
+  import type { MenuProps, FormInstance, TreeSelectProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
-  import type { Ref } from 'vue';
+  import type { Ref, UnwrapRef } from 'vue';
   import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
-  import { MailOutlined, AppstoreOutlined, SettingOutlined, PlusCircleOutlined, MinusCircleOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+  import { MailOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, PlusOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
+  import { cloneDeep } from 'lodash-es';
+  const test = ref('');
+
+  const treeSelectData = ref<TreeSelectProps['treeData']>([
+    {
+      title: 'parent 1',
+      value: 'parent 1',
+      children: [
+        {
+          title: 'parent 1-0',
+          value: 'parent 1-0',
+          children: [
+            {
+              title: 'my leaf',
+              value: 'leaf1',
+            },
+            {
+              title: 'your leaf',
+              value: 'leaf2',
+            },
+          ],
+        },
+        {
+          title: 'parent 1-1',
+          value: 'parent 1-1',
+        },
+      ],
+    },
+  ]);
+
+  interface Sights {
+    value: string;
+    price: string;
+    id: number;
+  }
+
+  const areas = [
+    { label: 'Beijing', value: 'Beijing' },
+    { label: 'Shanghai', value: 'Shanghai' },
+  ];
+
+  const sights = {
+    Beijing: ['Tiananmen', 'Great Wall'],
+    Shanghai: ['Oriental Pearl', 'The Bund'],
+  };
+
+  const formRef = ref<FormInstance>();
+  const dynamicValidateForm = reactive<{ sights: Sights[]; area: string }>({
+    sights: [],
+    area: '',
+  });
+  watch(
+    () => dynamicValidateForm.area,
+    () => {
+      dynamicValidateForm.sights = [];
+    },
+  );
+  const removeSight = (item: Sights) => {
+    let index = dynamicValidateForm.sights.indexOf(item);
+    if (index !== -1) {
+      dynamicValidateForm.sights.splice(index, 1);
+    }
+  };
+  const addSight = () => {
+    dynamicValidateForm.sights.push({
+      value: '',
+      price: '',
+      id: Date.now(),
+    });
+  };
 
   const selectedKeys = ref<string[]>(['1']);
   const openKeys = ref<string[]>(['sub1']);
@@ -388,6 +496,14 @@
     codeUpdatetime: string;
     codeCreattime: string;
     allCodeTable: object;
+  }
+
+  interface DataItem1 {
+    key1: string;
+    name: string;
+    age: string;
+    address: string;
+    address1: string;
   }
 
   const form = reactive({
@@ -608,6 +724,62 @@
   };
   // 判断正则表达以编码名是否重复
   const judge = reactive({ Formaterror: false, Rename: false });
+
+  const columns1 = [
+    {
+      title: '字段英文名称',
+      dataIndex: 'name',
+      width: '15%',
+    },
+    {
+      title: '字段中文名称',
+      dataIndex: 'age',
+      width: '15%',
+    },
+    {
+      title: '字段说明',
+      dataIndex: 'address',
+      width: '20%',
+    },
+    {
+      title: '标准映射',
+      dataIndex: 'address1',
+      width: '40%',
+    },
+    {
+      title: '操作',
+      dataIndex: 'operation',
+    },
+  ];
+  const dataSource1: Ref<DataItem1[]> = ref([]);
+  const count1 = computed(() => dataSource1.value.length + 1);
+  const editableData1: UnwrapRef<Record<string, DataItem1>> = reactive({});
+
+  const edit1 = (key1: string) => {
+    editableData1[key1] = cloneDeep(dataSource1.value.filter(item => key1 === item.key1)[0]);
+  };
+  const save1 = (key1: string) => {
+    Object.assign(dataSource1.value.filter(item => key1 === item.key1)[0], editableData1[key1]);
+    delete editableData1[key1];
+  };
+  const onDelete1 = (key1: string) => {
+    dataSource1.value = dataSource1.value.filter(item => item.key1 !== key1);
+  };
+  const cancel1 = (key1: string) => {
+    delete editableData1[key1];
+    onDelete1(key1);
+  };
+  const handleAdd1 = () => {
+    const newData = {
+      key1: `${count1.value}`,
+      name: ``,
+      age: ``,
+      address: ``,
+      address1: ``,
+    };
+    dataSource1.value.push(newData);
+    edit1(dataSource1.value.length.toString());
+  };
 </script>
 
 <style lang="less" scoped>
