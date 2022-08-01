@@ -480,8 +480,9 @@
     console.log(data1.value[0]);
 
     treeData.push(data1.value[0]);
-    // InsertDirectory(insertDirectory).then((res) => {
+    // InsertDirectory(treeData).then((res) => {
     //   console.log(res.data.data);
+    //   res.data.data = treeData
     // })
   };
   //数据资产表目录新增下级目录
