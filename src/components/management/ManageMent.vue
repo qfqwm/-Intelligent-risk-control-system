@@ -158,18 +158,7 @@
                   </template>
                   <template v-if="['address1'].includes(column.dataIndex)">
                     <div>
-                      <!-- <a-tree-select
-                        v-if="editableData1[record.key1]"
-                        v-model:value="editableData1[record.key1][column.dataIndex]"
-                        show-search
-                        style="width: 100%"
-                        placeholder="请输入标准编号、标准中英文名进行检索"
-                        :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-                        allow-clear
-                        tree-default-expand-all
-                        :tree-data="treeSelectData"
-                      ></a-tree-select> -->
-                      <a-select v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 120px" :options="options"></a-select>
+                      <a-select v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 520px" show-search :options="Mapping"></a-select>
                       <template v-else>
                         {{ text }}
                       </template>
@@ -180,9 +169,6 @@
                       <span v-if="editableData1[record.key1]">
                         <a-typography-link @click="save1(record.key1)">保存</a-typography-link>
                         <a-typography-link style="margin-left: 10px" @click="cancel1(record.key1)">取消 </a-typography-link>
-                        <!-- <a-popconfirm @click="cancel1(record.key1)">
-                          <a style="margin-left: 10px">取消</a>
-                        </a-popconfirm> -->
                       </span>
                       <span v-else>
                         <a @click="edit1(record.key1)">编辑</a>
@@ -198,7 +184,7 @@
             <template #footer>
               <a-space>
                 <a-button @click="onClose">取消</a-button>
-                <a-button type="primary" @click="onClose">确定</a-button>
+                <a-button type="primary" @click="sure">确定</a-button>
               </a-space>
             </template>
           </a-drawer>
@@ -308,12 +294,13 @@
   import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref, UnwrapRef } from 'vue';
-  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset } from '@/api/test/index';
+  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, AssetSheet } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
   import { InsertDirectory, SelectDirectory, StandardMapping } from '@/api/test/index';
   import _, { filter } from 'lodash';
   import { MailOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, PlusOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
   import { cloneDeep } from 'lodash-es';
+  import { object } from 'vue-types';
 
   const treeSelectData = ref<TreeSelectProps['treeData']>([
     {
@@ -812,12 +799,15 @@
     onDelete1(key1);
   };
 
-  const Mapping = ref<SelectProps['options']>([]);
+  const Mapping = ref([]);
+  const length = ref('');
   const handleAdd1 = () => {
     StandardMapping().then(function (res) {
       // console.log(res.data.data);
-      Mapping.value = res.data.data;
-      // console.log(Mapping.value);
+      length.value = res.data.data.length;
+      Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
+      console.log(Mapping.value);
+      console.log(length.value);
     });
     const newData = {
       key1: `${count1.value}`,
@@ -830,8 +820,20 @@
     edit1(dataSource1.value.length.toString());
   };
 
-  const value1 = ref('a1');
-  const options = [...Array(25)].map((_, i) => ({ value: (i + 10).toString(36) + (i + 1) }));
+  const object1 = reactive({
+    chineseName: '',
+    englishName: '',
+    assetExplain: '',
+    assetDirectory: [],
+    dataAssetField: [],
+  });
+
+  //确认新增数据资产表
+  // const sure = () => {
+  //   AssetSheet(object1).then(function (res) {
+
+  //   })
+  // }
 </script>
 
 <style lang="less" scoped>

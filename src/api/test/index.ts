@@ -35,6 +35,8 @@ enum Api {
   Select_DataAsset = '/selectDataAsset',
   //改变状态
   On_Change1 = '',
+  //新增数据资产表
+  New_data_asset_sheet = '/addAsset',
 
   //数据标准管理
   //数据标准目录页面查询
@@ -79,6 +81,7 @@ export const StandardMapping = () => api.get(Api.Standard_mapping);
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
 //改变状态
 export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
+export const AssetSheet = (object: object) => api.post(Api.New_data_asset_sheet, object);
 
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
