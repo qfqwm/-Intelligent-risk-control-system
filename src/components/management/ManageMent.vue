@@ -348,42 +348,37 @@
   };
 
   //数据资产目录展示
-  const treeData: TreeProps['treeData'] = [];
+  interface treeData{
+    title : string,
+    key : string
+    children:childrens[]
+  }
+  const treeData = ref<treeData[]>([]);
+  
   SelectDirectory().then((res) => {
     console.log(res.data.data);
+    // treeData.value = res.data.data
     res.data.data.forEach((ele) => {
       const childrens = [];
-      console.log(ele);
-      
-      treeData.title = ele.name
-      treeData.key1 = ele.directoryId
+      treeData.value.push({
+          title: ele.name,
+          key: ele.directoryId,
+          children: childrens,
+        });
       if(ele.children){
-        childrens.slice(0,1)
         ele.children.forEach((ele) => {
+          // console.log(ele);
           childrens.push({
             title: ele.name,
             key: ele.directoryId,
           });
         });
-        // childrens.filter((val, index, arr) => {
-        //   console.log(val,index,arr);
-        //     return index !== 0;
-        // })
-        treeData.push({
-          title: ele.name,
-          key: ele.id,
-          children: childrens,
-        });
-        // console.log(treeData);
-        
       }else{
         
       }
     });
-    console.log(treeData);
-    
+    console.log(treeData.value);
   })
-    console.log(treeData);
 
   //数据资产表目录按表名称或目录名称查询
   const search = ref<string>('');
@@ -391,18 +386,6 @@
     console.log(searchValue);
     // console.log(search.value);
   };
-  // const treeData = ref()
-  // interface treeData {
-  //   parentId: string;
-  //   directoryId: string;
-  //   name: string;
-  // }
-  // interface DataNode extends treeData {
-  //   key :string | number;
-  //   title : string;
-  //   children?: DataNode[];
-  // }
-  // console.log(treeData)
   
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
