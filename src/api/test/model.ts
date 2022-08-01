@@ -1,7 +1,5 @@
-export interface GetAccountInfoModel {
-  email: string;
-  name: string;
-  introduction: string;
-  phone: string;
-  address: string;
+export interface SelectCodeTable {
+  data: any;
+  codeType: any;
+  codeName: string;
 }
