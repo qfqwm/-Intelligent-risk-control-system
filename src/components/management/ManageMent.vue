@@ -73,7 +73,7 @@
           <option value="已停用">已停用</option>
           <option value="" selected></option>
         </select>
-        <span>中文名称：</span><input v-model="Codetablename" type="text" /> <span>英文名称：</span><input v-model="Codetablename" type="text" />
+        <span>中文名称：</span><input v-model="Codetablename" type="text" /> <span>英文名称：</span><input v-model="Codetablename1" type="text" />
         <a-button class="Reset" @click="Reset">重置</a-button>
         <a-button class="query" @click="query">查询</a-button>
       </div>
@@ -158,7 +158,7 @@
                   </template>
                   <template v-if="['address1'].includes(column.dataIndex)">
                     <div>
-                      <a-tree-select
+                      <!-- <a-tree-select
                         v-if="editableData1[record.key1]"
                         v-model:value="editableData1[record.key1][column.dataIndex]"
                         show-search
@@ -168,7 +168,8 @@
                         allow-clear
                         tree-default-expand-all
                         :tree-data="treeSelectData"
-                      ></a-tree-select>
+                      ></a-tree-select> -->
+                      <a-select v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 120px" :options="options"></a-select>
                       <template v-else>
                         {{ text }}
                       </template>
@@ -208,7 +209,7 @@
         :data-source="dataSource"
         :columns="columns"
         :row-selection="rowSelection"
-        :row-key="(dataSource: any) => { return dataSource.codeId }"
+        :row-key="(dataSource: any) => { return dataSource.assetId }"
         :pagination="{
           pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
           showSizeChanger: true,
@@ -219,12 +220,15 @@
         }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'codeId'">
-            <a href="#" @click.prevent="showcode(record.codeId)">{{ record.codeId }}</a>
+          <template v-if="column.dataIndex === 'chineseName'">
+            <a href="#" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</a>
+          </template>
+          <template v-if="column.dataIndex === 'englishName'">
+            <a href="#" @click.prevent="showcode(record.englishName)">{{ record.englishName }}</a>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
-            <div v-if="record.codeType == '未发布'">
+            <div v-if="record.assetType == '未发布'">
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
@@ -234,13 +238,13 @@
               </a-popconfirm>
             </div>
             <!-- 已发布显示按钮 -->
-            <div v-if="record.codeType == '已发布'">
+            <div v-if="record.assetType == '已发布'">
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '2')">
                 <a-button type="primary" size="small">停用</a-button>
               </a-popconfirm>
             </div>
             <!-- 已停用显示按钮 -->
-            <div v-if="record.codeType == '已停用'">
+            <div v-if="record.assetType == '已停用'">
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
@@ -251,22 +255,44 @@
       </a-table>
       <!-- 蒙版区域 -->
       <div v-show="show.outmask" class="mask">
-        <!-- 人员性别码表 -->
+        <!-- 企业信息基本表 -->
         <div v-show="show.PersonnelGender" class="PersonnelGender">
-          <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
-          <h2>人员性别码表（{{ personnelcodetable.codename }}）</h2>
+          <div class="basemess">
+            <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
+            <h2>企业基本信息表</h2>
+            <h3>基本信息</h3><br />
+            <span class="label"> 中文名称：</span> {{ personnelcodetable.codename }} <br />
+            <span class="label"> 英文名称：</span> <br />
+            <h4>数据资产表描述：</h4>
+            <span class="label"> 所属目录：</span>
+          </div>
+          <h3>字段信息</h3><br />
           <table class="PersonnelGendertable">
             <thead>
               <tr>
-                <th>码值取值</th>
-                <th>码值名称</th>
-                <th>码值含义</th>
+                <th>字段英文名称</th>
+                <th>字段中文名称</th>
+                <th>字段说明</th>
+                <th>标准映射</th>
+                <th>数据类型</th>
+                <th>数据长度</th>
+                <th>数据精度</th>
+                <th>默认值</th>
+                <th>取值范围</th>
+                <th>枚举范围</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in personnelcodetable.CodeConfigure" :key="index">
                 <td>{{ index + 1 < 10 ? '0' + (index + 1) : index }}</td>
                 <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
                 <td>{{ item.configureMean }}</td>
               </tr>
             </tbody>
@@ -279,12 +305,12 @@
 
 <script lang="ts" setup>
   import { ref, watch, createVNode, computed, reactive } from 'vue';
-  import type { MenuProps, FormInstance, TreeSelectProps, TreeProps } from 'ant-design-vue';
+  import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref, UnwrapRef } from 'vue';
-  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure } from '@/api/test/index';
+  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
-  import { InsertDirectory, SelectDirectory } from '@/api/test/index';
+  import { InsertDirectory, SelectDirectory, StandardMapping } from '@/api/test/index';
   import _, { filter } from 'lodash';
   import { MailOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, PlusOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
   import { cloneDeep } from 'lodash-es';
@@ -550,30 +576,31 @@
   // 搜索功能
   const Codetablestatus = ref<string>('');
   const Codetablename = ref<string>('');
+  const Codetablename1 = ref<string>('');
   // 表格
   const columns = [
     {
       title: '数据资产表中文名称',
-      dataIndex: 'codeId',
+      dataIndex: 'chineseName',
       width: '13%',
     },
     {
       title: '数据资产表英文名称',
-      dataIndex: 'codeName',
+      dataIndex: 'englishName',
       width: '13%',
     },
     {
       title: '数据资产表描述',
-      dataIndex: 'codeExplain',
+      dataIndex: 'assetExplain',
       width: '30%',
     },
     {
       title: '发布状态',
-      dataIndex: 'codeType',
+      dataIndex: 'assetType',
     },
     {
       title: '更新时间',
-      dataIndex: 'codeUpdatetime',
+      dataIndex: 'updateTime',
     },
     {
       title: '操作',
@@ -589,21 +616,24 @@
     if (Codetablestatus.value == '已发布') state = '1';
     if (Codetablestatus.value == '已停用') state = '2';
     let object = {
-      codeType: state,
-      codeName: Codetablename.value,
+      assetType: state,
+      chineseName: Codetablename.value,
+      englishName: Codetablename1.value,
     };
-    selectCodeTable(object).then(function (res: any) {
-      if (res.data.msg !== '获取成功') return (dataSource.value = []);
+    SelectDataAsset(object).then(function (res: any) {
+      console.log(res);
+
+      if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data;
       dataSource.value.forEach((item: any) => {
-        if (item.codeType == 0) {
-          item.codeType = '未发布';
+        if (item.assetType == 0) {
+          item.assetType = '未发布';
         }
-        if (item.codeType == 1) {
-          item.codeType = '已发布';
+        if (item.assetType == 1) {
+          item.assetType = '已发布';
         }
-        if (item.codeType == 2) {
-          item.codeType = '已停用';
+        if (item.assetType == 2) {
+          item.assetType = '已停用';
         }
       });
       total.value = dataSource.value.length;
@@ -658,6 +688,7 @@
   const Reset = () => {
     Codetablestatus.value = '';
     Codetablename.value = '';
+    Codetablename1.value = '';
     selectCodeTable_way();
   };
   // 全选/反选
@@ -780,7 +811,14 @@
     delete editableData1[key1];
     onDelete1(key1);
   };
+
+  const Mapping = ref<SelectProps['options']>([]);
   const handleAdd1 = () => {
+    StandardMapping().then(function (res) {
+      // console.log(res.data.data);
+      Mapping.value = res.data.data;
+      // console.log(Mapping.value);
+    });
     const newData = {
       key1: `${count1.value}`,
       name: ``,
@@ -791,6 +829,9 @@
     dataSource1.value.push(newData);
     edit1(dataSource1.value.length.toString());
   };
+
+  const value1 = ref('a1');
+  const options = [...Array(25)].map((_, i) => ({ value: (i + 10).toString(36) + (i + 1) }));
 </script>
 
 <style lang="less" scoped>
