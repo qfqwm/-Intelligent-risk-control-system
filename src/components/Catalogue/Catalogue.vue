@@ -215,6 +215,7 @@
   import type { Ref } from 'vue';
   import { object } from 'vue-types';
   import { log } from 'console';
+  import { isString } from 'lodash';
   interface DataItem {
     chineseName: string;
     creatTime: string;
@@ -237,6 +238,8 @@
   }
   //页面数据展示
   const dataSource: Ref<DataItem[]> = ref([]);
+  const morechinese_Name = ref<any>([]);
+  const moreenglish_Name = ref<any>([]);
   const show = function (query_object: any) {
     let object = {
       englishName: '',
@@ -250,6 +253,14 @@
     }
     Catalog(object).then(function (res) {
       dataSource.value = res.data.data;
+      let chinesemorename = [] as any;
+      let englishmorename = [] as any;
+      for (let i = 0; i < dataSource.value.length; i++) {
+        chinesemorename.push(res.data.data[i].chineseName);
+        englishmorename.push(res.data.data[i].englishName);
+      }
+      morechinese_Name.value = [...new Set(chinesemorename)];
+      moreenglish_Name.value = [...new Set(englishmorename)];
       dataSource.value.forEach((item: any) => {
         if (item.standardType == 0) {
           item.standardType = '未发布';
@@ -510,6 +521,9 @@
     if (dataType == '1') {
       object.dataMin = add_edit_dataMin.value;
       object.dataMax = add_edit_dataMax.value;
+      console.log(object.dataMax);
+      if (isString(object.dataMax) || isString(object.dataMin) || !(object.dataMax >= object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0))
+        return message.error('请输入正确的取值范围!');
     }
     if (dataType == '2') {
       object.dataMin = add_edit_dataMin.value;
@@ -523,12 +537,16 @@
     if (dataType == '4') {
       object.dataLength = add_edit_dataLength.value;
     }
+
     // 判断是否为空
     if (object.chineseName == '' || null) return message.error('中文名称为空！');
     if (object.englishName == '' || null) return message.error('英文名称为空！');
     if (object.sourceAgencies == '' || null) return message.error('请选择来源机构!');
     if (object.dataType == '' || null) return message.error('请选择数据类型!');
     if (object.isNull == '' || null) return message.error('请选择数据是否为空!');
+    // 正则判断
+    if (morechinese_Name.value.indexOf(object.chineseName) !== -1) return message.error('中文名称重复！');
+    if (moreenglish_Name.value.indexOf(object.englishName) !== -1) return message.error('英文名称重复！');
     AddStandard(object).then(function (res) {
       console.log(res);
     });
