@@ -1,5 +1,6 @@
 // todo 实现封装一个axios
 import api from '@/utils/axios';
+import exp from 'constants';
 import { SelectCodeTable } from './model';
 
 enum Api {
@@ -28,14 +29,22 @@ enum Api {
   Insert_Directory = '/insertDirectory',
   //数据资产表目录按表名称或目录名称查询表
   Select_Directory = '/selectDirectory',
+  //查询新增中的标准映射
+  Standard_mapping = '/selectStandardMapping',
+  //查询数据资产管理信息
+  Select_DataAsset = '/selectDataAsset',
+  //改变状态
+  On_Change1 = '',
 
   //数据标准管理
   //数据标准目录页面查询
+
   Data_standard_catalog_Query = '/selectStandard',
   // 新增数据标准
   Add_Standard = '/addStandard',
+  //编号查询
+  Number_lookup = '/selectInfoById',
 }
-
 //码表管理
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
 export const AddCodeTable = (object: object) => api.post(Api.Add_Code_Table, object);
@@ -65,7 +74,19 @@ export const importExcel = (data: any) =>
 export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
+export const StandardMapping = () => api.get(Api.Standard_mapping);
+
+export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
+//改变状态
+export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
 
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
 export const AddStandard = (object: object) => api.post(Api.Add_Standard, object);
+//编号查询详情
+export const Lookup = (standardId: string) =>
+  api({
+    method: 'get',
+    url: Api.Number_lookup,
+    params: { standardId: standardId },
+  });

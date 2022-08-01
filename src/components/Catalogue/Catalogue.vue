@@ -47,7 +47,7 @@
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'codeId'">
-        <a href="#" @click.prevent="showModal">{{ record.standardId }}</a>
+        <a href="#" @click.prevent="showModal(record.standardId)">{{ record.standardId }}</a>
       </template>
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
@@ -173,34 +173,34 @@
   <!-- 显示详情 -->
 
   <div>
-    <a-modal v-model:visible="Detailsvisible" title="Basic Modal">
-      <span> 标准编号：</span>dasdasdasdwq<br />
-      <span> 中文名称：</span>dasdasdasdwq<br />
-      <span> 英文名称：</span>dasdasdasdwq<br />
-      <span> 标准说明：</span>dasdasdasdwq<br />
-      <span> 来源机构：</span>dasdasdasdwq<br />
-      <span> 是否为空：</span>dasdasdasdwq<br />
-      <span> 数据类型：</span>dasdasdasdwq<br />
+    <a-modal v-model:visible="Detailsvisible" :title="Detailed.chineseName + '(' + Detailed.standardId + ')'">
+      <span> 标准编号：</span>{{ Detailed.standardId }}<br />
+      <span> 中文名称：</span>{{ Detailed.chineseName }}<br />
+      <span> 英文名称：</span>{{ Detailed.englishName }}<br />
+      <span> 标准说明：</span>{{ Detailed.standardExplain }}<br />
+      <span> 来源机构：</span>{{ Detailed.sourceAgencies }}<br />
+      <span> 是否为空：</span>{{ Detailed.isNull }}<br />
+      <span> 数据类型：</span>{{ Detailed.dataType }}<br />
       <!-- int -->
-      <div v-show="true">
-        <span> 取值范围：</span>dasdasdasdwq<br />
-        <span> 默认值：</span>dasdasdasdwq<br />
+      <div v-show="Detailed.dataType == 'Int'">
+        <span> 取值范围：</span>{{ Detailed.dataMin }}~{{ Detailed.dataMax }}<br />
+        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
       </div>
       <!-- float -->
-      <div v-show="true">
-        <span> 数据精度：</span>dasdasdasdwq<br />
-        <span> 取值范围：</span>dasdasdasdwq<br />
-        <span> 默认值：</span>dasdasdasdwq<br />
+      <div v-show="Detailed.dataType == 'Float'">
+        <span> 数据精度：</span>{{ Detailed.dataPrecision }}<br />
+        <span> 取值范围：</span>{{ Detailed.dataMin }}~{{ Detailed.dataMax }}<br />
+        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
       </div>
       <!-- enum -->
-      <div v-show="true">
-        <span> 枚举范围精度：</span>dasdasdasdwq<br />
-        <span> 默认值：</span>dasdasdasdwq<br />
+      <div v-show="Detailed.dataType == 'Enum'">
+        <span> 枚举范围精度：</span>{{ Detailed.enumRange }}<br />
+        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
       </div>
       <!-- string -->
-      <div v-show="true">
-        <span> 数据长度：</span>dasdasdasdwq<br />
-        <span> 默认值：</span>dasdasdasdwq<br />
+      <div v-show="Detailed.dataType == 'String'">
+        <span> 数据长度：</span>{{ Detailed.dataLength }}<br />
+        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
       </div>
       <template #footer>
         <a-button @click="handleCancel">关闭</a-button>
@@ -210,8 +210,8 @@
 </template>
 <script lang="ts" setup>
   import { message, SelectProps } from 'ant-design-vue';
-  import { Catalog, AddStandard } from '@/api/test/index';
-  import { ref } from 'vue';
+  import { Catalog, AddStandard, Lookup } from '@/api/test/index';
+  import { ref, onMounted } from 'vue';
   import type { Ref } from 'vue';
   import { object } from 'vue-types';
   import { log } from 'console';
@@ -295,7 +295,7 @@
     {
       title: '标准说明',
       dataIndex: 'standardExplain',
-      width: '20%',
+      width: '18%',
     },
     {
       title: '来源机构',
@@ -361,8 +361,56 @@
   };
   // 显示详情
   const Detailsvisible = ref<boolean>(false);
-  const showModal = () => {
+  const Detailed = reactive({
+    chineseName: '',
+    standardId: '',
+    englishName: '',
+    standardExplain: '',
+    sourceAgencies: '',
+    isNull: '',
+    dataType: '',
+    dataPrecision: '',
+    dataDefault: '',
+    dataMin: '',
+    dataMax: '',
+    enumRange: '',
+    dataLength: '',
+  });
+  const showModal = (standardId: string) => {
     Detailsvisible.value = true;
+    Lookup(standardId).then(function (res) {
+      Detailed.standardId = res.data.data.standardId;
+      Detailed.chineseName = res.data.data.chineseName;
+      Detailed.englishName = res.data.data.englishName;
+      Detailed.standardExplain = res.data.data.standardExplain;
+      Detailed.sourceAgencies = res.data.data.sourceAgencies;
+      Detailed.isNull = res.data.data.isNull;
+      Detailed.dataType = res.data.data.dataType;
+      Detailed.dataPrecision = res.data.data.dataPrecision;
+      Detailed.dataDefault = res.data.data.dataDefault;
+      Detailed.dataMin = res.data.data.dataMin;
+      Detailed.dataMax = res.data.data.dataMax;
+      Detailed.enumRange = res.data.data.enumRange;
+      Detailed.dataLength = res.data.data.dataLength;
+      if (Detailed.dataType == '1') {
+        Detailed.dataType = 'Int';
+      }
+      if (Detailed.dataType == '2') {
+        Detailed.dataType = 'Float';
+      }
+      if (Detailed.dataType == '3') {
+        Detailed.dataType = 'Enum';
+      }
+      if (Detailed.dataType == '4') {
+        Detailed.dataType = 'String';
+      }
+      if (Detailed.isNull == '0') {
+        Detailed.isNull = '可为空';
+      }
+      if (Detailed.isNull == '1') {
+        Detailed.isNull = '不可为空';
+      }
+    });
   };
   const handleCancel = () => {
     Detailsvisible.value = false;
