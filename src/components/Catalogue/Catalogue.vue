@@ -439,7 +439,11 @@
       default:
         break;
     }
-
+    let dataMin: any = null;
+    let dataMax: any = null;
+    let enumRange: any = null;
+    let dataPrecision: any = null;
+    let dataLength: any = null;
     let object = {
       chineseName: add_edit_chineseName.value,
       englishName: add_edit_englishName.value,
@@ -447,12 +451,12 @@
       isNull: add_edit_isNull.value == '可为空' ? '0' : '1',
       dataType: dataType,
       standardExplain: add_edit_standardExplain.value,
-      // "dataMin":<any>null,
-      // "dataMax":<any>null,
-      // "enumRange":<any>null,
-      // "dataDefault":add_edit_dataDefault.value,
-      // "dataPrecision":<any>null,
-      // "dataLength":<any>null ,
+      dataMin: dataMin,
+      dataMax: dataMax,
+      enumRange: enumRange,
+      dataDefault: add_edit_dataDefault.value,
+      dataPrecision: dataPrecision,
+      dataLength: dataLength,
     };
 
     if (dataType == '1') {
