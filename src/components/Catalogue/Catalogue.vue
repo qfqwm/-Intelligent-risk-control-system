@@ -439,11 +439,11 @@
       default:
         break;
     }
-    let dataMin: any = null;
-    let dataMax: any = null;
-    let enumRange: any = null;
-    let dataPrecision: any = null;
-    let dataLength: any = null;
+    let dataMin: any | string = null;
+    let dataMax: any | string = null;
+    let enumRange: any | string = null;
+    let dataPrecision: any | string = null;
+    let dataLength: any | string = null;
     let object = {
       chineseName: add_edit_chineseName.value,
       englishName: add_edit_englishName.value,
