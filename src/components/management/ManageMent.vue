@@ -12,7 +12,7 @@
       <div class="left_menu">
         <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
           <template #title="{ title, key }">
-            <span v-if="key === '0-0-1-0'" style="color: #1890ff">{{ title }}</span>
+            <span v-if="key === '11'" style="color: #1890ff">{{ title }}</span>
             <template v-else>{{ title }}</template>
             <span>
               <PlusCircleOutlined @click="add" />
@@ -282,7 +282,7 @@
   import type { MenuProps, FormInstance, TreeSelectProps, TreeProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref, UnwrapRef } from 'vue';
-  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure } from '@/api/test/index';
+  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, DeleteDirectory, UpdateDirectoryName } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
   import { InsertDirectory, SelectDirectory } from '@/api/test/index';
   import _, { filter } from 'lodash';
@@ -348,33 +348,85 @@
   };
 
   //数据资产目录展示
-  interface treeData{
-    title : string,
-    key : string
-    children:childrens[]
-  }
-  const treeData = ref<treeData[]>([]);
-  
+
+  const treeData = ref<any[]>([]);
   SelectDirectory().then((res) => {
     console.log(res.data.data);
-    // treeData.value = res.data.data
     res.data.data.forEach((ele) => {
-      const childrens = [];
-      treeData.value.push({
+      const childrens =<any> [];
+      const Childrens1 =<any> [];
+      const Childrens2 =<any> [];
+      //递归调用
+      // function child() {
+      //   ele.children.forEach((ele) => {
+      //     if(ele.children){
+      //       childrens.push({
+      //         title: ele.name,
+      //         key: ele.directoryId,
+      //         children:Childr,
+      //       });
+      //       child()
+      //     }else{
+      //       childrens.push({
+      //         title: ele.name,
+      //         key: ele.directoryId,
+      //       });
+      //     }
+      //   });
+      // }
+      if(ele.children){
+        treeData.value.push({
           title: ele.name,
           key: ele.directoryId,
           children: childrens,
         });
-      if(ele.children){
         ele.children.forEach((ele) => {
-          // console.log(ele);
-          childrens.push({
-            title: ele.name,
-            key: ele.directoryId,
-          });
+          if(ele.children){
+            childrens.push({
+              title: ele.name,
+              key: ele.directoryId,
+              children:Childrens1,
+            });
+            ele.children.forEach((ele) => {
+              if(ele.children){
+                Childrens1.push({
+                  title: ele.name,
+                  key: ele.directoryId,
+                  children:Childrens2,
+                });
+                ele.children.forEach((ele) => {
+                  if(ele.children){
+                    Childrens2.push({
+                      title: ele.name,
+                      key: ele.directoryId,
+                      children:Childrens1,
+                    });
+                  }else{
+                    Childrens2.push({
+                      title: ele.name,
+                      key: ele.directoryId,
+                    });
+                  }
+                });
+              }else{
+                Childrens1.push({
+                  title: ele.name,
+                  key: ele.directoryId,
+                });
+              }
+            });
+          }else{
+            childrens.push({
+              title: ele.name,
+              key: ele.directoryId,
+            });
+          }
         });
       }else{
-        
+        treeData.value.push({
+          title: ele.name,
+          key: ele.directoryId,
+        });
       }
     });
     console.log(treeData.value);
@@ -384,7 +436,9 @@
   const search = ref<string>('');
   const onSearch = (searchValue: string) => {
     console.log(searchValue);
-    // console.log(search.value);
+    SelectDirectory().then((res) => {
+      console.log(res.data.data);
+    })
   };
   
   const expandedKeys = ref<string[]>([]);
@@ -393,32 +447,34 @@
   watch(expandedKeys, () => {
     console.log('expandedKeys', expandedKeys.value);
   });
+  const aa = ref()
   watch(selectedKeys, () => {
     console.log('selectedKeys', selectedKeys.value);
+    aa.value = selectedKeys.value
   });
   watch(checkedKeys, () => {
     console.log('checkedKeys', checkedKeys.value);
   });
   const handleExpand = (keys: string[], { expanded, node }) => {
-    const tempKeys = ((node.parent ? node.parent.children : treeData) || []).map(({ key }) => key);
-    console.log(keys);
-
+    const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
     if (expanded) {
       expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
     } else {
-      expandedKeys.value = keys;
+      expandedKeys.value = [];
     }
   };
-
-  const data1 = ref([
-    {
-      key: '',
-      title: '',
-      children: [],
-    },
-  ]);
-
+  
   //数据资产表目录新增目录
+  interface AddData {
+    directoryName : string,
+    parentId : string
+  }
+  const AddData = ref(
+    {
+      parentId:'',
+      directoryName:''
+    }
+  )
   const stair_add = ref<boolean>(false);
   const addStair = ref<string>('');
   const stairAdd = () => {
@@ -427,30 +483,30 @@
   };
   const handleOkStairAdd = () => {
     stair_add.value = false;
-    console.log(addStair.value);
-
-    data1.value[0].key = treeData.length + 1 + '-0';
-    data1.value[0].title = addStair.value;
-    console.log(data1.value[0]);
-
-    treeData.push(data1.value[0]);
-    // InsertDirectory(treeData).then((res) => {
-    //   console.log(res.data.data);
-    //   res.data.data = treeData
-    // })
+    AddData.value.parentId = '0';
+    AddData.value.directoryName = addStair.value;
+    console.log(AddData.value);
+    InsertDirectory(AddData.value).then(() => {})
   };
+
   //数据资产表目录新增下级目录
   const visible_add = ref<boolean>(false);
-  const addSecond = ref<string>();
+  const addSecond = ref();
   const add = () => {
     visible_add.value = true;
     addSecond.value = '';
   };
   const handleOkAdd = () => {
     visible_add.value = false;
-    console.log(addSecond.value);
-    console.log(selectedKeys.value);
+    AddData.value.parentId = aa.value[0];
+    AddData.value.directoryName = addSecond.value;
+    console.log(AddData.value);
+    
+    InsertDirectory(AddData.value).then((res) => {
+      
+    })
   };
+
   //数据资产表目录删除
   const remove = () => {
     Modal.confirm({
@@ -459,24 +515,31 @@
       okText: '是',
       cancelText: '否',
       onOk() {
-        console.log('是');
+        console.log('是',aa.value[0]);
+        DeleteDirectory(aa.value).then(() => {})
       },
       onCancel() {
         console.log('否');
       },
     });
   };
+
   //数据资产表目录编辑
+  const EditData = ref({
+    directoryId:'',
+    directoryName:''
+  })
   const visible_edit = ref<boolean>(false);
-  const editSecond = ref<string>();
+  const editSecond = ref();
   const edit = () => {
     visible_edit.value = true;
     editSecond.value = '';
   };
   const handleOkEdit = () => {
     visible_edit.value = false;
-    console.log(editSecond.value);
-    console.log(selectedKeys.value);
+    EditData.value.directoryId = aa.value[0]
+    EditData.value.directoryName = editSecond.value
+    UpdateDirectoryName(EditData.value).then(() => {})
   };
 
   interface DataItem {

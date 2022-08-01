@@ -26,8 +26,12 @@ enum Api {
   Add_Directory = '/addDirectory',
   //数据资产目录表新增子目录
   Insert_Directory = '/insertDirectory',
-  //数据资产表目录按表名称或目录名称查询表
+  //数据资产表目录按表名称或目录名称查询目录
   Select_Directory = '/selectDirectory',
+  //数据资产表目录删除目录
+  Delete_Directory = 'deleteDirectory',
+  //数据资产表目录编辑目录
+  Update_Directory_Name = 'updateDirectoryName',
 
   //数据标准管理
   //数据标准目录页面查询
@@ -63,6 +67,9 @@ export const importExcel = (data: any) =>
 export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
+export const DeleteDirectory = (directoryId: string) => api.post(Api.Delete_Directory, directoryId);
+export const UpdateDirectoryName = (object: object) => api.post(Api.Update_Directory_Name, object);
+
 
 //数据标准管理
 export const Catalog = () => api.get(Api.Data_standard_catalog_Query);
