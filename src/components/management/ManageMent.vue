@@ -348,16 +348,6 @@
     id: number;
   }
 
-  const areas = [
-    { label: 'Beijing', value: 'Beijing' },
-    { label: 'Shanghai', value: 'Shanghai' },
-  ];
-
-  const sights = {
-    Beijing: ['Tiananmen', 'Great Wall'],
-    Shanghai: ['Oriental Pearl', 'The Bund'],
-  };
-
   const formRef = ref<FormInstance>();
   const dynamicValidateForm = reactive<{ sights: Sights[]; area: string }>({
     sights: [],
@@ -383,7 +373,38 @@
     });
   };
 
-  const value = ref<string>('');
+  //数据资产目录展示
+  interface treeData{
+    title : string,
+    key : string
+    children:childrens[]
+  }
+  const treeData = ref<treeData[]>([]);
+  
+  SelectDirectory().then((res) => {
+    console.log(res.data.data);
+    // treeData.value = res.data.data
+    res.data.data.forEach((ele) => {
+      const childrens = [];
+      treeData.value.push({
+          title: ele.name,
+          key: ele.directoryId,
+          children: childrens,
+        });
+      if(ele.children){
+        ele.children.forEach((ele) => {
+          // console.log(ele);
+          childrens.push({
+            title: ele.name,
+            key: ele.directoryId,
+          });
+        });
+      }else{
+        
+      }
+    });
+    console.log(treeData.value);
+  })
 
   //数据资产表目录按表名称或目录名称查询
   const search = ref<string>('');
@@ -391,42 +412,7 @@
     console.log(searchValue);
     // console.log(search.value);
   };
-
-  const treeData: TreeProps['treeData'] = [
-    {
-      title: '工商司法',
-      key: '0-0',
-      children: [
-        {
-          title: '企业基本信息',
-          key: '0-0-0',
-          children: [
-            { title: '企业文化', key: '0-0-0-0' },
-            { title: '企业职员', key: '0-0-0-1' },
-          ],
-        },
-        {
-          title: '企业详细信息',
-          key: '0-0-1',
-          children: [{ title: '高层领导', key: '0-0-1-0' }],
-        },
-      ],
-    },
-    {
-      title: '企业资产',
-      key: '1-0',
-      children: [
-        {
-          title: '工商司法',
-          key: '1-0-0',
-        },
-        {
-          title: '税务信息',
-          key: '2-0-1',
-        },
-      ],
-    },
-  ];
+  
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
   const checkedKeys = ref<string[]>([]);
@@ -450,12 +436,6 @@
     }
   };
 
-  const insertDirectory = ref([
-    {
-      parentId: 'sub1',
-      directoryName: '启信宝数据',
-    },
-  ]);
   const data1 = ref([
     {
       key: '',
@@ -645,7 +625,6 @@
   const query = () => {
     selectCodeTable_way();
   };
-  const count = computed(() => dataSource.value.length + 1);
   const onDelete = (code: string) => {
     DeleteCode(code).then(function (res: any) {
       if (res.data.msg == '删除成功') {
@@ -740,14 +719,8 @@
     });
   };
   // 分页
-  const pageSizeOptions = ref<string[]>(['10', '15', '18', '20']);
-  const current = ref(1);
   const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
-  const onShowSizeChange = (current: number, pageSize: number) => {
-    pageSizeRef.value = pageSize;
-    selectCodeTable_way();
-  };
 
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
@@ -766,7 +739,6 @@
     });
   };
   // 判断正则表达以编码名是否重复
-  const judge = reactive({ Formaterror: false, Rename: false });
 
   const columns1 = [
     {
