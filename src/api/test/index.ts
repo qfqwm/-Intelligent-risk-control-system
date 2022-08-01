@@ -31,7 +31,9 @@ enum Api {
 
   //数据标准管理
   //数据标准目录页面查询
-  Data_standard_catalog_Query = '/selectAllStandard',
+  Data_standard_catalog_Query = '/selectStandard',
+  // 新增数据标准
+  Add_Standard = '/addStandard',
 }
 
 //码表管理
@@ -65,4 +67,5 @@ export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory
 export const SelectDirectory = () => api.get(Api.Select_Directory);
 
 //数据标准管理
-export const Catalog = () => api.get(Api.Data_standard_catalog_Query);
+export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
+export const AddStandard = (object: object) => api.post(Api.Add_Standard, object);

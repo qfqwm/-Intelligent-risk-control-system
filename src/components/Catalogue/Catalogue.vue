@@ -16,7 +16,7 @@
     <span>标准编号：</span><input v-model.trim="standardId" type="text" placeholder="请输入标准编号" /> <span>中文名称：</span
     ><input v-model.trim="chineseName" type="text" placeholder="请输入中文名称" /> <span>英文名称：</span><input v-model.trim="englishName" type="text" placeholder="请输入英文名称" />
     <a-button class="Reset" @click="Reset">重置</a-button>
-    <a-button class="query">查询</a-button>
+    <a-button class="query" @click="query">查询</a-button>
   </div>
   <!-- 五个按钮区域 -->
   <div class="button">
@@ -77,89 +77,97 @@
     </template>
   </a-table>
   <!-- 编辑栏 -->
-  <a-drawer title="编辑标准" :width="720" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
+  <a-drawer title="编辑标准" :width="720" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
     <div class="edit_drawer"
       ><span><span>*</span>中文名称：</span>
-      <a-input placeholder="Basic usage" />
+      <a-input v-model:value.trim="add_edit_chineseName" placeholder="Basic usage" />
     </div>
     <div class="edit_drawer"
       ><span><span>*</span>英文名称：</span>
-      <a-input placeholder="Basic usage" />
+      <a-input v-model:value.trim="add_edit_englishName" placeholder="请输入英文名称" />
     </div>
     <div class="edit_drawer"
       ><span>标准说明：</span>
-      <a-input placeholder="Basic usage" />
+      <a-input v-model:value.trim="add_edit_standardExplain" placeholder="Basic usage" />
     </div>
     <div class="edit_drawer"
       ><span><span>*</span>来源机构：</span>
-      <a-select v-model:value="select_Source_institution" show-search placeholder="Select a person" style="width: 100%" :options="Source_institution" :filter-option="filterOption"></a-select>
+      <a-select v-model:value="add_edit_sourceAgencies" show-search placeholder="Select a person" style="width: 100%" :options="Source_institution" :filter-option="filterOption"></a-select>
     </div>
     <div class="edit_drawer"
       ><span><span>*</span>是否可为空：</span>
-      <a-select v-model:value="select_Judge_null" show-search placeholder="Select a person" style="width: 100%" :options="Judge_null" :filter-option="filterOption"></a-select>
+      <a-select v-model:value="add_edit_isNull" show-search placeholder="Select a person" style="width: 100%" :options="Judge_null" :filter-option="filterOption"></a-select>
     </div>
     <div class="edit_drawer"
       ><span><span>*</span>数据类型：</span>
-      <a-select v-model:value="select_data_type" show-search placeholder="Select a person" style="width: 100%" :options="data_type" :filter-option="filterOption"></a-select>
+      <a-select v-model:value="add_edit_dataType" show-search placeholder="Select a person" style="width: 100%" :options="data_type" :filter-option="filterOption"></a-select>
     </div>
     <!-- int类型 -->
-    <div v-show="select_data_type === 'Int'" class="int_type">
+    <div v-show="add_edit_dataType === 'Int'" class="int_type">
       <div class="edit_drawer"
         ><span>取值范围：</span>
         <div style="width: 100%" class="num_rang">
-          <a-input placeholder="Basic usage" style="width: 45%" />----
-          <a-input placeholder="Basic usage" style="width: 45%" />
+          <a-input v-model:value.number="add_edit_dataMin" placeholder="Basic usage" style="width: 45%" />----
+          <a-input v-model:value.number="add_edit_dataMax" placeholder="Basic usage" style="width: 45%" />
         </div>
       </div>
       <div class="edit_drawer"
         ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
+        <a-input v-model:value.trim="add_edit_dataDefault" placeholder="Basic usage" />
       </div>
     </div>
     <!-- enum类型 -->
-    <div v-show="select_data_type === 'Enum'" class="int_type">
+    <div v-show="add_edit_dataType === 'Enum'" class="int_type">
       <div class="edit_drawer"
         ><span><span>*</span>枚举范围：</span>
-        <a-select v-model:value="select_Judge_null" show-search placeholder="Select a person" style="width: 100%" :options="Judge_null" :filter-option="filterOption"></a-select>
+        <a-select
+          v-model:value="select_Judge_null"
+          v-model="add_edit_enumRange"
+          show-search
+          placeholder="Select a person"
+          style="width: 100%"
+          :options="Judge_null"
+          :filter-option="filterOption"
+        ></a-select>
       </div>
       <div class="edit_drawer"
         ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
+        <a-input v-model:value="add_edit_dataDefault" placeholder="请输入默认值" />
       </div>
     </div>
     <!-- float类型 -->
-    <div v-show="select_data_type === 'Float'" class="int_type">
+    <div v-show="add_edit_dataType === 'Float'" class="int_type">
       <div class="edit_drawer"
         ><span>数据精度：</span>
-        <a-input placeholder="Basic usage" />
+        <a-input v-model:value="add_edit_dataPrecision" placeholder="Basic usage" />
       </div>
       <div class="edit_drawer"
         ><span>取值范围：</span>
         <div style="width: 100%" class="num_rang">
-          <a-input placeholder="Basic usage" style="width: 45%" />----
-          <a-input placeholder="Basic usage" style="width: 45%" />
+          <a-input v-model:value.number="add_edit_dataMin" placeholder="Basic usage" style="width: 45%" />----
+          <a-input v-model:value.number="add_edit_dataMax" placeholder="Basic usage" style="width: 45%" />
         </div>
       </div>
       <div class="edit_drawer"
         ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
+        <a-input v-model:value.trim="add_edit_dataDefault" placeholder="Basic usage" />
       </div>
     </div>
     <!-- string类型 -->
-    <div v-show="select_data_type === 'String'" class="int_type">
+    <div v-show="add_edit_dataType === 'String'" class="int_type">
       <div class="edit_drawer"
         ><span>数据长度：</span>
-        <a-input placeholder="Basic usage" />
+        <a-input v-model:value="add_edit_dataLength" placeholder="Basic usage" />
       </div>
       <div class="edit_drawer"
         ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
+        <a-input v-model:value.trim="add_edit_dataPrecision" placeholder="Basic usage" />
       </div>
     </div>
     <!-- 底部按钮 -->
     <div class="edit_drawer_bottom">
-      <a-button size="big">取消</a-button>
-      <a-button type="primary" size="big">确定</a-button>
+      <a-button size="big" @click="add_edit_false">取消</a-button>
+      <a-button type="primary" size="big" @click="add_edit_couse">确定</a-button>
     </div>
   </a-drawer>
   <!-- 显示详情 -->
@@ -201,10 +209,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import type { SelectProps } from 'ant-design-vue';
-  import { Catalog } from '@/api/test/index';
-  import { ref, onMounted } from 'vue';
+  import { message, SelectProps } from 'ant-design-vue';
+  import { Catalog, AddStandard } from '@/api/test/index';
+  import { ref } from 'vue';
   import type { Ref } from 'vue';
+  import { object } from 'vue-types';
+  import { log } from 'console';
   interface DataItem {
     chineseName: string;
     creatTime: string;
@@ -225,16 +235,20 @@
     standardType: string;
     updateTime: string;
   }
-
-  onMounted(() => {
-    show();
-  });
-
   //页面数据展示
   const dataSource: Ref<DataItem[]> = ref([]);
-  const show = function () {
-    Catalog().then(function (res) {
-      console.log(res);
+  const show = function (query_object: any) {
+    let object = {
+      englishName: '',
+      standardId: '',
+      sourceAgencies: '',
+      standardType: '',
+      chineseName: '',
+    };
+    if (query_object) {
+      object = query_object;
+    }
+    Catalog(object).then(function (res) {
       dataSource.value = res.data.data;
       dataSource.value.forEach((item: any) => {
         if (item.standardType == 0) {
@@ -310,24 +324,12 @@
     },
   ];
 
-  // const form = reactive({
-  //   name: '',
-  //   url: '',
-  //   owner: '',
-  //   type: '',
-  //   approver: '',
-  //   dateTime: null,
-  //   description: '',
-  // });
   const editvisible = ref<boolean>(false);
 
   const showDrawer = () => {
     editvisible.value = true;
   };
 
-  const onClose = () => {
-    editvisible.value = false;
-  };
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     checkStrictly: false,
@@ -367,6 +369,7 @@
   };
 
   // 查询功能
+  show(null);
   const sourceAgencies = ref<string>('');
   const standardType = ref<string>('');
   const standardId = ref<string>('');
@@ -379,7 +382,112 @@
     chineseName.value = '';
     englishName.value = '';
   };
-  // const query=()=>{}
+  const query = () => {
+    let object = {
+      englishName: englishName.value,
+      standardId: standardId.value,
+      sourceAgencies: sourceAgencies.value,
+      standardType: standardType.value,
+      chineseName: chineseName.value,
+    };
+    show(object);
+  };
+  // 新增编辑标准
+  const add_edit_chineseName = ref('');
+  const add_edit_englishName = ref('');
+  const add_edit_sourceAgencies = ref('');
+  const add_edit_dataType = ref('');
+  const add_edit_isNull = ref('');
+  const add_edit_enumRange = ref<string | null>('');
+  const add_edit_dataDefault = ref('');
+  const add_edit_dataPrecision = ref<string | null>('');
+  const add_edit_dataLength = ref<string | null>('');
+  const add_edit_standardExplain = ref('');
+  const add_edit_dataMin = ref<string | null>('');
+  const add_edit_dataMax = ref<string | null>('');
+  // 清空数据
+  const empty = () => {
+    add_edit_chineseName.value = '';
+    add_edit_englishName.value = '';
+    add_edit_sourceAgencies.value = '';
+    add_edit_dataType.value = '';
+    add_edit_isNull.value = '';
+    add_edit_enumRange.value = null;
+    add_edit_dataDefault.value = '';
+    add_edit_dataPrecision.value = null;
+    add_edit_dataLength.value = null;
+    add_edit_standardExplain.value = '';
+    add_edit_dataMin.value = null;
+    add_edit_dataMax.value = null;
+  };
+  // 确定按钮
+  const add_edit_couse = () => {
+    let dataType = '';
+    switch (add_edit_dataType.value) {
+      case 'Int':
+        dataType = '1';
+        break;
+      case 'Float':
+        dataType = '2';
+        break;
+      case 'Enum':
+        dataType = '3';
+        break;
+      case 'String':
+        dataType = '4';
+        break;
+      default:
+        break;
+    }
+
+    let object = {
+      chineseName: add_edit_chineseName.value,
+      englishName: add_edit_englishName.value,
+      sourceAgencies: add_edit_sourceAgencies.value,
+      isNull: add_edit_isNull.value == '可为空' ? '0' : '1',
+      dataType: dataType,
+      standardExplain: add_edit_standardExplain.value,
+      // "dataMin":<any>null,
+      // "dataMax":<any>null,
+      // "enumRange":<any>null,
+      // "dataDefault":add_edit_dataDefault.value,
+      // "dataPrecision":<any>null,
+      // "dataLength":<any>null ,
+    };
+
+    if (dataType == '1') {
+      object.dataMin = add_edit_dataMin.value;
+      object.dataMax = add_edit_dataMax.value;
+    }
+    if (dataType == '2') {
+      object.dataMin = add_edit_dataMin.value;
+      object.dataMax = add_edit_dataMax.value;
+      object.dataPrecision = add_edit_dataPrecision.value;
+    }
+    if (dataType == '3') {
+      object.enumRange = add_edit_enumRange.value;
+      if (add_edit_enumRange.value == '' || null) return message.error('请选择枚举范围!');
+    }
+    if (dataType == '4') {
+      object.dataLength = add_edit_dataLength.value;
+    }
+    // 判断是否为空
+    if (object.chineseName == '' || null) return message.error('中文名称为空！');
+    if (object.englishName == '' || null) return message.error('英文名称为空！');
+    if (object.sourceAgencies == '' || null) return message.error('请选择来源机构!');
+    if (object.dataType == '' || null) return message.error('请选择数据类型!');
+    if (object.isNull == '' || null) return message.error('请选择数据是否为空!');
+    AddStandard(object).then(function (res) {
+      console.log(res);
+    });
+    editvisible.value = false;
+    empty();
+  };
+  // 取消按钮
+  const add_edit_false = () => {
+    empty();
+    editvisible.value = false;
+  };
 </script>
 
 <style lang="less" scoped>
