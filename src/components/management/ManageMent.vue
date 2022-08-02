@@ -348,32 +348,13 @@
   };
 
   //数据资产目录展示
-
+  const search = ref<string>('');
   const treeData = ref<any[]>([]);
   SelectDirectory().then((res) => {
-    console.log(res.data.data);
     res.data.data.forEach((ele) => {
       const childrens =<any> [];
       const Childrens1 =<any> [];
       const Childrens2 =<any> [];
-      //递归调用
-      // function child() {
-      //   ele.children.forEach((ele) => {
-      //     if(ele.children){
-      //       childrens.push({
-      //         title: ele.name,
-      //         key: ele.directoryId,
-      //         children:Childr,
-      //       });
-      //       child()
-      //     }else{
-      //       childrens.push({
-      //         title: ele.name,
-      //         key: ele.directoryId,
-      //       });
-      //     }
-      //   });
-      // }
       if(ele.children){
         treeData.value.push({
           title: ele.name,
@@ -433,14 +414,10 @@
   })
 
   //数据资产表目录按表名称或目录名称查询
-  const search = ref<string>('');
   const onSearch = (searchValue: string) => {
-    console.log(searchValue);
-    SelectDirectory().then((res) => {
-      console.log(res.data.data);
-    })
+    console.log(expandedKeys.value);
+
   };
-  
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
   const checkedKeys = ref<string[]>([]);
@@ -455,7 +432,10 @@
   watch(checkedKeys, () => {
     console.log('checkedKeys', checkedKeys.value);
   });
+
   const handleExpand = (keys: string[], { expanded, node }) => {
+    // expandedKeys = keys
+    console.log(keys,expanded, node);
     const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
     if (expanded) {
       expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
