@@ -85,31 +85,31 @@
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
-          <a-button type="primary" @click="showDrawer"> 新增资产表 </a-button>
+          <a-button type="primary" @click="showDrawer('add', {})"> 新增资产表 </a-button>
           <a-drawer title="数据资产表基础信息" :width="1500" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
             <!-- 数据资产表基础信息区域 -->
             <div style="margin-top: -15px; background-color: white">
               <span style="margin-left: 10px; font-size: 18px; line-height: 40px">数据资产表基础信息</span>
               <hr />
-              <a-form :model="form" :rules="rules" layout="vertical" style="margin-left: 50px">
+              <a-form ref="formRef" :model="datas" layout="vertical" style="margin-left: 50px">
                 <a-row :gutter="16">
                   <a-col :span="12">
                     <a-form-item label="＊中文名称：" name="＊中文名称：">
-                      <a-input v-model:value="form.name" placeholder="请输入数据资产表名称" />
+                      <a-input v-model:value="datas.chineseName" placeholder="请输入数据资产表名称" />
                     </a-form-item>
                   </a-col>
                 </a-row>
                 <a-row :gutter="16">
                   <a-col :span="12">
                     <a-form-item label="＊英文名称：" name="＊英文名称：">
-                      <a-input v-model:value="form.url" placeholder="请输入数据资产表名称" />
+                      <a-input v-model:value="datas.englishName" placeholder="请输入数据资产表名称" />
                     </a-form-item>
                   </a-col>
                 </a-row>
                 <a-row :gutter="16">
                   <a-col :span="12">
                     <a-form-item label="资产表描述：" name="资产表描述：">
-                      <a-textarea v-model:value="form.description" :rows="4" placeholder="请输入资产表描述" />
+                      <a-textarea v-model:value="datas.assetExplain" :rows="4" placeholder="请输入资产表描述" />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -118,14 +118,25 @@
                     <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
                       <a-form ref="formRef" name="dynamic_form_nest_item" :model="dynamicValidateForm">
                         <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 110px">
-                          <!-- <a-select v-model:value="dynamicValidateForm.area" :options="areas"
-                            style="width: 415px; margin-top: 5px" placeholder="请选择所属目录" /> -->
-                          <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeSelectData"></a-tree-select>
-                          <a-space v-for="sight in dynamicValidateForm.sights" :key="sight.id" style="display: flex; margin-bottom: 8px" align="baseline">
+                          <a-tree-select
+                            v-model:value="dynamicValidateForm.chineseName[0]"
+                            show-search
+                            style="width: 415px"
+                            allow-clear
+                            tree-default-expand-all
+                            placeholder="请选择所属目录"
+                            :tree-data="treeData1"
+                          >
+                          </a-tree-select>
+                          <a-space
+                            v-for="(sight, i) in dynamicValidateForm.sights"
+                            :key="sight.id"
+                            v-model:value="dynamicValidateForm.chineseName[i + 1]"
+                            style="display: flex; margin-bottom: 8px"
+                            align="baseline"
+                          >
                             <a-form-item>
-                              <!-- <a-select v-model:value="dynamicValidateForm.area" :options="areas"
-                                style="width: 415px; margin-top: 5px" placeholder="请选择所属目录"></a-select> -->
-                              <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeSelectData"></a-tree-select>
+                              <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeData1" @change="asd(i)"> </a-tree-select>
                             </a-form-item>
                             <MinusCircleOutlined @click="removeSight(sight)" />
                           </a-space>
@@ -218,7 +229,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small">编辑</a-button>
+              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.codeId)">
                 <a-button type="primary" size="small">删除</a-button>
               </a-popconfirm>
@@ -234,7 +245,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small">编辑</a-button>
+              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
             </div>
           </template>
         </template>
@@ -294,7 +305,7 @@
   import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref, UnwrapRef } from 'vue';
-  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, AssetSheet } from '@/api/test/index';
+  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, AssetSheet, EditData, QueryBasic } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
   import { InsertDirectory, SelectDirectory, StandardMapping } from '@/api/test/index';
   import _, { filter } from 'lodash';
@@ -302,96 +313,149 @@
   import { cloneDeep } from 'lodash-es';
   import { object } from 'vue-types';
 
-  const treeSelectData = ref<TreeSelectProps['treeData']>([
-    {
-      title: 'parent 1',
-      value: 'parent 1',
-      children: [
-        {
-          title: 'parent 1-0',
-          value: 'parent 1-0',
-          children: [
-            {
-              title: 'my leaf',
-              value: 'leaf1',
-            },
-            {
-              title: 'your leaf',
-              value: 'leaf2',
-            },
-          ],
-        },
-        {
-          title: 'parent 1-1',
-          value: 'parent 1-1',
-        },
-      ],
-    },
-  ]);
-
-  interface Sights {
-    value: string;
-    price: string;
-    id: number;
-  }
-
-  const formRef = ref<FormInstance>();
-  const dynamicValidateForm = reactive<{ sights: Sights[]; area: string }>({
-    sights: [],
-    area: '',
+  const datas = reactive<{ chineseName: string; englishName: string; assetExplain: string; assetDirectory: Sights1[]; dataAssetField: Sights2[] }>({
+    chineseName: '',
+    englishName: '',
+    assetExplain: '',
+    assetDirectory: [],
+    dataAssetField: [],
   });
+
   watch(
-    () => dynamicValidateForm.area,
-    () => {
-      dynamicValidateForm.sights = [];
-    },
+    () => datas.chineseName,
+    () => datas.englishName,
   );
-  const removeSight = (item: Sights) => {
-    let index = dynamicValidateForm.sights.indexOf(item);
-    if (index !== -1) {
-      dynamicValidateForm.sights.splice(index, 1);
-    }
-  };
-  const addSight = () => {
-    dynamicValidateForm.sights.push({
-      value: '',
-      price: '',
-      id: Date.now(),
+
+  //确认新增数据资产表
+  const sure = () => {
+    datas.assetDirectory = dynamicValidateForm.value.directoryId;
+    datas.dataAssetField = dataSource2.value;
+    console.log(datas);
+
+    AssetSheet(datas).then(function (res) {
+      console.log(res.data.msg);
+      console.log(res);
+      if (res.data.msg == '返回成功') {
+        location.reload();
+      } else {
+        alert(res.data.msg);
+      }
     });
   };
 
+  interface Sights {
+    id: string;
+  }
+
+  interface Sights1 {
+    directoryId: string;
+  }
+
+  // interface Sights3 {
+  //   chineseName: string
+  // }
+
+  interface Sights2 {
+    chineseName: string;
+    englishName: string;
+    fieldExplain: string;
+    standardId: string;
+  }
+
+  const formRef = ref<FormInstance>();
+  const dynamicValidateForm = ref<{ sights: Sights[]; chineseName: []; directoryId: Sights1[] }>({
+    sights: [],
+    chineseName: [],
+    directoryId: [],
+  });
+  // watch(
+  //   () => {
+  //     dynamicValidateForm.chineseName = [];
+  //   },
+  //   () => {
+  //     dynamicValidateForm.sights = [];
+  //   },
+  // );
+  const removeSight = (item: Sights) => {
+    let index = dynamicValidateForm.value.sights.indexOf(item);
+    if (index !== -1) {
+      dynamicValidateForm.value.sights.splice(index, 1);
+    }
+  };
+
+  // const asd1 =(i)=>{
+  //   dynamicValidateForm.value.chineseName = [i]
+  // }
+
+  const tet = ref<number>();
+  const asd = (i: number) => {
+    tet.value = i + 1;
+    dynamicValidateForm.value.chineseName.push(dynamicValidateForm.value.chineseName[tet.value]);
+    console.log(dynamicValidateForm.value.chineseName[tet.value], 'asd');
+  };
+
+  //有问题
+  const addSight = () => {
+    dynamicValidateForm.value.sights.push({
+      id: 'i' + Date.now(),
+    });
+    // console.log(dynamicValidateForm.chineseName);
+    for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
+      console.log(dynamicValidateForm.value.chineseName, 'cz');
+
+      dynamicValidateForm.value.directoryId.push({
+        directoryId: dynamicValidateForm.value.chineseName[i],
+      });
+    }
+    console.log(dynamicValidateForm.value);
+  };
+
   //数据资产目录展示
-  interface treeData{
-    title : string,
-    key : string
-    children:childrens[]
+  interface treeData {
+    title: string;
+    key: string;
+    children: childrens[];
+  }
+  interface treeData1 {
+    title: string;
+    value: string;
+    children: childrens1[];
   }
   const treeData = ref<treeData[]>([]);
-  
-  SelectDirectory().then((res) => {
+  const treeData1 = ref<treeData1[]>([]);
+  SelectDirectory().then(res => {
     console.log(res.data.data);
     // treeData.value = res.data.data
-    res.data.data.forEach((ele) => {
+    res.data.data.forEach((ele: any) => {
       const childrens = [];
+      const childrens1 = [];
       treeData.value.push({
-          title: ele.name,
-          key: ele.directoryId,
-          children: childrens,
-        });
-      if(ele.children){
-        ele.children.forEach((ele) => {
+        title: ele.name,
+        key: ele.directoryId,
+        children: childrens,
+      });
+      treeData1.value.push({
+        title: ele.name,
+        value: ele.directoryId,
+        children: childrens1,
+      });
+      if (ele.children) {
+        ele.children.forEach((ele: any) => {
           // console.log(ele);
           childrens.push({
             title: ele.name,
             key: ele.directoryId,
           });
+          childrens1.push({
+            title: ele.name,
+            value: ele.directoryId,
+          });
         });
-      }else{
-        
+      } else {
       }
     });
-    console.log(treeData.value);
-  })
+    console.log(treeData1.value);
+  });
 
   //数据资产表目录按表名称或目录名称查询
   const search = ref<string>('');
@@ -399,7 +463,7 @@
     console.log(searchValue);
     // console.log(search.value);
   };
-  
+
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
   const checkedKeys = ref<string[]>([]);
@@ -442,11 +506,11 @@
     stair_add.value = false;
     console.log(addStair.value);
 
-    data1.value[0].key = treeData.length + 1 + '-0';
+    data1.value[0].key = treeData.value.length + 1 + '-0';
     data1.value[0].title = addStair.value;
     console.log(data1.value[0]);
 
-    treeData.push(data1.value[0]);
+    treeData.value.push(data1.value[0]);
     // InsertDirectory(treeData).then((res) => {
     //   console.log(res.data.data);
     //   res.data.data = treeData
@@ -511,30 +575,56 @@
     address1: string;
   }
 
-  const form = reactive({
-    name: '',
-    url: '',
-    owner: '',
-    type: '',
-    approver: '',
-    dateTime: null,
-    description: '',
-  });
-
-  const rules: Record<string, Rule[]> = {
-    name: [{ required: true, message: 'Please enter user name' }],
-    url: [{ required: true, message: 'please enter url' }],
-    owner: [{ required: true, message: 'Please select an owner' }],
-    type: [{ required: true, message: 'Please choose the type' }],
-    approver: [{ required: true, message: 'Please choose the approver' }],
-    dateTime: [{ required: true, message: 'Please choose the dateTime', type: 'object' }],
-    description: [{ required: true, message: 'Please enter url description' }],
-  };
+  interface DataItem2 {
+    chineseName: string;
+    englishName: string;
+    standardId: string;
+    fieldExplain: string;
+  }
 
   const visible = ref<boolean>(false);
 
-  const showDrawer = () => {
-    visible.value = true;
+  const datas1 = ref({
+    chineseName: '',
+    englishName: '',
+    assetId: '',
+  });
+
+  // interface name1 {
+  //   chineseName: string
+  // }
+
+  // const add1 = ref<{ name2: name1[] }>({
+  //   name2:[]
+  // });
+  const add1 = ref();
+  const sss = ref('');
+  const showDrawer = (type: string, record: any) => {
+    if (type == 'add') {
+      datas.chineseName = '';
+      datas.englishName = '';
+      datas.assetExplain = '';
+      // dynamicValidateForm.value = ''
+      visible.value = true;
+      // console.log(11);
+    }
+    if (type == 'edit') {
+      add1.value = { chineseName: record.chineseName };
+      visible.value = true;
+      QueryBasic(add1.value).then(function (res) {
+        console.log(res);
+        sss.value = res.data.data;
+        console.log(sss.value);
+      });
+      datas.chineseName = record.chineseName;
+      datas.englishName = record.englishName;
+      datas.assetExplain = record.assetExplain;
+      // dynamicValidateForm.value = sss.value
+      // console.log(22);
+      // EditData(datas1).then(function(res){
+      //   console.log(res);
+      // })
+    }
   };
 
   const onClose = () => {
@@ -593,6 +683,8 @@
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data;
+      console.log(dataSource.value);
+
       dataSource.value.forEach((item: any) => {
         if (item.assetType == 0) {
           item.assetType = '未发布';
@@ -754,15 +846,28 @@
     },
   ];
   const dataSource1: Ref<DataItem1[]> = ref([]);
+  const dataSource2: Ref<DataItem2[]> = ref([]);
   const count1 = computed(() => dataSource1.value.length + 1);
   const editableData1: UnwrapRef<Record<string, DataItem1>> = reactive({});
 
   const edit1 = (key1: string) => {
     editableData1[key1] = cloneDeep(dataSource1.value.filter(item => key1 === item.key1)[0]);
   };
+
   const save1 = (key1: string) => {
     Object.assign(dataSource1.value.filter(item => key1 === item.key1)[0], editableData1[key1]);
     delete editableData1[key1];
+    dataSource2.value = [];
+    for (let i = 0; i < dataSource1.value.length; i++) {
+      let a = dataSource1.value[i].address1.split('  ');
+      dataSource2.value.push({
+        chineseName: dataSource1.value[i].age,
+        englishName: dataSource1.value[i].name,
+        standardId: a[0],
+        fieldExplain: dataSource1.value[i].address,
+      });
+    }
+    console.log(dataSource2.value);
   };
   const onDelete1 = (key1: string) => {
     dataSource1.value = dataSource1.value.filter(item => item.key1 !== key1);
@@ -774,13 +879,22 @@
 
   const Mapping = ref([]);
   const length = ref('');
+  const standard_id = ref('');
   const handleAdd1 = () => {
     StandardMapping().then(function (res) {
       // console.log(res.data.data);
       length.value = res.data.data.length;
+      // standard_id.value = res.data.data.standard_id
       Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
-      console.log(Mapping.value);
-      console.log(length.value);
+      standard_id.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standard_id }));
+      // for (let i = 0; i < res.data.data.length; i++) {
+      //   // Mapping.value.substr(0,6)
+      //   console.log(Mapping.value.splice(7,10));
+
+      // }
+      // console.log(Mapping.value);
+      // console.log(standard_id.value);
+      // console.log(length.value);
     });
     const newData = {
       key1: `${count1.value}`,
@@ -800,13 +914,6 @@
     assetDirectory: [],
     dataAssetField: [],
   });
-
-  //确认新增数据资产表
-  // const sure = () => {
-  //   AssetSheet(object1).then(function (res) {
-
-  //   })
-  // }
 </script>
 
 <style lang="less" scoped>

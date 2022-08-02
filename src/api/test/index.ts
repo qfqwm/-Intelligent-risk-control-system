@@ -37,6 +37,10 @@ enum Api {
   On_Change1 = '',
   //新增数据资产表
   New_data_asset_sheet = '/addAsset',
+  //编辑数据资产管理
+  Edit_data_asset_management = '/updateAllAsset',
+  //查询企业基本信息表
+  Query_the_basic = '/selectDataAssetAll',
 
   //数据标准管理
   //数据标准目录页面查询
@@ -77,11 +81,12 @@ export const AddDirectory = (object: object) => api.post(Api.Add_Directory, obje
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
 export const StandardMapping = () => api.get(Api.Standard_mapping);
-
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
 //改变状态
 export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
 export const AssetSheet = (object: object) => api.post(Api.New_data_asset_sheet, object);
+export const EditData = (object: object) => api.post(Api.Edit_data_asset_management, object);
+export const QueryBasic = (name: any) => api.post(Api.Query_the_basic, name);
 
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
