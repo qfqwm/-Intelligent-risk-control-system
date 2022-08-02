@@ -414,10 +414,11 @@
   })
 
   //数据资产表目录按表名称或目录名称查询
-  const onSearch = (searchValue: string) => {
-    console.log(expandedKeys.value);
+  
+  // const onSearch = (searchValue: string) => {
+  //   console.log(expandedKeys.value);
 
-  };
+  // };
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
   const checkedKeys = ref<string[]>([]);
@@ -443,6 +444,85 @@
       expandedKeys.value = [];
     }
   };
+  // 点击搜索进行模糊筛选
+  const searchStr = ref('')
+  const backupsExpandedKeys = <any>[]
+  const onSearch = (() => {
+    searchStr.value = search.value
+    if (searchStr.value === '') {
+      expandedKeys.value = []
+    } else {
+      expandedKeys.value = []
+      const candidateKeysList = getkeyList(searchStr.value, treeData.value, [])
+      candidateKeysList.forEach(
+        (item) => {
+          const key = getParentKey(item, treeData.value)
+          if (key && !backupsExpandedKeys.some((item) => item === key)) {
+            backupsExpandedKeys.push(key)
+          }
+        }
+      )
+      let aa = backupsExpandedKeys
+      for (let i = 0; i < backupsExpandedKeys.length; i++) {
+        getAllParentKey(backupsExpandedKeys[i], treeData.value)
+      }
+      expandedKeys.value = backupsExpandedKeys.slice()
+    }
+  })
+    
+  // 获取节点中含有value的所有key集合
+  const getkeyList =  ((value, tree, keyList) => {
+    let a = tree.length
+    for (let i = 0; i < a; i++) {
+      const node = tree[i]
+      if (node.title.indexOf(value) > -1) {
+        keyList.push(node.key)
+      }
+      if (node.children) {
+        getkeyList(value, node.children, keyList)
+      }
+    }
+    return keyList
+  })
+  // // 该递归主要用于获取key的父亲节点的key值
+  const getParentKey = ((key, tree) => {
+    let parentKey
+    let temp
+    for (let i = 0; i < tree.length; i++) {
+      const node = tree[i] 
+      if (node.children) {
+        if (node.children.some((item) => item.key === key)) {
+          parentKey = node.key
+        } else if (temp = getParentKey(key, node.children)) {
+          parentKey = temp
+        }
+      }
+    }
+    return parentKey
+  })
+  // // 获取该节点的所有祖先节点
+  const getAllParentKey = ((key, tree) => {
+    let parentKey
+    if (key) {
+      parentKey = getParentKey(key, tree)
+      if (parentKey) {
+        if (!backupsExpandedKeys.some((item) => item === parentKey)) {
+          backupsExpandedKeys.push(parentKey)
+        }
+        getAllParentKey(parentKey, tree)
+      }
+    }
+  })
+
+  // const handleExpand = (keys: string[], { expanded, node }) => {
+  //   console.log(keys,expanded, node);
+  //   const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
+  //   if (expanded) {
+  //     expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
+  //   } else {
+  //     expandedKeys.value = [];
+  //   }
+  // };
   
   //数据资产表目录新增目录
   interface AddData {
@@ -480,11 +560,7 @@
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
     AddData.value.directoryName = addSecond.value;
-    console.log(AddData.value);
-    
-    InsertDirectory(AddData.value).then((res) => {
-      
-    })
+    InsertDirectory(AddData.value).then(() => {})
   };
 
   //数据资产表目录删除
@@ -495,8 +571,8 @@
       okText: '是',
       cancelText: '否',
       onOk() {
-        console.log('是',aa.value[0]);
-        DeleteDirectory(aa.value).then(() => {})
+        console.log('是',typeof(aa.value[0]));
+        DeleteDirectory(aa.value[0]).then(() => {})
       },
       onCancel() {
         console.log('否');

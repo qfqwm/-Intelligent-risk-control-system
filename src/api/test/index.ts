@@ -67,7 +67,7 @@ export const importExcel = (data: any) =>
 export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
-export const DeleteDirectory = (directoryId: string) => api.post(Api.Delete_Directory, directoryId);
+export const DeleteDirectory = (directoryId: string) => api.delete(Api.Delete_Directory, { params: { directoryId: directoryId } });
 export const UpdateDirectoryName = (object: object) => api.post(Api.Update_Directory_Name, object);
 
 
