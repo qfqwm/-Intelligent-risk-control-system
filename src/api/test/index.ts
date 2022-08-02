@@ -27,8 +27,9 @@ enum Api {
   Add_Directory = '/addDirectory',
   //数据资产目录表新增子目录
   Insert_Directory = '/insertDirectory',
-  //数据资产表目录按表名称或目录名称查询表
+  //数据资产表目录按表名称或目录名称查询目录
   Select_Directory = '/selectDirectory',
+
   //查询新增中的标准映射
   Standard_mapping = '/selectStandardMapping',
   //查询数据资产管理信息
@@ -41,6 +42,11 @@ enum Api {
   Edit_data_asset_management = '/updateAllAsset',
   //查询企业基本信息表
   Query_the_basic = '/selectDataAssetAll',
+
+  //数据资产表目录删除目录
+  Delete_Directory = 'deleteDirectory',
+  //数据资产表目录编辑目录
+  Update_Directory_Name = 'updateDirectoryName',
 
   //数据标准管理
   //数据标准目录页面查询
@@ -92,6 +98,7 @@ export const importExcel = (data: any) =>
 export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
+
 export const StandardMapping = () => api.get(Api.Standard_mapping);
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
 //改变状态
@@ -99,8 +106,12 @@ export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
 export const PublishStandard = (array: any) => api.post(Api.Publish_Standard, array);
 export const BlockStandard = (array: any) => api.post(Api.Block_Standard, array);
 export const AssetSheet = (object: object) => api.post(Api.New_data_asset_sheet, object);
-export const EditData = (object: object) => api.post(Api.Edit_data_asset_management, object);
+export const EditData1 = (object: object) => api.post(Api.Edit_data_asset_management, object);
 export const QueryBasic = (name: any) => api.post(Api.Query_the_basic, name);
+export const DeleteDirectory = (directoryId: string) => api.delete(Api.Delete_Directory, { params: { directoryId: directoryId } });
+export const UpdateDirectoryName = (object: object) => api.post(Api.Update_Directory_Name, object);
+
+
 
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
