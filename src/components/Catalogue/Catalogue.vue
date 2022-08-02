@@ -186,7 +186,7 @@
       </div>
       <!-- enum -->
       <div v-show="Detailed.dataType == 'Enum'">
-        <span> 枚举范围精度：</span><a href="#" @click.prevent="show_Enum_Modal(Detailed.enumRange)">{{ Detailed.enumRange }}</a
+        <span> 枚举范围精度：</span><a href="#" @click.prevent="show_Enum_Modal(Detailed.codeId, Detailed.codeNameSplice)">{{ Detailed.codeName }}</a
         ><br />
         <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
       </div>
@@ -461,6 +461,9 @@
     dataMax: '',
     enumRange: '',
     dataLength: '',
+    codeName: '',
+    codeNameSplice: '',
+    codeId: '',
   });
   const showModal = (standardId: string) => {
     Detailsvisible.value = true;
@@ -478,6 +481,9 @@
       Detailed.dataMax = res.data.data.dataMax;
       Detailed.enumRange = res.data.data.enumRange;
       Detailed.dataLength = res.data.data.dataLength;
+      Detailed.codeName = res.data.data.codeName;
+      Detailed.codeNameSplice = res.data.data.codeNameSplice;
+      Detailed.codeId = res.data.data.codeId;
       if (Detailed.dataType == '1') {
         Detailed.dataType = 'Int';
       }
@@ -777,11 +783,11 @@
   // 枚举类型弹框
   const Enum_title = ref<string>('');
   const Enum_visible = ref<boolean>(false);
-  const show_Enum_Modal = (enumRange: string) => {
+  const show_Enum_Modal = (codeId: string, codeNameSplice: string) => {
     Enum_visible.value = true;
-    Enum_title.value = enumRange;
-    Select_ConfigureInfoById(enumRange).then(function (res) {
-      if (res.data.msg == '获取成功') Enum_data.value = res.data.data;
+    Enum_title.value = codeNameSplice;
+    Select_ConfigureInfoById(codeId).then(function (res) {
+      if (res.data.msg == '查询成功') Enum_data.value = res.data.data;
     });
   };
   const Enum_column = [

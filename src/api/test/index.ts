@@ -108,7 +108,7 @@ export const Select_ConfigureInfoById = (codeId: string) =>
   api({
     method: 'get',
     url: Api.Select_ConfigureInfoById,
-    params: { codeId: codeId },
+    params: { enumRange: codeId },
   });
 //编号查询详情
 export const Lookup = (standardId: string) =>
