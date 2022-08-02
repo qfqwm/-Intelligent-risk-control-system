@@ -80,8 +80,8 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
-          <a-button type="primary" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
+          <a-button type="primary" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
+          <a-button type="primary" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
@@ -221,31 +221,31 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</a>
+            <a href="#" @click.prevent="showcode1(record.chineseName)">{{ record.chineseName }}</a>
           </template>
           <template v-if="column.dataIndex === 'englishName'">
-            <a href="#" @click.prevent="showcode(record.englishName)">{{ record.englishName }}</a>
+            <a href="#" @click.prevent="showcode2(record.englishName)">{{ record.englishName }}</a>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
             <div v-if="record.assetType == '未发布'">
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
+              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.assetId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
               <a-button type="primary" size="small">编辑</a-button>
-              <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.codeId)">
+              <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.assetId)">
                 <a-button type="primary" size="small">删除</a-button>
               </a-popconfirm>
             </div>
             <!-- 已发布显示按钮 -->
             <div v-if="record.assetType == '已发布'">
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '2')">
+              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.assetId, 1)">
                 <a-button type="primary" size="small">停用</a-button>
               </a-popconfirm>
             </div>
             <!-- 已停用显示按钮 -->
             <div v-if="record.assetType == '已停用'">
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
+              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.assetId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
               <a-button type="primary" size="small">编辑</a-button>
@@ -308,12 +308,13 @@
   import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref, UnwrapRef } from 'vue';
-  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset } from '@/api/test/index';
+  import { selectCodeTable, OnChange1, deleteAsset, rebaseTbl, SelectDataAsset } from '@/api/test/index';
   import type { Rule } from 'ant-design-vue/es/form';
   import { InsertDirectory, SelectDirectory, StandardMapping } from '@/api/test/index';
   import _, { filter } from 'lodash';
   import { MailOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, PlusOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
   import { cloneDeep } from 'lodash-es';
+  import { number, object } from 'vue-types';
 
   const treeSelectData = ref<TreeSelectProps['treeData']>([
     {
@@ -621,7 +622,7 @@
       englishName: Codetablename1.value,
     };
     SelectDataAsset(object).then(function (res: any) {
-      console.log(res);
+      console.log(object);
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data;
@@ -645,10 +646,13 @@
     selectCodeTable_way();
   };
   const count = computed(() => dataSource.value.length + 1);
+
   const onDelete = (code: string) => {
-    DeleteCode(code).then(function (res: any) {
-      if (res.data.msg == '删除成功') {
-        dataSource.value = dataSource.value.filter((item: any) => item.codeId !== code);
+    deleteAsset(code).then(function (res: any) {
+      console.log(res);
+
+      if (res.data.msg == '返回成功') {
+        dataSource.value = dataSource.value.filter((item: any) => item.assetId !== code);
       }
     });
   };
@@ -665,20 +669,52 @@
       },
     ],
   });
-  const showcode = (codeId: string) => {
+
+  //中文
+  const showcode1 = (code1: any) => {
     personnelcodetable.value = {
-      codename: codeId,
+      codename: code1,
       CodeConfigure: [],
     };
 
-    SelectCodeConfigure(codeId).then(function (res: any) {
-      if (res.data.msg == '获取成功') {
+    const object = {
+      chineseName: code1,
+    };
+    rebaseTbl(object).then(function (res: any) {
+      console.log(res);
+
+      console.log(object);
+
+      // if (res.data.msg == '获取成功') {
+      //   personnelcodetable.value.CodeConfigure = res.data.data;
+      // }
+    });
+    show.outmask = true;
+    show.PersonnelGender = true;
+  };
+  //英文
+  const showcode2 = (code2: any) => {
+    personnelcodetable.value = {
+      codename: code2,
+      CodeConfigure: [],
+    };
+
+    const object = {
+      chineseName: code2,
+    };
+    rebaseTbl(object).then(function (res: any) {
+      console.log(res);
+
+      console.log(object);
+
+      if (res.msg == '获取成功') {
         personnelcodetable.value.CodeConfigure = res.data.data;
       }
     });
     show.outmask = true;
     show.PersonnelGender = true;
   };
+
   // 关闭人员性别编码弹框
   const closePersonnelGender = () => {
     show.outmask = false;
@@ -691,48 +727,53 @@
     Codetablename1.value = '';
     selectCodeTable_way();
   };
+
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     checkStrictly: false,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
+      console.log(selectedRows);
     },
   });
   // 批量操作
-  const ALLonChangecode = (state: string) => {
-    if (state === '1') {
+  const ALLonChangecode = (state: number) => {
+    console.log(state);
+    if (state === 1) {
       let length = Selectall_invert.value.length;
+      state = 0;
       for (let i = 0; i < length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.codeId === Selectall_invert.value[i]);
-        if (temp.codeType === '已发布') {
+        let temp: any = dataSource.value.find((element: any) => element.assetId === Selectall_invert.value[i]);
+        if (temp.assetType === '已发布') {
           return message.error('已发布状态不可在进行发布');
         }
       }
     }
-    if (state === '2') {
+    if (state === 2) {
       for (let i = 0; i < Selectall_invert.value.length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.codeId === Selectall_invert.value[i]);
-        if (temp.codeType == '未发布') return message.error('停用失败，存在未发布的码表！');
+        let temp: any = dataSource.value.find((element: any) => element.assetId === Selectall_invert.value[i]);
+        if (temp.assetType == '未发布') return message.error('停用失败，存在未发布的码表！');
       }
+      state = 1;
       let length = Selectall_invert.value.length;
       for (let i = 0; i < length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.codeId === Selectall_invert.value[i]);
-        if (temp.codeType === '已停用') {
+        let temp: any = dataSource.value.find((element: any) => element.assetId === Selectall_invert.value[i]);
+        if (temp.assetType === '已停用') {
           return message.error('已停用状态不可在进行停用');
         }
       }
     }
-    let change_array: any = [];
-    Selectall_invert.value.forEach(item => {
-      change_array.push({
-        codeId: item,
-        codeType: state,
-      });
-    });
+
+    let change_array: any = {
+      assetList: Selectall_invert.value,
+      statusType: state,
+    };
+
     if (change_array.length == 0) return message.error('请选择码表进行操作!');
-    OnChange(change_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
+    OnChange1(change_array).then(function (res: any) {
+      console.log(res);
+      if (res.data.msg == '返回成功') {
         message.success('更新成功!');
         selectCodeTable_way();
       } else return message.error('更新失败！');
@@ -748,16 +789,16 @@
     selectCodeTable_way();
   };
 
-  // 改变编码状态
-  const onChangecode = (codeId: any, state: string) => {
-    let object_array = [
-      {
-        codeId: codeId,
-        codeType: state,
-      },
-    ];
-    OnChange(object_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
+  // 改变编码状态 √
+  const onChangecode = (assetId: number, state: number) => {
+    let object_array = {
+      statusType: state,
+      assetList: [assetId],
+    };
+    OnChange1(object_array).then(function (res: any) {
+      console.log(res);
+
+      if (res.data.msg == '返回成功') {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
         selectCodeTable_way();

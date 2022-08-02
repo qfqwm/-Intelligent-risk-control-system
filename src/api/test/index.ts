@@ -1,5 +1,6 @@
 // todo 实现封装一个axios
 import api from '@/utils/axios';
+import qs from 'qs';
 import exp from 'constants';
 import { SelectCodeTable } from './model';
 
@@ -34,7 +35,11 @@ enum Api {
   //查询数据资产管理信息
   Select_DataAsset = '/selectDataAsset',
   //改变状态
-  On_Change1 = '',
+  On_Change1 = '/updateAsset',
+  //删除资产表
+  Delete_balShet = '/deleteAsset',
+  //查询企业信息基本表
+  Base_balShet = '/selectDataAssetAll',
 
   //数据标准管理
   //数据标准目录页面查询
@@ -73,10 +78,15 @@ export const AddDirectory = (object: object) => api.post(Api.Add_Directory, obje
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
 export const StandardMapping = () => api.get(Api.Standard_mapping);
-
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
 //改变状态
-export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
+export const OnChange1 = (object: any) => api.post(Api.On_Change1, object);
+
+//查询企业信息基本表
+export const rebaseTbl = (object: object) => api.get(Api.Base_balShet, object);
+
+//删除balShet
+export const deleteAsset = (assetId: any) => api.delete(Api.Delete_balShet + '/' + assetId);
 
 //数据标准管理
 //页面查询
