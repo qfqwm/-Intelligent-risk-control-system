@@ -161,11 +161,10 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { computed, reactive, ref } from 'vue';
+  import { reactive, ref } from 'vue';
   import type { Ref } from 'vue';
   import { selectCodeTable, AddCodeTable, OnChange, DeleteCode, SelectCodeConfigure, UpdateCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
-  import { object } from 'vue-types';
   interface DataItem {
     key: string;
     codeId: string;
@@ -186,28 +185,34 @@
       title: '码表编号',
       dataIndex: 'codeId',
       width: '15%',
+      ellipsis: true,
     },
     {
       title: '码表名称',
       dataIndex: 'codeName',
+      ellipsis: true,
     },
     {
       title: '码表说明',
       dataIndex: 'codeExplain',
       width: '520px',
+      ellipsis: true,
     },
     {
       title: '码表状态',
       dataIndex: 'codeType',
+      ellipsis: true,
     },
     {
       title: '更新时间',
       dataIndex: 'codeUpdatetime',
+      ellipsis: true,
     },
     {
       title: '操作',
       dataIndex: 'operation',
       width: '220px',
+      ellipsis: true,
     },
   ];
   const dataSource: Ref<DataItem[]> = ref([]);
@@ -242,7 +247,6 @@
   const query = () => {
     selectCodeTable_way();
   };
-  const count = computed(() => dataSource.value.length + 1);
   const onDelete = (code: string) => {
     DeleteCode(code).then(function (res: any) {
       if (res.data.msg == '删除成功') {
@@ -387,7 +391,6 @@
   // 编码配置编辑
   const editincode_name = ref('');
   const editincode_meaning = ref('');
-  const edittablecodepz = ref<any>();
   // 记录下标
   const edit_index = ref<number>(0);
   const editcodeconfigure = (index: any) => {
@@ -573,15 +576,6 @@
   };
 
   // 分页
-  const pageSizeOptions = ref<string[]>(['10', '15', '18', '20']);
-  const current = ref(1);
-  const pageSizeRef = ref(20);
-  const total = ref(dataSource.value.length);
-  const onShowSizeChange = (current: number, pageSize: number) => {
-    pageSizeRef.value = pageSize;
-    selectCodeTable_way();
-  };
-
   const addoreditcodename = ref('');
   const addoreditcodeexplain = ref('');
   // 编码配置

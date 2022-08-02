@@ -1,10 +1,9 @@
 //对axios进行二次封装
 import axios from 'axios';
 const api = axios.create({
-
   //服务器
-  // baseURL: 'http://10.255.70.21:8848',
-  
+  // baseURL: 'http://120.26.203.148:8848',
+
   //ztc测试环境
   baseURL: 'http://10.8.21.137:8848',
 

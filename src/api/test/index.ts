@@ -42,8 +42,20 @@ enum Api {
   Data_standard_catalog_Query = '/selectStandard',
   // 新增数据标准
   Add_Standard = '/addStandard',
+  // 编辑数据标准
+  Update_Standard = '/updateStandard',
   //编号查询
   Number_lookup = '/selectInfoById',
+  // 发布
+  Publish_Standard = '/publishStandard',
+  // 删除
+  Delete_Standard = '/deleteStandard',
+  // 停用
+  Block_Standard = '/blockStandard',
+  // 枚举查询
+  GetEnum_List = '/getEnumList',
+  // 枚举范围详情
+  Select_ConfigureInfoById = '/selectConfigureInfoById',
 }
 //码表管理
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
@@ -79,10 +91,25 @@ export const StandardMapping = () => api.get(Api.Standard_mapping);
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
 //改变状态
 export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
-
+export const PublishStandard = (array: any) => api.post(Api.Publish_Standard, array);
+export const BlockStandard = (array: any) => api.post(Api.Block_Standard, array);
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
 export const AddStandard = (object: object) => api.post(Api.Add_Standard, object);
+export const UpdateStandard = (object: object) => api.post(Api.Update_Standard, object);
+export const Delete_Standard = (standardId: string) =>
+  api({
+    method: 'post',
+    url: Api.Delete_Standard,
+    params: { standardId: standardId },
+  });
+export const GetEnum_List = () => api.get(Api.GetEnum_List);
+export const Select_ConfigureInfoById = (codeId: string) =>
+  api({
+    method: 'get',
+    url: Api.Select_ConfigureInfoById,
+    params: { codeId: codeId },
+  });
 //编号查询详情
 export const Lookup = (standardId: string) =>
   api({
