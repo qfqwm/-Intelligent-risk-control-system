@@ -251,9 +251,6 @@
   import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
   import { cloneDeep } from 'lodash-es';
 
-  components: {
-    DataAssetCatalog;
-  }
   const datas = reactive<{ chineseName: string; englishName: string; assetExplain: string; assetDirectory: Sights1[]; dataAssetField: Sights2[] }>({
     chineseName: '',
     englishName: '',

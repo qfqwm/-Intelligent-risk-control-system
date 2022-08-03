@@ -113,10 +113,10 @@
 
   const handleExpand = (keys: string[], { expanded, node }) => {
     // expandedKeys = keys
-    console.log(keys, expanded, node);
+    console.log(node);
     const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
     if (expanded) {
-      expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
+      expandedKeys.value = _.difference(keys, tempKeys).concat(node.directoryId);
     } else {
       expandedKeys.value = [];
     }
@@ -142,6 +142,7 @@
       }
       expandedKeys.value = backupsExpandedKeys.slice();
     }
+    // expandedKeys.value = ['0-2','0-2-1','0-2-1-0']
     expandedKeys.value = ['0-2','0-2-1','0-2-1-0']
   };
 
@@ -159,7 +160,7 @@
     }
     return keyList;
   };
-  // // 该递归主要用于获取key的父亲节点的key值
+  // 该递归主要用于获取key的父亲节点的key值
   const getParentKey = (key, tree) => {
     let parentKey;
     let temp;
@@ -188,16 +189,6 @@
       }
     }
   };
-
-  // const handleExpand = (keys: string[], { expanded, node }) => {
-  //   console.log(keys,expanded, node);
-  //   const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
-  //   if (expanded) {
-  //     expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
-  //   } else {
-  //     expandedKeys.value = [];
-  //   }
-  // };
 
   //数据资产表目录新增目录
   interface AddData {
