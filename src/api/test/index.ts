@@ -85,9 +85,6 @@ export const OnChange1 = (object: any) => api.post(Api.On_Change1, object);
 
 //查询企业信息基本表
 export const rebaseTbl = object =>
-  // api.post(Api.Base_balShet, object,header:{
-  // 	'Content-Type':'application/json'  //如果写成contentType会报错,如果不写这条也报错
-  // })
   api({
     method: 'post',
     url: Api.Base_balShet,
