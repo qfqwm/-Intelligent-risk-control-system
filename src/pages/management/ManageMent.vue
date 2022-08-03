@@ -1,67 +1,7 @@
 <template>
   <div class="all">
     <!-- 左边资产目录区域 -->
-    <div class="left">
-      <div class="left_title">
-        <span>数据资产表目录</span>
-        <PlusCircleOutlined @click="stairAdd" />
-      </div>
-      <div class="left_search">
-        <a-input-search v-model:value="search" placeholder="按资产表名称或目录名称查询" enter-button @search="onSearch" />
-      </div>
-      <div class="left_menu">
-        <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
-          <template #title="{ title, key }">
-            <span v-if="key === '11'" style="color: #1890ff">{{ title }}</span>
-            <template v-else>{{ title }}</template>
-            <span>
-              <PlusCircleOutlined @click="add" />
-              <MinusCircleOutlined @click="remove" />
-              <EditOutlined @click="edit" />
-            </span>
-          </template>
-        </a-tree>
-      </div>
-      <!-- 数据资产表目录新增目录弹框 -->
-      <a-modal
-        v-model:visible="stair_add"
-        title="新增一级目录"
-        ok-text="确认"
-        cancel-text="取消"
-        style="text-align: center"
-        width="24rem"
-        :ok-button-props="{ style: { marginRight: '6rem' } }"
-        @ok="handleOkStairAdd"
-      >
-        <p class="tk"><span>*</span>目录名称：<input v-model="addStair" type="text" /></p>
-      </a-modal>
-      <!-- 数据资产表目录新增下级目录弹框 -->
-      <a-modal
-        v-model:visible="visible_add"
-        title="新增下级目录"
-        ok-text="确认"
-        cancel-text="取消"
-        style="text-align: center"
-        width="24rem"
-        :ok-button-props="{ style: { marginRight: '6rem' } }"
-        @ok="handleOkAdd"
-      >
-        <p class="tk"><span>*</span>目录名称：<input v-model="addSecond" type="text" /></p>
-      </a-modal>
-      <!-- 数据资产表目录编辑目录弹框 -->
-      <a-modal
-        v-model:visible="visible_edit"
-        title="编辑目录"
-        ok-text="确认"
-        cancel-text="取消"
-        style="text-align: center"
-        width="24rem"
-        :ok-button-props="{ style: { marginRight: '6rem' } }"
-        @ok="handleOkEdit"
-      >
-        <p class="tk"><span>*</span>目录名称：<input v-model="editSecond" type="text" /></p>
-      </a-modal>
-    </div>
+
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
@@ -86,121 +26,10 @@
         <div class="right1">
           <!-- 抽屉区域 -->
           <a-button type="primary" @click="showDrawer('add', {})"> 新增资产表 </a-button>
-          <a-drawer title="数据资产表基础信息" :width="1500" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
-            <!-- 数据资产表基础信息区域 -->
-            <div style="margin-top: -15px; background-color: white">
-              <span style="margin-left: 10px; font-size: 18px; line-height: 40px">数据资产表基础信息</span>
-              <hr />
-              <a-form ref="formRef" :model="datas" layout="vertical" style="margin-left: 50px">
-                <a-row :gutter="16">
-                  <a-col :span="12">
-                    <a-form-item label="＊中文名称：" name="＊中文名称：">
-                      <a-input v-model:value="datas.chineseName" placeholder="请输入数据资产表名称" />
-                    </a-form-item>
-                  </a-col>
-                </a-row>
-                <a-row :gutter="16">
-                  <a-col :span="12">
-                    <a-form-item label="＊英文名称：" name="＊英文名称：">
-                      <a-input v-model:value="datas.englishName" placeholder="请输入数据资产表名称" />
-                    </a-form-item>
-                  </a-col>
-                </a-row>
-                <a-row :gutter="16">
-                  <a-col :span="12">
-                    <a-form-item label="资产表描述：" name="资产表描述：">
-                      <a-textarea v-model:value="datas.assetExplain" :rows="4" placeholder="请输入资产表描述" />
-                    </a-form-item>
-                  </a-col>
-                </a-row>
-                <a-row :gutter="16">
-                  <a-col :span="12">
-                    <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
-                      <a-form ref="formRef" name="dynamic_form_nest_item" :model="dynamicValidateForm">
-                        <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 110px">
-                          <a-tree-select
-                            v-model:value="dynamicValidateForm.chineseName[0]"
-                            show-search
-                            style="width: 415px"
-                            allow-clear
-                            tree-default-expand-all
-                            placeholder="请选择所属目录"
-                            :tree-data="treeData1"
-                          >
-                          </a-tree-select>
-                          <a-space
-                            v-for="(sight, i) in dynamicValidateForm.sights"
-                            :key="sight.id"
-                            v-model:value="dynamicValidateForm.chineseName[i + 1]"
-                            style="display: flex; margin-bottom: 8px"
-                            align="baseline"
-                          >
-                            <a-form-item>
-                              <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeData1" @change="asd(i)"> </a-tree-select>
-                            </a-form-item>
-                            <MinusCircleOutlined @click="removeSight(sight)" />
-                          </a-space>
-                        </div>
-                        <a-form-item>
-                          <a-button type="dashed" block style="margin-top: 30px; border: 1px solid blue; border-style: dashed; width: 470px; color: blue" @click="addSight">
-                            <PlusOutlined />
-                            添加一行
-                          </a-button>
-                        </a-form-item>
-                      </a-form>
-                    </a-form-item>
-                  </a-col>
-                </a-row>
-              </a-form>
-            </div>
-            <!-- 字段配置区域 -->
-            <div style="display: flex; margin-top: 10px; background-color: white; flex-direction: row; flex-wrap: wrap">
-              <div style="margin-left: 10px; padding-top: 10px; width: 100px; font-size: 18px">＊字段配置</div>
-              <a-button class="editable-add-btn" style="margin-top: -30px; margin-bottom: 8px; margin-left: 1330px" @click="handleAdd1">添加字段</a-button>
-              <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 1400px" :scroll="{ y: 170 }" :pagination="false">
-                <template #bodyCell="{ column, text, record }">
-                  <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
-                    <div>
-                      <a-input v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="margin: -5px 0" placeholder="请输入" />
-                      <template v-else>
-                        {{ text }}
-                      </template>
-                    </div>
-                  </template>
-                  <template v-if="['address1'].includes(column.dataIndex)">
-                    <div>
-                      <a-select v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 520px" show-search :options="Mapping"></a-select>
-                      <template v-else>
-                        {{ text }}
-                      </template>
-                    </div>
-                  </template>
-                  <template v-else-if="column.dataIndex === 'operation'">
-                    <div class="editable-row-operations">
-                      <span v-if="editableData1[record.key1]">
-                        <a-typography-link @click="save1(record.key1)">保存</a-typography-link>
-                        <a-typography-link style="margin-left: 10px" @click="cancel1(record.key1)">取消 </a-typography-link>
-                      </span>
-                      <span v-else>
-                        <a @click="edit1(record.key1)">编辑</a>
-                        <a style="margin-left: 10px" @click="onDelete1(record.key1)">删除</a>
-                      </span>
-                    </div>
-                  </template>
-                </template>
-              </a-table>
-            </div>
-
-            <!-- 底部区域 -->
-            <template #footer>
-              <a-space>
-                <a-button @click="onClose">取消</a-button>
-                <a-button type="primary" @click="sure">确定</a-button>
-              </a-space>
-            </template>
-          </a-drawer>
+          <FiveButtons />
         </div>
       </div>
+
       <!-- 表格区域 -->
       <a-table
         :data-source="dataSource"
@@ -301,317 +130,22 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch, createVNode, computed, reactive } from 'vue';
-  import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
-  import { Modal, message } from 'ant-design-vue';
-  import type { Ref, UnwrapRef } from 'vue';
-  import { selectCodeTable, OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, AssetSheet, EditData1, QueryBasic, DeleteDirectory, UpdateDirectoryName } from '@/api/test/index';
-  import type { Rule } from 'ant-design-vue/es/form';
-  import { InsertDirectory, SelectDirectory, StandardMapping } from '@/api/test/index';
+  import { ref, reactive } from 'vue';
+  // import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
+  import type { Ref } from 'vue';
+  import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
+  // import type { Rule } from 'ant-design-vue/es/form';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   import _, { filter } from 'lodash';
-  import { MailOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, PlusOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
-  import { cloneDeep } from 'lodash-es';
-  import { object } from 'vue-types';
+  import FiveButtons from './component/index.vue';
+  import emitter from '@/utils/bus';
 
-  const datas = reactive<{ chineseName: string; englishName: string; assetExplain: string; assetDirectory: Sights1[]; dataAssetField: Sights2[] }>({
-    chineseName: '',
-    englishName: '',
-    assetExplain: '',
-    assetDirectory: [],
-    dataAssetField: [],
-  });
-
-  watch(
-    () => datas.chineseName,
-    () => datas.englishName,
-  );
-
-  //确认新增数据资产表
-  const sure = () => {
-    datas.assetDirectory = dynamicValidateForm.value.directoryId;
-    datas.dataAssetField = dataSource2.value;
-    console.log(datas);
-
-    AssetSheet(datas).then(function (res) {
-      console.log(res.data.msg);
-      console.log(res);
-      if (res.data.msg == '返回成功') {
-        location.reload();
-      } else {
-        alert(res.data.msg);
-      }
-    });
-  };
-
-  interface Sights {
-    id: string;
-  }
-
-  interface Sights1 {
-    directoryId: string;
-  }
-
-  // interface Sights3 {
-  //   chineseName: string
-  // }
-
-  interface Sights2 {
-    chineseName: string;
-    englishName: string;
-    fieldExplain: string;
-    standardId: string;
-  }
-
-  const formRef = ref<FormInstance>();
-  const dynamicValidateForm = ref<{ sights: Sights[]; chineseName: []; directoryId: Sights1[] }>({
-    sights: [],
-    chineseName: [],
-    directoryId: [],
-  });
-  // watch(
-  //   () => {
-  //     dynamicValidateForm.chineseName = [];
-  //   },
-  //   () => {
-  //     dynamicValidateForm.sights = [];
-  //   },
-  // );
-  const removeSight = (item: Sights) => {
-    let index = dynamicValidateForm.value.sights.indexOf(item);
-    if (index !== -1) {
-      dynamicValidateForm.value.sights.splice(index, 1);
-    }
-  };
-
-  // const asd1 =(i)=>{
-  //   dynamicValidateForm.value.chineseName = [i]
-  // }
-
-  const tet = ref<number>();
-  const asd = (i: number) => {
-    tet.value = i + 1;
-    dynamicValidateForm.value.chineseName.push(dynamicValidateForm.value.chineseName[tet.value]);
-    console.log(dynamicValidateForm.value.chineseName[tet.value], 'asd');
-  };
-
-  //有问题
-  const addSight = () => {
-    dynamicValidateForm.value.sights.push({
-      id: 'i' + Date.now(),
-    });
-    // console.log(dynamicValidateForm.chineseName);
-    for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
-      console.log(dynamicValidateForm.value.chineseName, 'cz');
-
-      dynamicValidateForm.value.directoryId.push({
-        directoryId: dynamicValidateForm.value.chineseName[i],
-      });
-    }
-    console.log(dynamicValidateForm.value);
-  };
-
-  //数据资产目录展示
-  // interface treeData {
-  //   title: string;
-  //   key: string;
-  //   children: childrens[];
-  // }
-  // interface treeData1 {
-  //   title: string;
-  //   value: string;
-  //   children: childrens3[];
-  // }
-
-  const search = ref<string>('');
   const treeData = ref<any[]>([]);
-  const treeData1 = ref<any[]>([]);
+  // const treeData1 = ref<any[]>([]);
   SelectDirectory().then(res => {
-    console.log(treeData1.value);
+    treeData.value = res.data.data;
   });
-
-  //数据资产表目录按表名称或目录名称查询
-  const expandedKeys = ref<string[]>([]);
-  const selectedKeys = ref<string[]>([]);
-  const checkedKeys = ref<string[]>([]);
-  watch(expandedKeys, () => {
-    console.log('expandedKeys', expandedKeys.value);
-  });
-  const aa = ref();
-  watch(selectedKeys, () => {
-    console.log('selectedKeys', selectedKeys.value);
-    aa.value = selectedKeys.value;
-  });
-  watch(checkedKeys, () => {
-    console.log('checkedKeys', checkedKeys.value);
-  });
-
-  const handleExpand = (keys: string[], { expanded, node }) => {
-    // expandedKeys = keys
-    console.log(keys, expanded, node);
-    const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
-    if (expanded) {
-      expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
-    } else {
-      expandedKeys.value = [];
-    }
-  };
-  // 点击搜索进行模糊筛选
-  const searchStr = ref('');
-  const backupsExpandedKeys: any[] = [];
-  const onSearch = () => {
-    searchStr.value = search.value;
-    if (searchStr.value === '') {
-      expandedKeys.value = [];
-    } else {
-      expandedKeys.value = [];
-      const candidateKeysList = getkeyList(searchStr.value, treeData.value, []);
-      candidateKeysList.forEach(item => {
-        const key = getParentKey(item, treeData.value);
-        if (key && !backupsExpandedKeys.some(item => item === key)) {
-          backupsExpandedKeys.push(key);
-        }
-      });
-      let aa = backupsExpandedKeys;
-      for (let i = 0; i < backupsExpandedKeys.length; i++) {
-        getAllParentKey(backupsExpandedKeys[i], treeData.value);
-      }
-      expandedKeys.value = backupsExpandedKeys.slice();
-    }
-  };
-
-  // 获取节点中含有value的所有key集合
-  const getkeyList = (value, tree, keyList) => {
-    let a = tree.length;
-    for (let i = 0; i < a; i++) {
-      const node = tree[i];
-      if (node.title.indexOf(value) > -1) {
-        keyList.push(node.key);
-      }
-      if (node.children) {
-        getkeyList(value, node.children, keyList);
-      }
-    }
-    return keyList;
-  };
-  // // 该递归主要用于获取key的父亲节点的key值
-  const getParentKey = (key, tree) => {
-    let parentKey;
-    let temp;
-    for (let i = 0; i < tree.length; i++) {
-      const node = tree[i];
-      if (node.children) {
-        if (node.children.some(item => item.key === key)) {
-          parentKey = node.key;
-        } else if ((temp = getParentKey(key, node.children))) {
-          parentKey = temp;
-        }
-      }
-    }
-    return parentKey;
-  };
-  // // 获取该节点的所有祖先节点
-  const getAllParentKey = (key, tree) => {
-    let parentKey;
-    if (key) {
-      parentKey = getParentKey(key, tree);
-      if (parentKey) {
-        if (!backupsExpandedKeys.some(item => item === parentKey)) {
-          backupsExpandedKeys.push(parentKey);
-        }
-        getAllParentKey(parentKey, tree);
-      }
-    }
-  };
-
-  // const handleExpand = (keys: string[], { expanded, node }) => {
-  //   console.log(keys,expanded, node);
-  //   const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
-  //   if (expanded) {
-  //     expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
-  //   } else {
-  //     expandedKeys.value = [];
-  //   }
-  // };
-
-  //数据资产表目录新增目录
-  interface AddData {
-    directoryName: string;
-    parentId: string;
-  }
-  const AddData = ref({
-    parentId: '',
-    directoryName: '',
-  });
-  const stair_add = ref<boolean>(false);
-  const addStair = ref<string>('');
-  const stairAdd = () => {
-    stair_add.value = true;
-    addStair.value = '';
-  };
-  const handleOkStairAdd = () => {
-    stair_add.value = false;
-    AddData.value.parentId = '0';
-    AddData.value.directoryName = addStair.value;
-    console.log(AddData.value);
-    InsertDirectory(AddData.value).then(() => {
-      console.log(11);
-    });
-  };
-
-  //数据资产表目录新增下级目录
-  const visible_add = ref<boolean>(false);
-  const addSecond = ref();
-  const add = () => {
-    visible_add.value = true;
-    addSecond.value = '';
-  };
-  const handleOkAdd = () => {
-    visible_add.value = false;
-    AddData.value.parentId = aa.value[0];
-    AddData.value.directoryName = addSecond.value;
-    InsertDirectory(AddData.value).then(() => {
-      console.log(11);
-    });
-  };
-
-  //数据资产表目录删除
-  const remove = () => {
-    Modal.confirm({
-      title: '请确认是否删除该目录',
-      icon: createVNode(ExclamationCircleOutlined),
-      okText: '是',
-      cancelText: '否',
-      onOk() {
-        console.log('是', typeof aa.value[0]);
-        DeleteDirectory(aa.value[0]).then(() => {
-          console.log(11);
-        });
-      },
-      onCancel() {
-        console.log('否');
-      },
-    });
-  };
-
-  //数据资产表目录编辑
-  const EditData = ref({
-    directoryId: '',
-    directoryName: '',
-  });
-  const visible_edit = ref<boolean>(false);
-  const editSecond = ref();
-  const edit = () => {
-    visible_edit.value = true;
-    editSecond.value = '';
-  };
-  const handleOkEdit = () => {
-    visible_edit.value = false;
-    EditData.value.directoryId = aa.value[0];
-    EditData.value.directoryName = editSecond.value;
-    UpdateDirectoryName(EditData.value).then(() => {
-      console.log(11);
-    });
-  };
 
   interface DataItem {
     key: string;
@@ -624,68 +158,17 @@
     allCodeTable: object;
   }
 
-  interface DataItem1 {
-    key1: string;
-    name: string;
-    age: string;
-    address: string;
-    address1: string;
-  }
-
-  interface DataItem2 {
-    chineseName: string;
-    englishName: string;
-    standardId: string;
-    fieldExplain: string;
-  }
-
   const visible = ref<boolean>(false);
 
-  const datas1 = ref({
-    chineseName: '',
-    englishName: '',
-    assetId: '',
-  });
-
-  // interface name1 {
-  //   chineseName: string
-  // }
-
-  // const add1 = ref<{ name2: name1[] }>({
-  //   name2:[]
-  // });
-  const add1 = ref();
-  const sss = ref('');
   const showDrawer = (type: string, record: any) => {
-    if (type == 'add') {
-      datas.chineseName = '';
-      datas.englishName = '';
-      datas.assetExplain = '';
-      // dynamicValidateForm.value = ''
-      visible.value = true;
-      // console.log(11);
-    }
-    if (type == 'edit') {
-      add1.value = { chineseName: record.chineseName };
-      visible.value = true;
-      QueryBasic(add1.value).then(function (res) {
-        console.log(res);
-        sss.value = res.data.data;
-        console.log(sss.value);
-      });
-      datas.chineseName = record.chineseName;
-      datas.englishName = record.englishName;
-      datas.assetExplain = record.assetExplain;
-      // dynamicValidateForm.value = sss.value
-      // console.log(22);
-      // EditData1(datas1).then(function(res){
-      //   console.log(res);
-      // })
-    }
-  };
-
-  const onClose = () => {
-    visible.value = false;
+    const sdd = reactive({
+      type: type,
+      record: record,
+      visible: visible,
+      treeData: treeData,
+    });
+    // Add();
+    emitter.emit('sendchild', sdd);
   };
 
   // 搜索功能
@@ -855,7 +338,7 @@
     });
   };
   // 分页
-  const pageSizeRef = ref(20);
+  // const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
 
   // 改变编码状态
@@ -874,103 +357,6 @@
       }
     });
   };
-  // 判断正则表达以编码名是否重复
-
-  const columns1 = [
-    {
-      title: '字段英文名称',
-      dataIndex: 'name',
-      width: '15%',
-    },
-    {
-      title: '字段中文名称',
-      dataIndex: 'age',
-      width: '15%',
-    },
-    {
-      title: '字段说明',
-      dataIndex: 'address',
-      width: '20%',
-    },
-    {
-      title: '标准映射',
-      dataIndex: 'address1',
-      width: '40%',
-    },
-    {
-      title: '操作',
-      dataIndex: 'operation',
-    },
-  ];
-  const dataSource1: Ref<DataItem1[]> = ref([]);
-  const dataSource2: Ref<DataItem2[]> = ref([]);
-  const count1 = computed(() => dataSource1.value.length + 1);
-  const editableData1: UnwrapRef<Record<string, DataItem1>> = reactive({});
-
-  const edit1 = (key1: string) => {
-    editableData1[key1] = cloneDeep(dataSource1.value.filter(item => key1 === item.key1)[0]);
-  };
-
-  const save1 = (key1: string) => {
-    Object.assign(dataSource1.value.filter(item => key1 === item.key1)[0], editableData1[key1]);
-    delete editableData1[key1];
-    dataSource2.value = [];
-    for (let i = 0; i < dataSource1.value.length; i++) {
-      let a = dataSource1.value[i].address1.split('  ');
-      dataSource2.value.push({
-        chineseName: dataSource1.value[i].age,
-        englishName: dataSource1.value[i].name,
-        standardId: a[0],
-        fieldExplain: dataSource1.value[i].address,
-      });
-    }
-    console.log(dataSource2.value);
-  };
-  const onDelete1 = (key1: string) => {
-    dataSource1.value = dataSource1.value.filter(item => item.key1 !== key1);
-  };
-  const cancel1 = (key1: string) => {
-    delete editableData1[key1];
-    onDelete1(key1);
-  };
-
-  const Mapping = ref([]);
-  const length = ref('');
-  const standard_id = ref('');
-  const handleAdd1 = () => {
-    StandardMapping().then(function (res) {
-      // console.log(res.data.data);
-      length.value = res.data.data.length;
-      // standard_id.value = res.data.data.standard_id
-      Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
-      standard_id.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standard_id }));
-      // for (let i = 0; i < res.data.data.length; i++) {
-      //   // Mapping.value.substr(0,6)
-      //   console.log(Mapping.value.splice(7,10));
-
-      // }
-      // console.log(Mapping.value);
-      // console.log(standard_id.value);
-      // console.log(length.value);
-    });
-    const newData = {
-      key1: `${count1.value}`,
-      name: ``,
-      age: ``,
-      address: ``,
-      address1: ``,
-    };
-    dataSource1.value.push(newData);
-    edit1(dataSource1.value.length.toString());
-  };
-
-  const object1 = reactive({
-    chineseName: '',
-    englishName: '',
-    assetExplain: '',
-    assetDirectory: [],
-    dataAssetField: [],
-  });
 </script>
 
 <style lang="less" scoped>
