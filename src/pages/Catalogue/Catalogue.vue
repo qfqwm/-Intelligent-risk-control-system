@@ -254,6 +254,13 @@
   const moreenglish_Name = ref<any>([]);
   const edit_add_title = ref<string>('');
   const show = function (query_object: any) {
+    let object = {
+      englishName: '',
+      standardId: '',
+      sourceAgencies: '',
+      standardType: '',
+      chineseName: '',
+    };
     if (query_object) {
       object = query_object;
     }
@@ -349,8 +356,66 @@
     },
   ];
 
+  const editvisible = ref<boolean>(false);
+  const data_storage = reactive({ standardType: '', standardId: '', china: '', english: '' });
   const GetEnum = ref<SelectProps['options']>([]);
-
+  const showDrawer = (type: string, standardId: any) => {
+    // 请求枚举类型
+    GetEnum_List().then(function (res) {
+      GetEnum.value = [];
+      res.data.data.forEach((item: any) => {
+        GetEnum.value?.push({
+          value: item.code_id,
+          label: item.code_name,
+        });
+      });
+    });
+    editvisible.value = true;
+    if (type == 'add') edit_add_title.value = '新增标准';
+    if (type == 'edit') {
+      edit_add_title.value = '编辑标准';
+      Lookup(standardId).then(function (res) {
+        add_edit_chineseName.value = res.data.data.chineseName;
+        add_edit_englishName.value = res.data.data.englishName;
+        add_edit_sourceAgencies.value = res.data.data.sourceAgencies;
+        data_storage.standardType = res.data.data.standardType;
+        data_storage.standardId = standardId;
+        data_storage.china = res.data.data.chineseName;
+        data_storage.english = res.data.data.englishName;
+        switch (res.data.data.dataType) {
+          case 1:
+            add_edit_dataType.value = 'Int';
+            break;
+          case 2:
+            add_edit_dataType.value = 'Float';
+            break;
+          case 3:
+            add_edit_dataType.value = 'Enum';
+            break;
+          case 4:
+            add_edit_dataType.value = 'String';
+            break;
+        }
+        switch (res.data.data.isNull) {
+          case 0:
+            add_edit_isNull.value = '可为空';
+            break;
+          case 1:
+            add_edit_isNull.value = '不可为空';
+            break;
+        }
+        add_edit_dataDefault.value = res.data.data.dataDefault;
+        add_edit_standardExplain.value = res.data.data.standardExplain;
+        if (res.data.data.dataMin == '') add_edit_dataMin.value = null;
+        else add_edit_dataMin.value = Number(res.data.data.dataMin);
+        if (res.data.data.dataMax == '') add_edit_dataMax.value = null;
+        else add_edit_dataMax.value = Number(res.data.data.dataMax);
+        add_edit_dataPrecision.value = res.data.data.dataPrecision;
+        add_edit_dataLength.value = res.data.data.dataLength;
+        add_edit_enumRange.value = res.data.data.enumRange;
+      });
+    }
+  };
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     checkStrictly: false,
@@ -360,9 +425,19 @@
   });
   // 编辑页面
   // 下拉菜单
-
+  // 数据类型
+  const data_type = ref<SelectProps['options']>([
+    { value: 'Int', label: 'Int' },
+    { value: 'Enum', label: 'Enum' },
+    { value: 'Float', label: 'Float' },
+    { value: 'String', label: 'String' },
+  ]);
   const select_data_type = ref<string>();
-
+  //是否可为空
+  const Judge_null = ref<SelectProps['options']>([
+    { value: '可为空', label: '可为空' },
+    { value: '不可为空', label: '不可为空' },
+  ]);
   const select_Judge_null = ref<string>();
   // 来源机构
   const Source_institution = ref<SelectProps['options']>([{ value: '哈哈哈', label: '哈哈哈' }]);

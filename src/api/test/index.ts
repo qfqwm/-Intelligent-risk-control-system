@@ -1,7 +1,5 @@
 // todo 实现封装一个axios
 import api from '@/utils/axios';
-import exp from 'constants';
-import { SelectCodeTable } from './model';
 
 enum Api {
   // 码表管理
@@ -34,8 +32,6 @@ enum Api {
   Standard_mapping = '/selectStandardMapping',
   //查询数据资产管理信息
   Select_DataAsset = '/selectDataAsset',
-  //改变状态
-  On_Change1 = '',
   //新增数据资产表
   New_data_asset_sheet = '/addAsset',
   //编辑数据资产管理
@@ -47,6 +43,12 @@ enum Api {
   Delete_Directory = 'deleteDirectory',
   //数据资产表目录编辑目录
   Update_Directory_Name = 'updateDirectoryName',
+
+  On_Change1 = '/updateAsset',
+  //删除资产表
+  Delete_balShet = '/deleteAsset',
+  //查询企业信息基本表
+  Base_balShet = '/selectDataAssetAll',
 
   //数据标准管理
   //数据标准目录页面查询
@@ -102,7 +104,6 @@ export const SelectDirectory = () => api.get(Api.Select_Directory);
 export const StandardMapping = () => api.get(Api.Standard_mapping);
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
 //改变状态
-export const OnChange1 = (array: any) => api.post(Api.On_Change1, array);
 export const PublishStandard = (array: any) => api.post(Api.Publish_Standard, array);
 export const BlockStandard = (array: any) => api.post(Api.Block_Standard, array);
 export const AssetSheet = (object: object) => api.post(Api.New_data_asset_sheet, object);
@@ -111,7 +112,22 @@ export const QueryBasic = (name: any) => api.post(Api.Query_the_basic, name);
 export const DeleteDirectory = (directoryId: string) => api.delete(Api.Delete_Directory, { params: { directoryId: directoryId } });
 export const UpdateDirectoryName = (object: object) => api.post(Api.Update_Directory_Name, object);
 
+//改变状态
+export const OnChange1 = (object: any) => api.post(Api.On_Change1, object);
 
+//查询企业信息基本表
+export const rebaseTbl = object =>
+  api({
+    method: 'post',
+    url: Api.Base_balShet,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: object,
+  });
+
+//删除balShet
+export const deleteAsset = (assetId: any) => api.delete(Api.Delete_balShet + '/' + assetId);
 
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
