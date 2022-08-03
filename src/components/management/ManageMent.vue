@@ -261,10 +261,10 @@
             <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
             <h2>企业基本信息表</h2>
             <h3>基本信息</h3><br />
-            <span class="label"> 中文名称：</span> {{ personnelcodetable.codename }} <br />
-            <span class="label"> 英文名称：</span> <br />
+            <span class="label"> 中文名称：</span> {{ personnelcodetable.chineseName }} <br />
+            <span class="label"> 英文名称：</span>{{ personnelcodetable.englishName }} <br />
             <h4>数据资产表描述：</h4>
-            <span class="label"> 所属目录：</span>
+            <span class="label"> 所属目录：</span> {{ personnelcodetable.directoryNames }}
           </div>
           <h3>字段信息</h3><br />
           <table class="PersonnelGendertable">
@@ -283,17 +283,29 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in personnelcodetable.CodeConfigure" :key="index">
-                <td>{{ index + 1 < 10 ? '0' + (index + 1) : index }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureMean }}</td>
+              <tr v-for="(item, index) in personnelcodetable.dataAssetField" :key="index">
+                <td>{{ item.englishName }}</td>
+                <td>{{ item.chineseName }}</td>
+                <td>{{ item.fieldExplain }}</td>
+                <td>{{ item.standardId }}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+              </tr>
+              <tr v-for="(item1, index) in personnelcodetable.dataStandards" :key="index">
+                <td>{{ item1.englishName }}</td>
+                <td>{{ item1.chineseName }}</td>
+                <td>{{ item1.standardExplain }}</td>
+                <td>{{ item1.standardId }}</td>
+                <td>{{ item1.dataType }}</td>
+                <td>{{ item1.dataLength }}</td>
+                <td>{{}}</td>
+                <td>{{ item1.dataDefault }}</td>
+                <td>{{}}</td>
+                <td>{{ item1.enumRange }}</td>
               </tr>
             </tbody>
           </table>
@@ -661,11 +673,30 @@
 
   // 人员性别编码弹框
   const personnelcodetable = ref({
-    codename: '',
-    CodeConfigure: [
+    chineseName: '',
+    englishName: '',
+    directoryNames: '',
+    dataAssetField: [
       {
-        configureName: '',
-        configureMean: '',
+        englishName: '',
+        chineseName: '',
+        fieldExplain: '',
+        standardId: '',
+      },
+    ],
+    dataStandards: [
+      {
+        englishName: '',
+        chineseName: '',
+        standardExplain: '',
+        dataType: '',
+        dataLength: '',
+        dataPrecision: '',
+        standardId: '',
+        dataDefault: '',
+        dataMin: '',
+        dataMax: '',
+        enumRange: '',
       },
     ],
   });
@@ -673,21 +704,24 @@
   //中文
   const showcode1 = (code1: any) => {
     personnelcodetable.value = {
-      codename: code1,
-      CodeConfigure: [],
+      chineseName: code1,
+      englishName: '',
+      directoryNames: '',
+      dataAssetField: [],
+      dataStandards: [],
     };
 
     const object = {
       chineseName: code1,
     };
     rebaseTbl(object).then(function (res: any) {
-      console.log(res);
+      if (res.data.msg == '返回成功') {
+        //  var list=[...res.data.data.dataStandards,...res.data.data.dataAssetField]
 
-      console.log(object);
+        console.log(res.data.data);
 
-      // if (res.data.msg == '获取成功') {
-      //   personnelcodetable.value.CodeConfigure = res.data.data;
-      // }
+        personnelcodetable.value = res.data.data;
+      }
     });
     show.outmask = true;
     show.PersonnelGender = true;
@@ -695,20 +729,22 @@
   //英文
   const showcode2 = (code2: any) => {
     personnelcodetable.value = {
-      codename: code2,
-      CodeConfigure: [],
+      chineseName: '',
+      englishName: code2,
+      directoryNames: '',
+      dataAssetField: [],
+      dataStandards: [],
     };
 
     const object = {
-      chineseName: code2,
+      englishName: code2,
     };
     rebaseTbl(object).then(function (res: any) {
-      console.log(res);
-
+      console.log(res.data.data.dataStandards);
       console.log(object);
 
-      if (res.msg == '获取成功') {
-        personnelcodetable.value.CodeConfigure = res.data.data;
+      if (res.data.msg == '返回成功') {
+        personnelcodetable.value = res.data.data;
       }
     });
     show.outmask = true;

@@ -3,6 +3,7 @@ import api from '@/utils/axios';
 import qs from 'qs';
 import exp from 'constants';
 import { SelectCodeTable } from './model';
+import { omitBy } from 'lodash-es';
 
 enum Api {
   // 码表管理
@@ -83,7 +84,18 @@ export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset
 export const OnChange1 = (object: any) => api.post(Api.On_Change1, object);
 
 //查询企业信息基本表
-export const rebaseTbl = (object: object) => api.get(Api.Base_balShet, object);
+export const rebaseTbl = object =>
+  // api.post(Api.Base_balShet, object,header:{
+  // 	'Content-Type':'application/json'  //如果写成contentType会报错,如果不写这条也报错
+  // })
+  api({
+    method: 'post',
+    url: Api.Base_balShet,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: object,
+  });
 
 //删除balShet
 export const deleteAsset = (assetId: any) => api.delete(Api.Delete_balShet + '/' + assetId);
