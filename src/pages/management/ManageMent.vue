@@ -11,9 +11,9 @@
       </div>
       <div class="left_menu">
         <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
-          <template #title="{ title, key }">
-            <span v-if="key === '11'" style="color: #1890ff">{{ title }}</span>
-            <template v-else>{{ title }}</template>
+          <template #title="{ name, directoryId }">
+            <span v-if="directoryId === '11'" style="color: #1890ff">{{ name }}</span>
+            <template v-else>{{ name }}</template>
             <span>
               <PlusCircleOutlined @click="add" />
               <MinusCircleOutlined @click="remove" />
@@ -194,7 +194,7 @@
   // import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { Modal, message } from 'ant-design-vue';
   import type { Ref } from 'vue';
-  import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, DeleteDirectory, UpdateDirectoryName, InsertDirectory } from '@/api/test/index';
+  import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
   // import type { Rule } from 'ant-design-vue/es/form';
   import _ from 'lodash';
   import { PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, EditOutlined } from '@ant-design/icons-vue';
@@ -217,79 +217,10 @@
 
   const search = ref<string>('');
   const treeData = ref<any[]>([]);
-  const treeData1 = ref<any[]>([]);
-  // SelectDirectory().then((res) => {
-  //   res.data.data.forEach((ele) => {
-  //     const childrens = <any>[];
-  //     const Childrens1 = <any>[];
-  //     const Childrens2 = <any>[];
-  //     const childrens3 = <any>[];
-  //     if (ele.children) {
-  //       treeData.value.push({
-  //         title: ele.name,
-  //         key: ele.directoryId,
-  //         children: childrens,
-  //       });
-  //       treeData1.value.push({
-  //         title: ele.name,
-  //         value: ele.directoryId,
-  //         children: childrens3,
-  //       });
-  //       ele.children.forEach((ele) => {
-  //         if (ele.children) {
-  //           childrens.push({
-  //             title: ele.name,
-  //             key: ele.directoryId,
-  //             children: Childrens1,
-  //           });
-  //           childrens3.push({
-  //             title: ele.name,
-  //             value: ele.directoryId,
-  //           });
-  //           ele.children.forEach((ele) => {
-  //             if (ele.children) {
-  //               Childrens1.push({
-  //                 title: ele.name,
-  //                 key: ele.directoryId,
-  //                 children: Childrens2,
-  //               });
-  //               ele.children.forEach((ele) => {
-  //                 if (ele.children) {
-  //                   Childrens2.push({
-  //                     title: ele.name,
-  //                     key: ele.directoryId,
-  //                     children: Childrens1,
-  //                   });
-  //                 } else {
-  //                   Childrens2.push({
-  //                     title: ele.name,
-  //                     key: ele.directoryId,
-  //                   });
-  //                 }
-  //               });
-  //             } else {
-  //               Childrens1.push({
-  //                 title: ele.name,
-  //                 key: ele.directoryId,
-  //               });
-  //             }
-  //           });
-  //         } else {
-  //           childrens.push({
-  //             title: ele.name,
-  //             key: ele.directoryId,
-  //           });
-  //         }
-  //       });
-  //     } else {
-  //       treeData.value.push({
-  //         title: ele.name,
-  //         key: ele.directoryId,
-  //       });
-  //     }
-  //   });
-  //   console.log(treeData1.value);
-  // });
+  // const treeData1 = ref<any[]>([]);
+  SelectDirectory().then(res => {
+    treeData.value = res.data.data;
+  });
 
   //数据资产表目录按表名称或目录名称查询
   const expandedKeys = ref<string[]>([]);
@@ -482,8 +413,10 @@
     const sdd = reactive({
       type: type,
       record: record,
+      visible: visible,
+      treeData: treeData,
     });
-    Add();
+    // Add();
     emitter.emit('sendchild', sdd);
   };
 
@@ -674,14 +607,14 @@
     });
   };
 
-  const ttt = reactive({
-    visible: visible,
-    treeData1: treeData1,
-  });
+  // const ttt = reactive({
+  //   visible: visible,
+  //   treeData: treeData,
+  // });
 
-  const Add = () => {
-    emitter.emit('sendchild', ttt);
-  };
+  // const Add = () => {
+  //   emitter.emit('sendchild', ttt);
+  // };
 </script>
 
 <style lang="less" scoped>

@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-template-shadow -->
 <template>
   <div>
     <a-drawer title="数据资产表基础信息" :width="1500" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
@@ -39,8 +40,13 @@
                       allow-clear
                       tree-default-expand-all
                       placeholder="请选择所属目录"
-                      :tree-data="treeData1"
+                      :tree-data="treeData"
+                      @click="convertData(treeData)"
                     >
+                      <template #title="{ value: directoryId, title: name }">
+                        <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
+                        <template v-else>{{ name }}</template>
+                      </template>
                     </a-tree-select>
                     <a-space
                       v-for="(sight, i) in dynamicValidateForm.sights"
@@ -50,7 +56,12 @@
                       align="baseline"
                     >
                       <a-form-item>
-                        <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeData1"> </a-tree-select>
+                        <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeData" @click="convertData(treeData)">
+                          <template #title="{ value: directoryId, title: name }">
+                            <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
+                            <template v-else>{{ name }}</template>
+                          </template>
+                        </a-tree-select>
                       </a-form-item>
                       <MinusCircleOutlined @click="removeSight(sight)" />
                     </a-space>
@@ -123,6 +134,7 @@
   import type { FormInstance } from 'ant-design-vue';
   import emitter from '@/utils/bus';
   import { cloneDeep } from 'lodash';
+  //   import type { TreeSelectProps } from 'ant-design-vue';
 
   const datas = reactive<{ chineseName: string; englishName: string; assetExplain: string; assetDirectory: Sights1[]; dataAssetField: Sights2[] }>({
     chineseName: '',
@@ -132,17 +144,28 @@
     dataAssetField: [],
   });
   const visible = ref();
-  const treeData1 = ref<any[]>([]);
+  const treeData = ref([]);
   let type = '';
   let record: any = {};
   emitter.on('sendchild', (t: any) => {
     visible.value = t.visible;
-    treeData1.value = t.treeData1;
+    treeData.value = t.treeData;
     type = t.type;
     record = t.record;
-    console.log(t, 'as');
+    console.log(treeData, 'asddad');
     showDrawer(type, record);
   });
+
+  const convertData = (treeData: any[]) => {
+    treeData.forEach(item => {
+      item.title = item.name;
+      item.value = item.directoryId;
+      if (item.children) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        convertData(item.children);
+      }
+    });
+  };
 
   interface Sights {
     id: string;
@@ -187,7 +210,7 @@
   const standard_id = ref('');
   const handleAdd1 = () => {
     StandardMapping().then(function (res) {
-      // console.log(res.data.data);
+      console.log(res.data.data);
       length.value = res.data.data.length;
       // standard_id.value = res.data.data.standard_id
       Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
@@ -221,8 +244,6 @@
   const add1 = ref();
   const sss = ref('');
   const showDrawer = (type: string, record: any) => {
-    console.log(1112);
-
     if (type == 'add') {
       datas.chineseName = '';
       datas.englishName = '';
