@@ -1,11 +1,11 @@
 import Index from '@/layout/index.vue';
-import TableManagement from '@/components/TableManagement/TableManagement.vue';
-import InterFace from '@/components/InterFace/InterFace.vue';
-import DataBase from '@/components/DataBase/DataBase.vue';
-import Catalogue from '@/components/Catalogue/Catalogue.vue';
-import ManageMent from '@/components/management/ManageMent.vue';
-import Scriptment from '@/components/Scriptment/Scriptment.vue';
-import Taskment from '@/components/Taskment/Taskment.vue';
+import TableManagement from '@/pages/TableManagement/TableManagement.vue';
+import InterFace from '@/pages/InterFace/InterFace.vue';
+import DataBase from '@/pages/DataBase/DataBase.vue';
+import Catalogue from '@/pages/Catalogue/Catalogue.vue';
+import ManageMent from '@/pages/management/ManageMent.vue';
+import Scriptment from '@/pages/Scriptment/Scriptment.vue';
+import Taskment from '@/pages/Taskment/Taskment.vue';
 export default {
   path: '/',
   component: Index,
