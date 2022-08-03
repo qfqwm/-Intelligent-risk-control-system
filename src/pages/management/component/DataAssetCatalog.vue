@@ -90,8 +90,8 @@
   //数据资产目录展示
   const search = ref<string>('');
   const treeData = ref<any[]>([]);
-  const treeData1 = ref<any[]>([]);
   SelectDirectory().then(res => {
+    treeData.value = res.data.data
     console.log();
   });
 
@@ -131,8 +131,12 @@
     } else {
       expandedKeys.value = [];
       const candidateKeysList = getkeyList(searchStr.value, treeData.value, []);
+      // console.log(candidateKeysList);
+      
       candidateKeysList.forEach(item => {
         const key = getParentKey(item, treeData.value);
+        // console.log(key);
+        
         if (key && !backupsExpandedKeys.some(item => item === key)) {
           backupsExpandedKeys.push(key);
         }
@@ -147,10 +151,14 @@
   // 获取节点中含有value的所有key集合
   const getkeyList = (value, tree, keyList) => {
     let a = tree.length;
+    console.log(tree);
+    
     for (let i = 0; i < a; i++) {
       const node = tree[i];
-      if (node.title.indexOf(value) > -1) {
-        keyList.push(node.key);
+      // console.log(node);
+      
+      if (node.name.indexOf(value) > -1) {
+        keyList.push(node.directoryId);
       }
       if (node.children) {
         getkeyList(value, node.children, keyList);
@@ -165,8 +173,8 @@
     for (let i = 0; i < tree.length; i++) {
       const node = tree[i];
       if (node.children) {
-        if (node.children.some(item => item.key === key)) {
-          parentKey = node.key;
+        if (node.children.some(item => item.directoryId === key)) {
+          parentKey = node.directoryId;
         } else if ((temp = getParentKey(key, node.children))) {
           parentKey = temp;
         }
@@ -218,7 +226,9 @@
     AddData.value.parentId = '0';
     AddData.value.directoryName = addStair.value;
     console.log(AddData.value);
-    InsertDirectory(AddData.value).then(() => {});
+    InsertDirectory(AddData.value).then(() => {
+      console.log();
+    });
   };
 
   //数据资产表目录新增下级目录
@@ -232,7 +242,9 @@
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
     AddData.value.directoryName = addSecond.value;
-    InsertDirectory(AddData.value).then(() => {});
+    InsertDirectory(AddData.value).then(() => {
+      console.log();
+    });
   };
 
   //数据资产表目录删除
@@ -244,7 +256,9 @@
       cancelText: '否',
       onOk() {
         console.log('是', typeof aa.value[0]);
-        DeleteDirectory(aa.value[0]).then(() => {});
+        DeleteDirectory(aa.value[0]).then(() => {
+          console.log();
+        });
       },
       onCancel() {
         console.log('否');
@@ -267,7 +281,9 @@
     visible_edit.value = false;
     EditData.value.directoryId = aa.value[0];
     EditData.value.directoryName = editSecond.value;
-    UpdateDirectoryName(EditData.value).then(() => {});
+    UpdateDirectoryName(EditData.value).then(() => {
+      console.log();
+    });
   };
 </script>
 <style scoped lang="less">
