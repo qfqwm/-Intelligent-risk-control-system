@@ -11,14 +11,13 @@
     <span>数据库名称：</span><input v-model.trim="standardId" type="text" placeholder="请输入标准编号" />
     <a-button class="Reset" @click="Reset">重置</a-button>
     <a-button class="query">查询</a-button>
-    <a-button class="query">新增数据源</a-button>
+    <AddDataSrc></AddDataSrc>
   </div>
 
   <!-- 表格区域 -->
   <a-table
     :data-source="dataSource"
     :columns="columns"
-    :row-selection="rowSelection"
     :pagination="{
     pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
     showSizeChanger: true,
@@ -27,7 +26,7 @@
       return Number(size.value) + ' 项' + '/' + '页'
     }
   }"
-    :row-key="(dataSource: any) => { return dataSource.standardId }"
+    :row-key="(dataSource: any)=>{ return dataSource.standardId }"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'codeId'">
@@ -36,6 +35,7 @@
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
         <div v-if="record.standardType == '未发布'">
+          <a-button type="primary" size="small">连通测试</a-button>
           <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
@@ -147,7 +147,6 @@
     </div>
   </a-drawer>
   <!-- 显示详情 -->
-
   <div>
     <a-modal v-model:visible="Detailsvisible" :title="Detailed.chineseName + '(' + Detailed.standardId + ')'">
       <span> 标准编号：</span>{{ Detailed.standardId }}<br />
@@ -189,6 +188,8 @@
   import { Catalog, Lookup } from '@/api/test/index';
   import { ref, onMounted } from 'vue';
   import type { Ref } from 'vue';
+
+  import AddDataSrc from './addDataSrc.vue';
   interface DataItem {
     chineseName: string;
     creatTime: string;
@@ -268,16 +269,6 @@
       width: '15%',
     },
     {
-      title: '来源机构',
-      dataIndex: 'sourceAgencies',
-      width: '10%',
-    },
-    {
-      title: '数据类型',
-      dataIndex: 'dataType',
-      width: '10%',
-    },
-    {
       title: '应用状态',
       dataIndex: 'standardType',
       width: '10%',
@@ -285,7 +276,12 @@
     {
       title: '更新时间',
       dataIndex: 'updateTime',
-      width: '10%',
+      width: '15%',
+
+      sorter: {
+        compare: (a, b) => a.updateTime - b.updateTime,
+        multiple: 1,
+      },
     },
     {
       title: '操作',
@@ -294,15 +290,6 @@
     },
   ];
 
-  // const form = reactive({
-  //   name: '',
-  //   url: '',
-  //   owner: '',
-  //   type: '',
-  //   approver: '',
-  //   dateTime: null,
-  //   description: '',
-  // });
   const editvisible = ref<boolean>(false);
 
   const showDrawer = () => {
@@ -312,13 +299,7 @@
   const onClose = () => {
     editvisible.value = false;
   };
-  const Selectall_invert = ref([]);
-  const rowSelection = ref({
-    checkStrictly: false,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-    },
-  });
+
   // 编辑页面
   // 下拉菜单
   // 数据类型
@@ -411,7 +392,6 @@
     chineseName.value = '';
     englishName.value = '';
   };
-  // const query=()=>{}
 </script>
 
 <style lang="less" scoped>
