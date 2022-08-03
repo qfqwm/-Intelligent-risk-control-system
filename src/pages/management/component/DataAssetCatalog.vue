@@ -131,12 +131,8 @@
     } else {
       expandedKeys.value = [];
       const candidateKeysList = getkeyList(searchStr.value, treeData.value, []);
-      // console.log(candidateKeysList);
-      
       candidateKeysList.forEach(item => {
         const key = getParentKey(item, treeData.value);
-        // console.log(key);
-        
         if (key && !backupsExpandedKeys.some(item => item === key)) {
           backupsExpandedKeys.push(key);
         }
@@ -146,17 +142,14 @@
       }
       expandedKeys.value = backupsExpandedKeys.slice();
     }
+    expandedKeys.value = ['0-2','0-2-1','0-2-1-0']
   };
 
   // 获取节点中含有value的所有key集合
   const getkeyList = (value, tree, keyList) => {
     let a = tree.length;
-    console.log(tree);
-    
     for (let i = 0; i < a; i++) {
       const node = tree[i];
-      // console.log(node);
-      
       if (node.name.indexOf(value) > -1) {
         keyList.push(node.directoryId);
       }
@@ -287,5 +280,5 @@
   };
 </script>
 <style scoped lang="less">
-  @import '@/pages/management/style.less';
+  @import '@/pages/management/DataAssetCatalog.less';
 </style>
