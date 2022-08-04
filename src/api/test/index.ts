@@ -1,7 +1,5 @@
 // todo 实现封装一个axios
 import api from '@/utils/axios';
-import exp from 'constants';
-import { SelectCodeTable } from './model';
 
 enum Api {
   // 码表管理
@@ -40,8 +38,8 @@ enum Api {
   New_data_asset_sheet = '/addAsset',
   //编辑数据资产管理
   Edit_data_asset_management = '/updateAllAsset',
-  //查询企业基本信息表
-  Query_the_basic = '/selectDataAssetAll',
+  //查询编辑页面需要的字段
+  Query_the_basic = '/selectUpdateDataAssetAll',
 
   //数据资产表目录删除目录
   Delete_Directory = 'deleteDirectory',
@@ -110,8 +108,6 @@ export const EditData1 = (object: object) => api.post(Api.Edit_data_asset_manage
 export const QueryBasic = (name: any) => api.post(Api.Query_the_basic, name);
 export const DeleteDirectory = (directoryId: string) => api.delete(Api.Delete_Directory, { params: { directoryId: directoryId } });
 export const UpdateDirectoryName = (object: object) => api.post(Api.Update_Directory_Name, object);
-
-
 
 //数据标准管理
 export const Catalog = (object: object) => api.post(Api.Data_standard_catalog_Query, object);
