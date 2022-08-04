@@ -36,8 +36,8 @@ enum Api {
   New_data_asset_sheet = '/addAsset',
   //编辑数据资产管理
   Edit_data_asset_management = '/updateAllAsset',
-  //查询企业基本信息表
-  Query_the_basic = '/selectDataAssetAll',
+  //查询编辑页面需要的字段
+  Query_the_basic = '/selectUpdateDataAssetAll',
 
   //数据资产表目录删除目录
   Delete_Directory = 'deleteDirectory',
@@ -100,10 +100,8 @@ export const importExcel = (data: any) =>
 export const AddDirectory = (object: object) => api.post(Api.Add_Directory, object);
 export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory, object);
 export const SelectDirectory = () => api.get(Api.Select_Directory);
-
 export const StandardMapping = () => api.get(Api.Standard_mapping);
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
-//改变状态
 export const PublishStandard = (array: any) => api.post(Api.Publish_Standard, array);
 export const BlockStandard = (array: any) => api.post(Api.Block_Standard, array);
 export const AssetSheet = (object: object) => api.post(Api.New_data_asset_sheet, object);

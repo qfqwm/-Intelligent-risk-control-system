@@ -1,7 +1,7 @@
 <template>
   <div class="all">
     <!-- 左边资产目录区域 -->
-
+    <DataAssetCatalog />
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
@@ -143,9 +143,9 @@
 
 <script lang="ts" setup>
   import { ref, reactive } from 'vue';
-  // import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { message } from 'ant-design-vue';
   import type { Ref } from 'vue';
+
   import { deleteAsset, SelectDataAsset, SelectDirectory, OnChange1, rebaseTbl } from '@/api/test/index';
   // import type { Rule } from 'ant-design-vue/es/form';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -158,7 +158,6 @@
   import check from './component/assetDetails.vue';
 
   const treeData = ref<any[]>([]);
-  // const treeData1 = ref<any[]>([]);
   SelectDirectory().then(res => {
     treeData.value = res.data.data;
   });
