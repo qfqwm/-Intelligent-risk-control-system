@@ -8,7 +8,7 @@
       <a-input-search v-model:value="search" placeholder="按资产表名称或目录名称查询" enter-button @search="onSearch" />
     </div>
     <div class="left_menu">
-      <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
+      <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :field-names="fieldNames" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
         <template #title="{ name, directoryId }">
           <span v-if="directoryId === '11'" style="color: #1890ff">{{ name }}</span>
           <template v-else>{{ name }}</template>
@@ -18,11 +18,17 @@
                 <a-popconfirm placement="bottom" ok-text="是" cancel-text="否" @confirm="confirm">
                   <template #icon></template>
                   <template #title>
-                    <p><a-button class="btn" @click="add">增加</a-button></p>
-                    <p><a-button class="btn" @click="remove">删除</a-button></p>
-                    <p><a-button class="btn" @click="edit">编辑</a-button></p>
+                    <p>
+                      <a-button class="btn" @click="add">增加</a-button>
+                    </p>
+                    <p>
+                      <a-button class="btn" @click="remove">删除</a-button>
+                    </p>
+                    <p>
+                      <a-button class="btn" @click="edit">编辑</a-button>
+                    </p>
                   </template>
-                  <a-button><MoreOutlined /></a-button>
+                  <MoreOutlined />
                 </a-popconfirm>
               </div>
             </div>
@@ -30,12 +36,6 @@
         </template>
       </a-tree>
     </div>
-
-    <!-- 数据资产表目录新增目录弹框 -->
-    <!-- <a-modal v-model:visible="operation_visible" :title="operation_title" ok-text="确认" cancel-text="取消" style="text-align: center"
-            width="100vh" :ok-button-props="{ style: { marginRight: '34vh' } }" @ok=operation_ok>
-            <p class="tk"><span>*</span>目录名称：<input v-model="operation_name" type="text" /></p>
-        </a-modal> -->
     <!-- 数据资产表目录新增目录弹框 -->
     <a-modal
       v-model:visible="stair_add"
@@ -43,8 +43,8 @@
       ok-text="确认"
       cancel-text="取消"
       style="text-align: center"
-      width="100vh"
-      :ok-button-props="{ style: { marginRight: '34vh' } }"
+      width="80vh"
+      :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkStairAdd"
     >
       <p class="tk"><span>*</span>目录名称：<input v-model="addStair" type="text" /></p>
@@ -56,8 +56,8 @@
       ok-text="确认"
       cancel-text="取消"
       style="text-align: center"
-      width="24rem"
-      :ok-button-props="{ style: { marginRight: '6rem' } }"
+      width="80vh"
+      :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkAdd"
     >
       <p class="tk"><span>*</span>目录名称：<input v-model="addSecond" type="text" /></p>
@@ -69,8 +69,8 @@
       ok-text="确认"
       cancel-text="取消"
       style="text-align: center"
-      width="24rem"
-      :ok-button-props="{ style: { marginRight: '6rem' } }"
+      width="80vh"
+      :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkEdit"
     >
       <p class="tk"><span>*</span>目录名称：<input v-model="editSecond" type="text" /></p>
@@ -81,7 +81,7 @@
   import { ref, createVNode, watch } from 'vue';
   import { PlusCircleOutlined, ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons-vue';
   import { DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
-  import _, { filter } from 'lodash';
+  import _ from 'lodash';
   import { Modal, message } from 'ant-design-vue';
   const confirm = () => {
     message.info('Clicked on Yes.');
@@ -91,9 +91,16 @@
   const search = ref<string>('');
   const treeData = ref<any[]>([]);
   SelectDirectory().then(res => {
-    treeData.value = res.data.data
+    treeData.value = res.data.data;
     console.log();
   });
+
+  const fieldNames = {
+    children: 'children',
+    title: 'name',
+    key: 'directoryId',
+    value: 'directoryId',
+  };
 
   //数据资产表目录按表名称或目录名称查询
   const expandedKeys = ref<string[]>([]);
@@ -123,7 +130,7 @@
   };
   // 点击搜索进行模糊筛选
   const searchStr = ref('');
-  const backupsExpandedKeys = <any>[];
+  const backupsExpandedKeys: any[] = [];
   const onSearch = () => {
     searchStr.value = search.value;
     if (searchStr.value === '') {
@@ -142,8 +149,6 @@
       }
       expandedKeys.value = backupsExpandedKeys.slice();
     }
-    // expandedKeys.value = ['0-2','0-2-1','0-2-1-0']
-    expandedKeys.value = ['0-2','0-2-1','0-2-1-0']
   };
 
   // 获取节点中含有value的所有key集合
@@ -259,6 +264,8 @@
   const editSecond = ref();
   const edit = () => {
     visible_edit.value = true;
+    console.log(expandedKeys.value);
+
     editSecond.value = '';
   };
   const handleOkEdit = () => {

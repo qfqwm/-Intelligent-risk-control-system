@@ -1,7 +1,7 @@
 <template>
   <div class="all">
     <!-- 左边资产目录区域 -->
-
+    <DataAssetCatalog></DataAssetCatalog>
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
@@ -136,6 +136,7 @@
   import type { Ref } from 'vue';
   import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
   import FiveButtons from './component/index.vue';
+  import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
 
   const treeData = ref<any[]>([]);
