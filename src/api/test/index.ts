@@ -36,8 +36,8 @@ enum Api {
   New_data_asset_sheet = '/addAsset',
   //编辑数据资产管理
   Edit_data_asset_management = '/updateAllAsset',
-  //查询企业基本信息表
-  Query_the_basic = '/selectDataAssetAll',
+  //查询编辑页面需要的字段
+  Query_the_basic = '/selectUpdateDataAssetAll',
 
   //数据资产表目录删除目录
   Delete_Directory = 'deleteDirectory',

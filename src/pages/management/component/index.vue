@@ -41,22 +41,29 @@
                       tree-default-expand-all
                       placeholder="请选择所属目录"
                       :tree-data="treeData"
+                      :field-names="fieldNames"
                       @click="convertData(treeData)"
+                      @change="adddata"
                     >
                       <template #title="{ value: directoryId, title: name }">
                         <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
                         <template v-else>{{ name }}</template>
                       </template>
                     </a-tree-select>
-                    <a-space
-                      v-for="(sight, i) in dynamicValidateForm.sights"
-                      :key="sight.id"
-                      v-model:value="dynamicValidateForm.chineseName[i + 1]"
-                      style="display: flex; margin-bottom: 8px"
-                      align="baseline"
-                    >
+                    <a-space v-for="(sight, i) in dynamicValidateForm.sights" :key="sight.id" style="display: flex; margin-bottom: 8px" align="baseline">
                       <a-form-item>
-                        <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeData" @click="convertData(treeData)">
+                        <a-tree-select
+                          v-model:value="dynamicValidateForm.chineseName[i + 1]"
+                          show-search
+                          style="width: 415px"
+                          allow-clear
+                          tree-default-expand-all
+                          placeholder="请选择所属目录"
+                          :tree-data="treeData"
+                          :field-names="fieldNames"
+                          @click="convertData(treeData)"
+                          @change="adddata"
+                        >
                           <template #title="{ value: directoryId, title: name }">
                             <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
                             <template v-else>{{ name }}</template>
@@ -156,6 +163,13 @@
     showDrawer(type, record);
   });
 
+  const fieldNames = {
+    children: 'children',
+    title: 'name',
+    key: 'directoryId',
+    value: 'directoryId',
+  };
+
   const convertData = (treeData: any[]) => {
     treeData.forEach(item => {
       item.title = item.name;
@@ -187,9 +201,9 @@
   }
 
   const formRef = ref<FormInstance>();
-  const dynamicValidateForm = ref<{ sights: Sights[]; chineseName: []; directoryId: Sights1[] }>({
+  const dynamicValidateForm = ref<{ sights: Sights[]; chineseName: ['']; directoryId: Sights1[] }>({
     sights: [],
-    chineseName: [],
+    chineseName: [''],
     directoryId: [],
   });
 
@@ -244,6 +258,7 @@
   const add1 = ref();
   const sss = ref('');
   const showDrawer = (type: string, record: any) => {
+    console.log(record, 'aaaa');
     if (type == 'add') {
       datas.chineseName = '';
       datas.englishName = '';
@@ -256,7 +271,9 @@
       add1.value = { chineseName: record.chineseName };
       visible.value = true;
       QueryBasic(add1.value).then(function (res) {
+        console.log(add1.value, 'asd');
         console.log(res);
+        debugger;
         sss.value = res.data.data;
         console.log(sss.value);
       });
@@ -271,18 +288,25 @@
     }
   };
 
-  //有问题
+  //添加一行
   const addSight = () => {
     dynamicValidateForm.value.sights.push({
       id: 'i' + Date.now(),
     });
-    // console.log(dynamicValidateForm.chineseName);
-    for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
-      console.log(dynamicValidateForm.value.chineseName, 'cz');
+    dynamicValidateForm.value.chineseName.push('');
+  };
 
+  //选择目录改变事件
+  const adddata = () => {
+    dynamicValidateForm.value.directoryId = [];
+    // console.log(dynamicValidateForm.chineseName);
+    // dynamicValidateForm.value.chineseName[''] = [];
+    for (let i = 0; i < dynamicValidateForm.value.sights.length + 1; i++) {
+      console.log(dynamicValidateForm.value.chineseName, 'cz');
       dynamicValidateForm.value.directoryId.push({
         directoryId: dynamicValidateForm.value.chineseName[i],
       });
+      //   console.log(dynamicValidateForm.value.chineseName[i], i);
     }
     console.log(dynamicValidateForm.value);
   };
