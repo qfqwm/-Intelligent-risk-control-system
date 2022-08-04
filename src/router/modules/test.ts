@@ -2,7 +2,7 @@ import Index from '@/layout/index.vue';
 import TableManagement from '@/pages/TableManagement/TableManagement.vue';
 import InterFace from '@/pages/InterFace/InterFace.vue';
 import DataBase from '@/pages/DataBase/DataBase.vue';
-import Catalogue from '@/pages/Catalogue/Catalogue.vue';
+import Catalogue from '@/pages/Catalogue/index.vue';
 import ManageMent from '@/pages/management/ManageMent.vue';
 import Scriptment from '@/pages/Scriptment/Scriptment.vue';
 import Taskment from '@/pages/Taskment/Taskment.vue';
