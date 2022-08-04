@@ -21,13 +21,13 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" size="small">批量发布</a-button>
-      <a-button type="primary" size="small">批量停用</a-button>
+      <a-button type="primary" size="small" @click="ALLChangeup">批量发布</a-button>
+      <a-button type="primary" size="small" @click="ALLChangestop">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
       <a-button type="primary" size="small">标准导入</a-button>
-      <a-button type="primary" size="small" @click="showDrawer">新增标准</a-button>
+      <a-button type="primary" size="small" @click="showDrawer('add', null)">新增标准</a-button>
     </div>
   </div>
   <!-- 表格区域 -->
@@ -35,6 +35,7 @@
     :data-source="dataSource"
     :columns="columns"
     :row-selection="rowSelection"
+    style="width: 100%"
     :pagination="{
     pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
     showSizeChanger: true,
@@ -52,32 +53,32 @@
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
         <div v-if="record.standardType == '未发布'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该标准?" @confirm="release(record.standardId)">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
-          <a-button type="primary" size="small" @click="showDrawer">编辑</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?">
+          <a-button type="primary" size="small" @click="showDrawer('edit', record.standardId)">编辑</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否删除该标准?" @confirm="delete_code(record.standardId)">
             <a-button type="primary" size="small">删除</a-button>
           </a-popconfirm>
         </div>
         <!-- 已发布显示按钮 -->
         <div v-if="record.standardType == '已发布'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+          <a-popconfirm v-if="dataSource.length" title="请确认否停用该标准?" @confirm="Deactivate(record.standardId)">
             <a-button type="primary" size="small">停用</a-button>
           </a-popconfirm>
         </div>
         <!-- 已停用显示按钮 -->
         <div v-if="record.standardType == '已停用'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该标准?" @confirm="release(record.standardId)">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
-          <a-button type="primary" size="small" @click="showDrawer">编辑</a-button>
+          <a-button type="primary" size="small" @click="showDrawer('edit', record.standardId)">编辑</a-button>
         </div>
       </template>
     </template>
   </a-table>
   <!-- 编辑栏 -->
-  <a-drawer title="编辑标准" :width="720" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
+  <a-drawer :title="edit_add_title" :width="720" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
     <div class="edit_drawer"
       ><span><span>*</span>中文名称：</span>
       <a-input v-model:value.trim="add_edit_chineseName" placeholder="Basic usage" />
@@ -120,15 +121,7 @@
     <div v-show="add_edit_dataType === 'Enum'" class="int_type">
       <div class="edit_drawer"
         ><span><span>*</span>枚举范围：</span>
-        <a-select
-          v-model:value="select_Judge_null"
-          v-model="add_edit_enumRange"
-          show-search
-          placeholder="Select a person"
-          style="width: 100%"
-          :options="Judge_null"
-          :filter-option="filterOption"
-        ></a-select>
+        <a-select v-model:value="add_edit_enumRange" show-search placeholder="Select a person" style="width: 100%" :options="GetEnum" :filter-option="filterOption"> </a-select>
       </div>
       <div class="edit_drawer"
         ><span>默认值：</span>
@@ -171,7 +164,6 @@
     </div>
   </a-drawer>
   <!-- 显示详情 -->
-
   <div>
     <a-modal v-model:visible="Detailsvisible" :title="Detailed.chineseName + '(' + Detailed.standardId + ')'">
       <span> 标准编号：</span>{{ Detailed.standardId }}<br />
@@ -194,7 +186,8 @@
       </div>
       <!-- enum -->
       <div v-show="Detailed.dataType == 'Enum'">
-        <span> 枚举范围精度：</span>{{ Detailed.enumRange }}<br />
+        <span> 枚举范围精度：</span><a href="#" @click.prevent="show_Enum_Modal(Detailed.codeId, Detailed.codeNameSplice)">{{ Detailed.codeName }}</a
+        ><br />
         <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
       </div>
       <!-- string -->
@@ -207,11 +200,21 @@
       </template>
     </a-modal>
   </div>
+  <!-- Enum 枚举类型弹框 -->
+  <div>
+    <a-modal v-model:visible="Enum_visible" :title="Enum_title + '(详情)'">
+      <a-table :columns="Enum_column" :data-source="Enum_data" :scroll="{ y: 100 }" :pagination="false" />
+      <template #footer>
+        <a-button @click="Enum_handleCancel">关闭</a-button>
+      </template>
+    </a-modal>
+  </div>
 </template>
+
 <script lang="ts" setup>
   import { message, SelectProps } from 'ant-design-vue';
-  import { Catalog, AddStandard, Lookup } from '@/api/test/index';
-  import { ref, onMounted } from 'vue';
+  import { Catalog, AddStandard, Lookup, UpdateStandard, PublishStandard, Delete_Standard, BlockStandard, GetEnum_List, Select_ConfigureInfoById } from '@/api/test/index';
+  import { ref, computed, reactive } from 'vue';
   import type { Ref } from 'vue';
   import { object } from 'vue-types';
   import { log } from 'console';
@@ -236,10 +239,20 @@
     standardType: string;
     updateTime: string;
   }
+  interface enum_DataItem {
+    configureId: null | string;
+    codeId: null | string;
+    configureValue: string;
+    configureName: string;
+    configureMean: string;
+    configureType: null | string;
+  }
   //页面数据展示
   const dataSource: Ref<DataItem[]> = ref([]);
+  const Enum_data: Ref<enum_DataItem[]> = ref([]);
   const morechinese_Name = ref<any>([]);
   const moreenglish_Name = ref<any>([]);
+  const edit_add_title = ref<string>('');
   const show = function (query_object: any) {
     let object = {
       englishName: '',
@@ -292,55 +305,117 @@
       title: '标准编号',
       dataIndex: 'codeId',
       width: '9%',
+      ellipsis: true,
     },
     {
       title: '中文名称',
       dataIndex: 'chineseName',
       width: '9%',
+      ellipsis: true,
     },
     {
       title: '英文名称',
       dataIndex: 'englishName',
       width: '12%',
+      ellipsis: true,
     },
     {
       title: '标准说明',
       dataIndex: 'standardExplain',
       width: '18%',
+      ellipsis: true,
     },
     {
       title: '来源机构',
       dataIndex: 'sourceAgencies',
       width: '8%',
+      ellipsis: true,
     },
     {
       title: '数据类型',
       dataIndex: 'dataType',
       width: '8%',
+      ellipsis: true,
     },
     {
       title: '标准状态',
       dataIndex: 'standardType',
       width: '8%',
+      ellipsis: true,
     },
     {
       title: '更新日期',
       dataIndex: 'updateTime',
       width: '12%',
+      ellipsis: true,
     },
     {
       title: '操作',
       dataIndex: 'operation',
-      width: '14%',
+      width: '180px',
     },
   ];
 
   const editvisible = ref<boolean>(false);
-
-  const showDrawer = () => {
+  const data_storage = reactive({ standardType: '', standardId: '', china: '', english: '' });
+  const GetEnum = ref<SelectProps['options']>([]);
+  const showDrawer = (type: string, standardId: any) => {
+    // 请求枚举类型
+    GetEnum_List().then(function (res) {
+      GetEnum.value = [];
+      res.data.data.forEach((item: any) => {
+        GetEnum.value?.push({
+          value: item.code_id,
+          label: item.code_name,
+        });
+      });
+    });
     editvisible.value = true;
+    if (type == 'add') edit_add_title.value = '新增标准';
+    if (type == 'edit') {
+      edit_add_title.value = '编辑标准';
+      Lookup(standardId).then(function (res) {
+        add_edit_chineseName.value = res.data.data.chineseName;
+        add_edit_englishName.value = res.data.data.englishName;
+        add_edit_sourceAgencies.value = res.data.data.sourceAgencies;
+        data_storage.standardType = res.data.data.standardType;
+        data_storage.standardId = standardId;
+        data_storage.china = res.data.data.chineseName;
+        data_storage.english = res.data.data.englishName;
+        switch (res.data.data.dataType) {
+          case 1:
+            add_edit_dataType.value = 'Int';
+            break;
+          case 2:
+            add_edit_dataType.value = 'Float';
+            break;
+          case 3:
+            add_edit_dataType.value = 'Enum';
+            break;
+          case 4:
+            add_edit_dataType.value = 'String';
+            break;
+        }
+        switch (res.data.data.isNull) {
+          case 0:
+            add_edit_isNull.value = '可为空';
+            break;
+          case 1:
+            add_edit_isNull.value = '不可为空';
+            break;
+        }
+        add_edit_dataDefault.value = res.data.data.dataDefault;
+        add_edit_standardExplain.value = res.data.data.standardExplain;
+        if (res.data.data.dataMin == '') add_edit_dataMin.value = null;
+        else add_edit_dataMin.value = Number(res.data.data.dataMin);
+        if (res.data.data.dataMax == '') add_edit_dataMax.value = null;
+        else add_edit_dataMax.value = Number(res.data.data.dataMax);
+        add_edit_dataPrecision.value = res.data.data.dataPrecision;
+        add_edit_dataLength.value = res.data.data.dataLength;
+        add_edit_enumRange.value = res.data.data.enumRange;
+      });
+    }
   };
-
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     checkStrictly: false,
@@ -386,6 +461,9 @@
     dataMax: '',
     enumRange: '',
     dataLength: '',
+    codeName: '',
+    codeNameSplice: '',
+    codeId: '',
   });
   const showModal = (standardId: string) => {
     Detailsvisible.value = true;
@@ -403,6 +481,9 @@
       Detailed.dataMax = res.data.data.dataMax;
       Detailed.enumRange = res.data.data.enumRange;
       Detailed.dataLength = res.data.data.dataLength;
+      Detailed.codeName = res.data.data.codeName;
+      Detailed.codeNameSplice = res.data.data.codeNameSplice;
+      Detailed.codeId = res.data.data.codeId;
       if (Detailed.dataType == '1') {
         Detailed.dataType = 'Int';
       }
@@ -426,7 +507,9 @@
   const handleCancel = () => {
     Detailsvisible.value = false;
   };
-
+  const Enum_handleCancel = () => {
+    Enum_visible.value = false;
+  };
   // 查询功能
   show(null);
   const sourceAgencies = ref<string>('');
@@ -462,8 +545,8 @@
   const add_edit_dataPrecision = ref<string | null>('');
   const add_edit_dataLength = ref<string | null>('');
   const add_edit_standardExplain = ref('');
-  const add_edit_dataMin = ref<string | null>('');
-  const add_edit_dataMax = ref<string | null>('');
+  const add_edit_dataMin = ref<string | null | number>('');
+  const add_edit_dataMax = ref<string | null | number>('');
   // 清空数据
   const empty = () => {
     add_edit_chineseName.value = '';
@@ -503,53 +586,136 @@
     let enumRange: any | string = null;
     let dataPrecision: any | string = null;
     let dataLength: any | string = null;
-    let object = {
-      chineseName: add_edit_chineseName.value,
-      englishName: add_edit_englishName.value,
-      sourceAgencies: add_edit_sourceAgencies.value,
-      isNull: add_edit_isNull.value == '可为空' ? '0' : '1',
-      dataType: dataType,
-      standardExplain: add_edit_standardExplain.value,
-      dataMin: dataMin,
-      dataMax: dataMax,
-      enumRange: enumRange,
-      dataDefault: add_edit_dataDefault.value,
-      dataPrecision: dataPrecision,
-      dataLength: dataLength,
-    };
-
-    if (dataType == '1') {
-      object.dataMin = add_edit_dataMin.value;
-      object.dataMax = add_edit_dataMax.value;
-      console.log(object.dataMax);
-      if (isString(object.dataMax) || isString(object.dataMin) || !(object.dataMax >= object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0))
-        return message.error('请输入正确的取值范围!');
-    }
-    if (dataType == '2') {
-      object.dataMin = add_edit_dataMin.value;
-      object.dataMax = add_edit_dataMax.value;
-      object.dataPrecision = add_edit_dataPrecision.value;
-    }
-    if (dataType == '3') {
-      object.enumRange = add_edit_enumRange.value;
-      if (add_edit_enumRange.value == '' || null) return message.error('请选择枚举范围!');
-    }
-    if (dataType == '4') {
-      object.dataLength = add_edit_dataLength.value;
-    }
-
     // 判断是否为空
-    if (object.chineseName == '' || null) return message.error('中文名称为空！');
-    if (object.englishName == '' || null) return message.error('英文名称为空！');
-    if (object.sourceAgencies == '' || null) return message.error('请选择来源机构!');
-    if (object.dataType == '' || null) return message.error('请选择数据类型!');
-    if (object.isNull == '' || null) return message.error('请选择数据是否为空!');
+    if (add_edit_chineseName.value == '' || null) return message.error('中文名称为空！');
+    if (add_edit_englishName.value == '' || null) return message.error('英文名称为空！');
+    if (add_edit_sourceAgencies.value == '' || null) return message.error('请选择来源机构!');
+    if (dataType == '' || null) return message.error('请选择数据类型!');
+    if (add_edit_isNull.value == '' || null) return message.error('请选择数据是否为空!');
     // 正则判断
-    if (morechinese_Name.value.indexOf(object.chineseName) !== -1) return message.error('中文名称重复！');
-    if (moreenglish_Name.value.indexOf(object.englishName) !== -1) return message.error('英文名称重复！');
-    AddStandard(object).then(function (res) {
-      console.log(res);
-    });
+    if (morechinese_Name.value.indexOf(add_edit_chineseName.value) !== -1) {
+      if (edit_add_title.value == '编辑标准') {
+        if (add_edit_chineseName.value != data_storage.china) return message.error('中文名称重复！');
+      } else return message.error('中文名称重复！');
+    }
+    if (moreenglish_Name.value.indexOf(add_edit_englishName.value) !== -1) {
+      if (edit_add_title.value == '编辑标准') {
+        if (add_edit_englishName.value != data_storage.english) return message.error('英文名称重复！');
+      } else return message.error('英文名称重复！');
+    }
+    if (edit_add_title.value == '新增标准') {
+      let object = {
+        chineseName: add_edit_chineseName.value,
+        englishName: add_edit_englishName.value,
+        sourceAgencies: add_edit_sourceAgencies.value,
+        isNull: add_edit_isNull.value == '可为空' ? '0' : '1',
+        dataType: dataType,
+        standardExplain: add_edit_standardExplain.value,
+        dataMin: dataMin,
+        dataMax: dataMax,
+        enumRange: enumRange,
+        dataDefault: add_edit_dataDefault.value,
+        dataPrecision: dataPrecision,
+        dataLength: dataLength,
+      };
+      if (dataType == '1') {
+        object.dataMin = add_edit_dataMin.value;
+        object.dataMax = add_edit_dataMax.value;
+        if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
+        } else if (
+          isString(object.dataMax) ||
+          isString(object.dataMin) ||
+          !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
+        )
+          return message.error('请输入正确的取值范围!');
+      }
+      if (dataType == '2') {
+        object.dataMin = add_edit_dataMin.value;
+        object.dataMax = add_edit_dataMax.value;
+        if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
+        } else if (
+          isString(object.dataMax) ||
+          isString(object.dataMin) ||
+          !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
+        )
+          return message.error('请输入正确的取值范围!');
+        object.dataPrecision = add_edit_dataPrecision.value;
+      }
+      if (dataType == '3') {
+        object.enumRange = add_edit_enumRange.value;
+        if (add_edit_enumRange.value == '' || null) return message.error('请选择枚举范围!');
+      }
+      if (dataType == '4') {
+        object.dataLength = add_edit_dataLength.value;
+      }
+      AddStandard(object).then(function (res) {
+        console.log(res);
+        if (res.data.msg == 'chineseName只支持中文及英文大小写') return message.error('中文只支持中文及英文大小写！');
+        if (res.data.msg == 'englishName只支持英文大小写、数字及下划线且只能是英文开头') return message.error('英文名称只支持英文大小写、数字及下划线且只能是英文开头！');
+        if (res.data.msg == 'englishName为1到30字符') return message.error('英文名称为1到30字符');
+        if (res.data.msg == 'chineseName为1到30字符') return message.error('中文名称为1到30字符');
+        if (res.data.msg == '新增成功') {
+          message.success('新增成功！');
+          query();
+        }
+      });
+    }
+    if (edit_add_title.value == '编辑标准') {
+      let object = {
+        standardId: data_storage.standardId,
+        chineseName: add_edit_chineseName.value,
+        englishName: add_edit_englishName.value,
+        sourceAgencies: add_edit_sourceAgencies.value,
+        dataType: dataType,
+        isNull: add_edit_isNull.value == '可为空' ? '0' : '1',
+        dataDefault: add_edit_dataDefault.value,
+        standardType: data_storage.standardType,
+        standardExplain: add_edit_standardExplain.value,
+        dataMin: dataMin,
+        dataPrecision: dataPrecision,
+        dataLength: dataLength,
+        dataMax: dataMax,
+        enumRange: enumRange,
+      };
+      if (dataType == '1') {
+        object.dataMin = add_edit_dataMin.value;
+        object.dataMax = add_edit_dataMax.value;
+        if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
+        } else if (
+          isString(object.dataMax) ||
+          isString(object.dataMin) ||
+          !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
+        )
+          return message.error('请输入正确的取值范围!');
+      }
+      if (dataType == '2') {
+        object.dataMin = add_edit_dataMin.value;
+        object.dataMax = add_edit_dataMax.value;
+        if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
+        } else if (
+          isString(object.dataMax) ||
+          isString(object.dataMin) ||
+          !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
+        )
+          return message.error('请输入正确的取值范围!');
+        object.dataPrecision = add_edit_dataPrecision.value;
+      }
+      if (dataType == '3') {
+        object.enumRange = add_edit_enumRange.value;
+        if (add_edit_enumRange.value == '' || null) return message.error('请选择枚举范围!');
+      }
+      if (dataType == '4') {
+        object.dataLength = add_edit_dataLength.value;
+      }
+      UpdateStandard(object).then(function (res) {
+        console.log(res);
+        if (res.data.msg == '返回成功') {
+          message.success('编辑成功！');
+          query();
+        }
+      });
+    }
+
     editvisible.value = false;
     empty();
   };
@@ -558,6 +724,88 @@
     empty();
     editvisible.value = false;
   };
+  // 发布
+  const release = (id: string) => {
+    let arr = [id];
+    PublishStandard(arr).then(function (res) {
+      if (res.data.msg == '返回成功') {
+        message.success('状态修改成功');
+      }
+      query();
+    });
+  };
+  // 删除
+  const delete_code = (id: string) => {
+    Delete_Standard(id).then(function (res) {
+      if (res.data.msg == '返回成功') {
+        message.success('状态修改成功');
+      }
+      query();
+    });
+  };
+  // 停用
+  const Deactivate = (id: string) => {
+    let arr = [id];
+    BlockStandard(arr).then(function (res) {
+      if (res.data.msg == '返回成功') {
+        message.success('状态修改成功');
+      }
+      query();
+    });
+  };
+  // 批量操作
+  const ALLChangeup = () => {
+    let arr = [];
+    Selectall_invert.value.forEach(item => {
+      arr.push(item);
+    });
+    PublishStandard(arr).then(function (res) {
+      if (res.data.msg == '存在已发布数据，请重新勾选数据') return message.error('已经发布的标准不能在发送哟');
+      if (res.data.msg == '返回成功') {
+        message.success('状态修改成功');
+      }
+      query();
+    });
+  };
+  const ALLChangestop = () => {
+    let arr = [];
+    Selectall_invert.value.forEach(item => {
+      arr.push(item);
+    });
+    BlockStandard(arr).then(function (res) {
+      if (res.data.msg == '存在已停用数据或未发布数据，请重新勾选数据') return message.error('已经停用的标准不能在发送哟，或则存在未发布的数据');
+      if (res.data.msg == '返回成功') {
+        message.success('状态修改成功');
+      }
+      query();
+    });
+  };
+  // 枚举类型弹框
+  const Enum_title = ref<string>('');
+  const Enum_visible = ref<boolean>(false);
+  const show_Enum_Modal = (codeId: string, codeNameSplice: string) => {
+    Enum_visible.value = true;
+    Enum_title.value = codeNameSplice;
+    Select_ConfigureInfoById(codeId).then(function (res) {
+      if (res.data.msg == '查询成功') Enum_data.value = res.data.data;
+    });
+  };
+  const Enum_column = [
+    {
+      title: '码值取值',
+      dataIndex: 'configureValue',
+      width: 90,
+    },
+    {
+      title: '码值名称',
+      dataIndex: 'configureName',
+      width: 150,
+    },
+    {
+      title: '码值含义',
+      dataIndex: 'configureMean',
+    },
+  ];
 </script>
 
 <style lang="less" scoped>
