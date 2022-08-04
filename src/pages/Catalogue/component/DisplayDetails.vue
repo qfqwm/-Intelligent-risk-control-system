@@ -41,7 +41,7 @@
   import type { Ref } from 'vue';
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
-    to_standardId: string;
+    to_standardid: string;
     // eslint-disable-next-line vue/prop-name-casing
     details_number: number;
   };
@@ -57,7 +57,7 @@
   watch(
     () => props.details_number,
     () => {
-      showModal(props.to_standardId);
+      showModal(props.to_standardid);
     },
   );
   const Detailsvisible = ref<boolean>(false);

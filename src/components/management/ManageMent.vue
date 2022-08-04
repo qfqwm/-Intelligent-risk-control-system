@@ -1,7 +1,7 @@
 <template>
   <div class="all">
     <!-- 左边资产目录区域 -->
-
+    <DataAssetCatalog></DataAssetCatalog>
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
@@ -20,14 +20,16 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
-          <a-button type="primary" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
+          <a-button type="primary" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
+          <a-button type="primary" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
           <a-button type="primary" @click="showDrawer('add', {})"> 新增资产表 </a-button>
+          <FiveButtons />
         </div>
       </div>
+
       <!-- 表格区域 -->
       <a-table
         :data-source="dataSource"
@@ -41,35 +43,36 @@
           buildOptionText: (size: any) => {
             return Number(size.value) + ' 项' + '/' + '页'
           }
+
         }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode1(record.chineseName)">{{ record.chineseName }}</a>
+            <a href="#" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</a>
           </template>
           <template v-if="column.dataIndex === 'englishName'">
-            <a href="#" @click.prevent="showcode2(record.englishName)">{{ record.englishName }}</a>
+            <a href="#" @click.prevent="showcode(record.englishName)">{{ record.englishName }}</a>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
             <div v-if="record.assetType == '未发布'">
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.assetId, 0)">
+              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
               <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
-              <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.assetId)">
+              <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.codeId)">
                 <a-button type="primary" size="small">删除</a-button>
               </a-popconfirm>
             </div>
             <!-- 已发布显示按钮 -->
             <div v-if="record.assetType == '已发布'">
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.assetId, 1)">
+              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '2')">
                 <a-button type="primary" size="small">停用</a-button>
               </a-popconfirm>
             </div>
             <!-- 已停用显示按钮 -->
             <div v-if="record.assetType == '已停用'">
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.assetId, 0)">
+              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
               <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
@@ -85,10 +88,10 @@
             <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
             <h2>企业基本信息表</h2>
             <h3>基本信息</h3><br />
-            <span class="label"> 中文名称：</span> {{ personnelcodetable.chineseName }} <br />
-            <span class="label"> 英文名称：</span>{{ personnelcodetable.englishName }} <br />
+            <span class="label"> 中文名称：</span> {{ personnelcodetable.codename }} <br />
+            <span class="label"> 英文名称：</span> <br />
             <h4>数据资产表描述：</h4>
-            <span class="label"> 所属目录：</span> {{ personnelcodetable.directoryNames }}
+            <span class="label"> 所属目录：</span>
           </div>
           <h3>字段信息</h3><br />
           <table class="PersonnelGendertable">
@@ -107,29 +110,17 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in personnelcodetable.dataAssetField" :key="index">
-                <td>{{ item.englishName }}</td>
-                <td>{{ item.chineseName }}</td>
-                <td>{{ item.fieldExplain }}</td>
-                <td>{{ item.standardId }}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-              </tr>
-              <tr v-for="(item1, index) in personnelcodetable.dataStandards" :key="index">
-                <td>{{ item1.englishName }}</td>
-                <td>{{ item1.chineseName }}</td>
-                <td>{{ item1.standardExplain }}</td>
-                <td>{{ item1.standardId }}</td>
-                <td>{{ item1.dataType }}</td>
-                <td>{{ item1.dataLength }}</td>
-                <td>{{}}</td>
-                <td>{{ item1.dataDefault }}</td>
-                <td>{{}}</td>
-                <td>{{ item1.enumRange }}</td>
+              <tr v-for="(item, index) in personnelcodetable.CodeConfigure" :key="index">
+                <td>{{ index + 1 < 10 ? '0' + (index + 1) : index }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureName }}</td>
+                <td>{{ item.configureMean }}</td>
+                <td>{{ item.configureMean }}</td>
               </tr>
             </tbody>
           </table>
@@ -140,31 +131,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch, createVNode, computed, reactive } from 'vue';
-  import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
-  import { Modal, message } from 'ant-design-vue';
-  import type { Ref, UnwrapRef } from 'vue';
-  import {
-    selectCodeTable,
-    OnChange,
-    OnChange1,
-    deleteAsset,
-    rebaseTbl,
-    DeleteCode,
-    SelectCodeConfigure,
-    SelectDataAsset,
-    AssetSheet,
-    EditData1,
-    QueryBasic,
-    DeleteDirectory,
-    UpdateDirectoryName,
-  } from '@/api/test/index';
-  import type { Rule } from 'ant-design-vue/es/form';
-  import { InsertDirectory, SelectDirectory, StandardMapping } from '@/api/test/index';
-  import _, { filter } from 'lodash';
-  import { MailOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined, PlusOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
-  import { cloneDeep } from 'lodash-es';
-  import { object, number } from 'vue-types';
+  import { ref, reactive } from 'vue';
+  import { message } from 'ant-design-vue';
+  import type { Ref } from 'vue';
+  import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
+  import FiveButtons from './component/index.vue';
+  import DataAssetCatalog from './component/DataAssetCatalog.vue';
+  import emitter from '@/utils/bus';
+
+  const treeData = ref<any[]>([]);
+  SelectDirectory().then(res => {
+    treeData.value = res.data.data;
+  });
 
   interface DataItem {
     key: string;
@@ -178,6 +156,17 @@
   }
 
   const visible = ref<boolean>(false);
+
+  const showDrawer = (type: string, record: any) => {
+    const sdd = reactive({
+      type: type,
+      record: record,
+      visible: visible,
+      treeData: treeData,
+    });
+    // Add();
+    emitter.emit('sendchild', sdd);
+  };
 
   // 搜索功能
   const Codetablestatus = ref<string>('');
@@ -227,10 +216,12 @@
       englishName: Codetablename1.value,
     };
     SelectDataAsset(object).then(function (res: any) {
-      console.log(object);
+      console.log(res);
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data;
+      console.log(dataSource.value);
+
       dataSource.value.forEach((item: any) => {
         if (item.assetType == 0) {
           item.assetType = '未发布';
@@ -245,8 +236,6 @@
       total.value = dataSource.value.length;
     });
   };
-  const total = ref(dataSource.value.length);
-
   selectCodeTable_way();
   // 查询按钮
   const query = () => {
@@ -264,84 +253,28 @@
 
   // 人员性别编码弹框
   const personnelcodetable = ref({
-    chineseName: '',
-    englishName: '',
-    directoryNames: '',
-    dataAssetField: [
+    codename: '',
+    CodeConfigure: [
       {
-        englishName: '',
-        chineseName: '',
-        fieldExplain: '',
-        standardId: '',
-      },
-    ],
-    dataStandards: [
-      {
-        englishName: '',
-        chineseName: '',
-        standardExplain: '',
-        dataType: '',
-        dataLength: '',
-        dataPrecision: '',
-        standardId: '',
-        dataDefault: '',
-        dataMin: '',
-        dataMax: '',
-        enumRange: '',
+        configureName: '',
+        configureMean: '',
       },
     ],
   });
-
-  //中文
-  const showcode1 = (code1: any) => {
+  const showcode = (codeId: string) => {
     personnelcodetable.value = {
-      chineseName: code1,
-      englishName: '',
-      directoryNames: '',
-      dataAssetField: [],
-      dataStandards: [],
+      codename: codeId,
+      CodeConfigure: [],
     };
 
-    const object = {
-      chineseName: code1,
-    };
-    rebaseTbl(object).then(function (res: any) {
-      if (res.data.msg == '返回成功') {
-        //  var list=[...res.data.data.dataStandards,...res.data.data.dataAssetField]
-
-        console.log(res.data.data);
-
-        personnelcodetable.value = res.data.data;
+    SelectCodeConfigure(codeId).then(function (res: any) {
+      if (res.data.msg == '获取成功') {
+        personnelcodetable.value.CodeConfigure = res.data.data;
       }
     });
     show.outmask = true;
     show.PersonnelGender = true;
   };
-  //英文
-  const showcode2 = (code2: any) => {
-    personnelcodetable.value = {
-      chineseName: '',
-      englishName: code2,
-      directoryNames: '',
-      dataAssetField: [],
-      dataStandards: [],
-    };
-
-    const object = {
-      englishName: code2,
-    };
-    rebaseTbl(object).then(function (res: any) {
-      console.log(res.data.data.dataStandards);
-      console.log(object);
-
-      if (res.data.msg == '返回成功') {
-        personnelcodetable.value = res.data.data;
-      }
-    });
-    show.outmask = true;
-    show.PersonnelGender = true;
-  };
-
   // 关闭人员性别编码弹框
   const closePersonnelGender = () => {
     show.outmask = false;
@@ -354,17 +287,14 @@
     Codetablename1.value = '';
     selectCodeTable_way();
   };
-
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     checkStrictly: false,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
-      console.log(selectedRows);
     },
   });
-
   // 批量操作
   const ALLonChangecode = (state: string) => {
     if (state === '1') {
@@ -389,7 +319,6 @@
         }
       }
     }
-
     let change_array: any = [];
     Selectall_invert.value.forEach(item => {
       change_array.push({
@@ -405,26 +334,26 @@
       } else return message.error('更新失败！');
     });
   };
+  // 分页
+  // const pageSizeRef = ref(20);
+  const total = ref(dataSource.value.length);
 
-  // 改变编码状态 √
-  const onChangecode = (assetId: number, state: number) => {
-    let object_array = {
-      statusType: state,
-      assetList: [assetId],
-    };
-    OnChange1(object_array).then(function (res: any) {
-      console.log(res);
-
-      if (res.data.msg == '返回成功') {
+  // 改变编码状态
+  const onChangecode = (codeId: any, state: string) => {
+    let object_array = [
+      {
+        codeId: codeId,
+        codeType: state,
+      },
+    ];
+    OnChange(object_array).then(function (res: any) {
+      if (res.data.msg == '更新成功') {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
         selectCodeTable_way();
       }
     });
   };
-
-  // 判断正则表达以编码名是否重复
-  const judge = reactive({ Formaterror: false, Rename: false });
 </script>
 
 <style lang="less" scoped>
