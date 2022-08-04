@@ -8,7 +8,7 @@
       <a-input-search v-model:value="search" placeholder="按资产表名称或目录名称查询" enter-button @search="onSearch" />
     </div>
     <div class="left_menu">
-      <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
+      <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :field-names="fieldNames" :tree-data="treeData" style="background-color: #eee" @expand="handleExpand">
         <template #title="{ name, directoryId }">
           <span v-if="directoryId === '11'" style="color: #1890ff">{{ name }}</span>
           <template v-else>{{ name }}</template>
@@ -18,11 +18,17 @@
                 <a-popconfirm placement="bottom" ok-text="是" cancel-text="否" @confirm="confirm">
                   <template #icon></template>
                   <template #title>
-                    <p><a-button class="btn" @click="add">增加</a-button></p>
-                    <p><a-button class="btn" @click="remove">删除</a-button></p>
-                    <p><a-button class="btn" @click="edit">编辑</a-button></p>
+                    <p>
+                      <a-button class="btn" @click="add">增加</a-button>
+                    </p>
+                    <p>
+                      <a-button class="btn" @click="remove">删除</a-button>
+                    </p>
+                    <p>
+                      <a-button class="btn" @click="edit">编辑</a-button>
+                    </p>
                   </template>
-                  <a-button><MoreOutlined /></a-button>
+                  <MoreOutlined />
                 </a-popconfirm>
               </div>
             </div>
@@ -30,12 +36,6 @@
         </template>
       </a-tree>
     </div>
-
-    <!-- 数据资产表目录新增目录弹框 -->
-    <!-- <a-modal v-model:visible="operation_visible" :title="operation_title" ok-text="确认" cancel-text="取消" style="text-align: center"
-            width="100vh" :ok-button-props="{ style: { marginRight: '34vh' } }" @ok=operation_ok>
-            <p class="tk"><span>*</span>目录名称：<input v-model="operation_name" type="text" /></p>
-        </a-modal> -->
     <!-- 数据资产表目录新增目录弹框 -->
     <a-modal
       v-model:visible="stair_add"
@@ -43,8 +43,8 @@
       ok-text="确认"
       cancel-text="取消"
       style="text-align: center"
-      width="100vh"
-      :ok-button-props="{ style: { marginRight: '34vh' } }"
+      width="80vh"
+      :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkStairAdd"
     >
       <p class="tk"><span>*</span>目录名称：<input v-model="addStair" type="text" /></p>
@@ -56,8 +56,8 @@
       ok-text="确认"
       cancel-text="取消"
       style="text-align: center"
-      width="24rem"
-      :ok-button-props="{ style: { marginRight: '6rem' } }"
+      width="80vh"
+      :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkAdd"
     >
       <p class="tk"><span>*</span>目录名称：<input v-model="addSecond" type="text" /></p>
@@ -69,8 +69,8 @@
       ok-text="确认"
       cancel-text="取消"
       style="text-align: center"
-      width="24rem"
-      :ok-button-props="{ style: { marginRight: '6rem' } }"
+      width="80vh"
+      :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkEdit"
     >
       <p class="tk"><span>*</span>目录名称：<input v-model="editSecond" type="text" /></p>
@@ -81,7 +81,7 @@
   import { ref, createVNode, watch } from 'vue';
   import { PlusCircleOutlined, ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons-vue';
   import { DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
-  import _, { filter } from 'lodash';
+  import _ from 'lodash';
   import { Modal, message } from 'ant-design-vue';
   const confirm = () => {
     message.info('Clicked on Yes.');
@@ -94,6 +94,13 @@
     treeData.value = res.data.data;
     console.log();
   });
+
+  const fieldNames = {
+    children: 'children',
+    title: 'name',
+    key: 'directoryId',
+    value: 'directoryId',
+  };
 
   //数据资产表目录按表名称或目录名称查询
   const expandedKeys = ref<string[]>([]);
@@ -113,10 +120,10 @@
 
   const handleExpand = (keys: string[], { expanded, node }) => {
     // expandedKeys = keys
-    console.log(keys, expanded, node);
+    console.log(node);
     const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
     if (expanded) {
-      expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
+      expandedKeys.value = _.difference(keys, tempKeys).concat(node.directoryId);
     } else {
       expandedKeys.value = [];
     }
@@ -142,7 +149,6 @@
       }
       expandedKeys.value = backupsExpandedKeys.slice();
     }
-    expandedKeys.value = ['0-2', '0-2-1', '0-2-1-0'];
   };
 
   // 获取节点中含有value的所有key集合
@@ -159,7 +165,7 @@
     }
     return keyList;
   };
-  // // 该递归主要用于获取key的父亲节点的key值
+  // 该递归主要用于获取key的父亲节点的key值
   const getParentKey = (key, tree) => {
     let parentKey;
     let temp;
@@ -188,16 +194,6 @@
       }
     }
   };
-
-  // const handleExpand = (keys: string[], { expanded, node }) => {
-  //   console.log(keys,expanded, node);
-  //   const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
-  //   if (expanded) {
-  //     expandedKeys.value = _.difference(keys, tempKeys).concat(node.key);
-  //   } else {
-  //     expandedKeys.value = [];
-  //   }
-  // };
 
   //数据资产表目录新增目录
   interface AddData {
@@ -268,6 +264,8 @@
   const editSecond = ref();
   const edit = () => {
     visible_edit.value = true;
+    console.log(expandedKeys.value);
+
     editSecond.value = '';
   };
   const handleOkEdit = () => {

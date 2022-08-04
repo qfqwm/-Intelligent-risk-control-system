@@ -131,13 +131,11 @@
 
 <script lang="ts" setup>
   import { ref, reactive } from 'vue';
-  // import type { MenuProps, FormInstance, TreeSelectProps, TreeProps, SelectProps } from 'ant-design-vue';
   import { message } from 'ant-design-vue';
   import type { Ref } from 'vue';
   import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
-  // import type { Rule } from 'ant-design-vue/es/form';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  import _, { filter } from 'lodash';
+  import _ from 'lodash';
   import FiveButtons from '@/pages/management/component/index.vue';
   import DataAssetCatalog from '@/pages/management/component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
@@ -145,7 +143,6 @@
   //   DataAssetCatalog;
   // }
   const treeData = ref<any[]>([]);
-  // const treeData1 = ref<any[]>([]);
   SelectDirectory().then(res => {
     treeData.value = res.data.data;
   });
