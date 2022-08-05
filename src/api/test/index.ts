@@ -27,7 +27,6 @@ enum Api {
   Insert_Directory = '/insertDirectory',
   //数据资产表目录按表名称或目录名称查询目录
   Select_Directory = '/selectDirectory',
-
   //查询新增中的标准映射
   Standard_mapping = '/selectStandardMapping',
   //查询数据资产管理信息
@@ -70,6 +69,18 @@ enum Api {
   GetEnum_List = '/getEnumList',
   // 枚举范围详情
   Select_ConfigureInfoById = '/selectConfigureInfoById',
+
+  //接口管理
+  //目录查询
+  Interface_Select_Directory = '/api/selectApiDirectory',
+  //新增分类目录
+  Interface_Add_Contents = '/api/addContents',
+  //删除目录
+  Interface_Delete_Contents = '/api/deleteContents',
+  //编辑分类目录
+  Interface_Rename_Contents = '/api/renameContents',
+
+  //数据库管理
 }
 //码表管理
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
@@ -153,3 +164,12 @@ export const Lookup = (standardId: string) =>
     url: Api.Number_lookup,
     params: { standardId: standardId },
   });
+//接口管理
+//目录查询
+export const InterfaceSelectDirectory = () => api.get(Api.Interface_Select_Directory);
+//目录增加
+export const InterfaceAddContents = (object: object) => api.post(Api.Interface_Add_Contents, object);
+//目录删除
+export const InterfaceDeleteContents = (directoryId: string) => api.delete(Api.Interface_Delete_Contents, { params: { directoryId: directoryId } });
+//目录分类编辑
+export const InterfaceRenameContents = (object: object) => api.post(Api.Interface_Rename_Contents, object);
