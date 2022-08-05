@@ -148,17 +148,13 @@
   import { ref, reactive } from 'vue';
   import { message } from 'ant-design-vue';
   import type { Ref } from 'vue';
-
   import { deleteAsset, SelectDataAsset, SelectDirectory, OnChange1, rebaseTbl } from '@/api/test/index';
-  // import type { Rule } from 'ant-design-vue/es/form';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   import _, { filter } from 'lodash';
-
-  //秦发强
   import FiveButtons from './component/index.vue';
   import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
-  import check from './component/assetDetails.vue';
+  // import check from './component/assetDetails.vue';
 
   // 搜索区域
   interface Search {
@@ -178,7 +174,7 @@
     { label: '已停用', value: '2' },
   ];
 
-  const treeData = ref<any[]>([]);
+  const treeData = ref<any>([]);
   SelectDirectory().then(res => {
     treeData.value = res.data.data;
   });
@@ -206,6 +202,10 @@
     // Add();
     emitter.emit('sendchild', sdd);
   };
+
+  emitter.on('send', () => {
+    selectCodeTable_way();
+  });
 
   // 表格
   const columns = [

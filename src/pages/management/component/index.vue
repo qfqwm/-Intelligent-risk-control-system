@@ -33,24 +33,6 @@
               <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
                 <a-form ref="formRef" name="dynamic_form_nest_item" :model="dynamicValidateForm">
                   <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 110px">
-                    <!-- <a-tree-select
-                      v-model:value="dynamicValidateForm.chineseName[0]"
-                      show-search
-                      style="width: 415px"
-                      allow-clear
-                      tree-default-expand-all
-                      placeholder="请选择所属目录"
-                      :tree-data="treeData"
-                      :field-names="fieldNames"
-                      @click="convertData(treeData)"
-                      @change="adddata"
-                    >
-                      <template #title="{ value: directoryId, title: name }">
-                        <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
-                        <template v-else>{{ name }}</template>
-                      </template>
-                    </a-tree-select> -->
-                    {{ dynamicValidateForm.sights }}-{{ dynamicValidateForm.chineseName }}
                     <a-space v-for="(sight, i) in dynamicValidateForm.sights" :key="sight.id" style="display: flex; margin-bottom: 8px" align="baseline">
                       <a-form-item>
                         <a-tree-select
@@ -137,7 +119,7 @@
 
 <script lang="ts" setup>
   import { reactive, Ref, ref, UnwrapRef } from 'vue';
-  import { AssetSheet, QueryBasic, StandardMapping } from '@/api/test/index';
+  import { AssetSheet, QueryBasic, StandardMapping, EditData1 } from '@/api/test/index';
   import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
   import type { FormInstance } from 'ant-design-vue';
   import emitter from '@/utils/bus';
@@ -160,7 +142,7 @@
     treeData.value = t.treeData;
     type = t.type;
     record = t.record;
-    console.log(treeData, 'asddad');
+    convertData(treeData.value);
     showDrawer(type, record);
   });
 
@@ -238,12 +220,6 @@
     edit1(dataSource1.value.length.toString());
   };
 
-  //   const datas1 = ref({
-  //     chineseName: '',
-  //     englishName: '',
-  //     assetId: '',
-  //   });
-
   //添加一行
   const addSight = () => {
     dynamicValidateForm.value.sights.push({
@@ -266,21 +242,76 @@
     console.log(dynamicValidateForm.value, 'as');
   };
 
+  interface Sights4 {
+    directoryId: string;
+  }
+
+  interface Sights5 {
+    chineseName: string;
+    englishName: string;
+    standardId: string;
+    fieldExplain: string;
+  }
+
+  const datas1 = reactive<{ chineseName: string; englishName: string; assetExplain: string; assetId: string; assetDirectory: Sights4[]; dataAssetField: Sights5[] }>({
+    chineseName: '',
+    englishName: '',
+    assetExplain: '',
+    assetId: '',
+    dataAssetField: [],
+    assetDirectory: [],
+  });
+
+  const assetId = ref('');
+
   //确认新增数据资产表
   const sure = () => {
-    datas.assetDirectory = dynamicValidateForm.value.directoryId;
-    datas.dataAssetField = dataSource2.value;
-    console.log(datas);
-
-    AssetSheet(datas).then(function (res) {
-      console.log(res.data.msg);
-      console.log(res);
-      if (res.data.msg == '返回成功') {
-        location.reload();
-      } else {
-        alert(res.data.msg);
+    if (type == 'add') {
+      datas.assetDirectory = dynamicValidateForm.value.directoryId;
+      datas.dataAssetField = dataSource2.value;
+      console.log(datas);
+      AssetSheet(datas).then(function (res) {
+        // console.log(res.data.msg);
+        // console.log(res, 'sdadaddada');
+        if (res.data.msg == '返回成功') {
+          // location.reload();
+          emitter.emit('send');
+        } else {
+          alert(res.data.msg);
+        }
+      });
+    }
+    if (type == 'edit') {
+      // Object.keys(datas1).forEach(item => {
+      //   console.log(item, 'asa');
+      // });
+      const directoryIddata = ref([]);
+      for (let i = 0; i < dynamicValidateForm.value.directoryId.length; i++) {
+        console.log(dynamicValidateForm.value.directoryId[i].directoryId, 'ddd');
+        directoryIddata.value.push(dynamicValidateForm.value.directoryId[i].directoryId);
       }
-    });
+      console.log(directoryIddata.value, 'kk');
+      datas1.chineseName = datas.chineseName;
+      datas1.englishName = datas.englishName;
+      datas1.assetExplain = datas.assetExplain;
+      datas1.assetId = assetId.value;
+      datas1.assetDirectory = dynamicValidateForm.value.directoryId;
+      datas1.dataAssetField = [];
+      for (let i = 0; i < dataSource1.value.length; i++) {
+        let a = dataSource1.value[i].address1.split('  ');
+        datas1.dataAssetField.push({
+          chineseName: dataSource1.value[i].age,
+          englishName: dataSource1.value[i].name,
+          standardId: a[0],
+          fieldExplain: dataSource1.value[i].address,
+        });
+      }
+      console.log(datas, 'sdadadqwqq');
+      console.log(datas1, 'sdadad');
+      EditData1(datas1).then(function (res) {
+        console.log(res);
+      });
+    }
   };
 
   // 判断正则表达以编码名是否重复
@@ -376,36 +407,36 @@
       add1.value = { chineseName: record.chineseName };
       visible.value = true;
       QueryBasic(add1.value).then(function (res) {
-        console.log(res);
+        console.log(res, 'asdad');
         // datas = res.data.data
         // Object.keys(datas).forEach(item => )
         datas.chineseName = res.data.data.chineseName;
         datas.englishName = res.data.data.englishName;
         datas.assetExplain = res.data.data.assetExplain;
+        assetId.value = res.data.data.assetId;
         dynamicValidateForm.value.chineseName.shift();
         for (let i = 0; i < res.data.data.directoryNames.length; i++) {
-          let aa = res.data.data.directoryIds[i].split('/').slice(-1).toString();
+          let aa = res.data.data.directoryNames[i].split('/').slice(-1).toString();
           dynamicValidateForm.value.sights.push({
             id: 'i' + Date.now(),
           });
           dynamicValidateForm.value.chineseName.push(aa);
+          dynamicValidateForm.value.directoryId.push({
+            directoryId: aa,
+          });
         }
 
-        for (let i = 0; i < res.data.data.updateAssetFieldVos.length; i++) {
+        for (let i = 0; i < res.data.data.dataAssetField.length; i++) {
           dataSource1.value.push({
-            name: res.data.data.updateAssetFieldVos[i].englishName,
-            age: res.data.data.updateAssetFieldVos[i].chineseName,
-            address1: res.data.data.updateAssetFieldVos[i].standNames,
-            key1: res.data.data.updateAssetFieldVos[i].fieldId,
-            address: res.data.data.updateAssetFieldVos[i].standardId,
+            name: res.data.data.dataAssetField[i].englishName,
+            age: res.data.data.dataAssetField[i].chineseName,
+            address1: res.data.data.dataAssetField[i].standardId,
+            key1: res.data.data.dataAssetField[i].fieldId,
+            address: res.data.data.dataAssetField[i].fieldExplain,
           });
         }
       });
       handleAdd1();
-      // console.log(22);
-      // EditData1(datas1).then(function(res){
-      //   console.log(res);
-      // })
       dynamicValidateForm.value = {
         // sights: [{ id: '0' }],
         sights: [],

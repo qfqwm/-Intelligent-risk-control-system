@@ -27,7 +27,6 @@ enum Api {
   Insert_Directory = '/insertDirectory',
   //数据资产表目录按表名称或目录名称查询目录
   Select_Directory = '/selectDirectory',
-
   //查询新增中的标准映射
   Standard_mapping = '/selectStandardMapping',
   //查询数据资产管理信息
@@ -37,13 +36,12 @@ enum Api {
   //编辑数据资产管理
   Edit_data_asset_management = '/updateAllAsset',
   //查询编辑页面需要的字段
-  Query_the_basic = '/selectUpdateDataAssetAll',
-
+  Query_the_basic = '/selectDataAssetAll',
   //数据资产表目录删除目录
   Delete_Directory = 'deleteDirectory',
   //数据资产表目录编辑目录
   Update_Directory_Name = 'updateDirectoryName',
-
+  //改变状态
   On_Change1 = '/updateAsset',
   //删除资产表
   Delete_balShet = '/deleteAsset',
@@ -52,7 +50,6 @@ enum Api {
 
   //数据标准管理
   //数据标准目录页面查询
-
   Data_standard_catalog_Query = '/selectStandard',
   // 新增数据标准
   Add_Standard = '/addStandard',
@@ -70,7 +67,12 @@ enum Api {
   GetEnum_List = '/getEnumList',
   // 枚举范围详情
   Select_ConfigureInfoById = '/selectConfigureInfoById',
+
+  //数据库管理
+  //查询数据库管理
+  Query_database_administration = '/SelectDatabaseTables',
 }
+
 //码表管理
 export const selectCodeTable = (object: object) => api.post(Api.Code_Table_Fuzzy_Query, object);
 export const AddCodeTable = (object: object) => api.post(Api.Add_Code_Table, object);
@@ -109,12 +111,9 @@ export const EditData1 = (object: object) => api.post(Api.Edit_data_asset_manage
 export const QueryBasic = (name: any) => api.post(Api.Query_the_basic, name);
 export const DeleteDirectory = (directoryId: string) => api.delete(Api.Delete_Directory, { params: { directoryId: directoryId } });
 export const UpdateDirectoryName = (object: object) => api.post(Api.Update_Directory_Name, object);
-
-//改变状态
 export const OnChange1 = (object: any) => api.post(Api.On_Change1, object);
-
 //查询企业信息基本表
-export const rebaseTbl = object =>
+export const rebaseTbl = (object: any) =>
   api({
     method: 'post',
     url: Api.Base_balShet,
@@ -123,7 +122,6 @@ export const rebaseTbl = object =>
     },
     data: object,
   });
-
 //删除balShet
 export const deleteAsset = (assetId: any) => api.delete(Api.Delete_balShet + '/' + assetId);
 
@@ -151,3 +149,6 @@ export const Lookup = (standardId: string) =>
     url: Api.Number_lookup,
     params: { standardId: standardId },
   });
+
+//数据库管理
+export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
