@@ -231,6 +231,9 @@
       if (res.data.msg == 'directoryName只支持中文及英文大小写') {
         message.error('添加失败，资产表目录只支持中文及英文大小写');
       }
+      if (res.data.msg == '请求参数错误，存在重复项') {
+        message.error('添加失败，资产表目录中有重复项');
+      }
     });
     showDataAssetCatalog();
   };
@@ -251,6 +254,9 @@
       }
       if (res.data.msg == 'directoryName只支持中文及英文大小写') {
         message.error('添加失败，资产表目录只支持中文及英文大小写');
+      }
+      if (res.data.msg == '请求参数错误，存在重复项') {
+        message.success('添加失败，资产表目录中有重复项');
       }
     });
     showDataAssetCatalog();
@@ -286,7 +292,6 @@
   const editSecond = ref();
   const edit = () => {
     visible_edit.value = true;
-    // editSecond.value = '';
   };
   const handleOkEdit = () => {
     visible_edit.value = false;
@@ -296,8 +301,8 @@
       if (res.data.msg == '返回成功') {
         message.success('成功修改资产表目录');
       }
-      if (res.data.msg == '该目录下存在正在使用的资产表，不可删除') {
-        message.error(res.data.msg);
+      if (res.data.code == '100401') {
+        message.error('修改失败，资产表目录只支持中文及英文大小写');
       }
     });
     showDataAssetCatalog();
