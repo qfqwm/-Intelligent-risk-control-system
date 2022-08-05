@@ -4,6 +4,9 @@
       <span>数据资产表目录</span>
       <PlusCircleOutlined @click="stairAdd" />
     </div>
+    <div class="left_search">
+      <a-input-search v-model:value="search" placeholder="按资产表名称或目录名称查询" enter-button @search="onSearch" />
+    </div>
     <div class="left_menu">
       <a-tree
         v-model:selectedKeys="selectedKeys"
@@ -89,7 +92,7 @@
 <script lang="ts" setup>
   import { ref, createVNode, watch } from 'vue';
   import { PlusCircleOutlined, ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons-vue';
-  import { InterfaceDeleteContents, InterfaceRenameContents, InterfaceAddContents, InterfaceSelectDirectory } from '@/api/test/index';
+  import { DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
   import _ from 'lodash';
   import { Modal, message } from 'ant-design-vue';
   const confirm = () => {
@@ -98,12 +101,12 @@
   //数据资产目录展示
   const search = ref<string>('');
   const treeData = ref<any[]>([]);
-  const showInterfaceClassification = () => {
-    InterfaceSelectDirectory().then(res => {
+  const showDataAssetCatalog = () => {
+    SelectDirectory().then(res => {
       treeData.value = res.data.data;
     });
   };
-  showInterfaceClassification();
+  showDataAssetCatalog();
   const fieldNames = {
     children: 'children',
     title: 'name',
@@ -136,71 +139,71 @@
     editSecond.value = node.name;
   };
   // 点击搜索进行模糊筛选
-  // const searchStr = ref('');
-  // const backupsExpandedKeys: any[] = [];
-  // const onSearch = () => {
-  //   searchStr.value = search.value;
-  //   if (searchStr.value === '') {
-  //     expandedKeys.value = [];
-  //   } else {
-  //     expandedKeys.value = [];
-  //     const candidateKeysList = getkeyList(searchStr.value, treeData.value, []);
-  //     candidateKeysList.forEach(item => {
-  //       const key = getParentKey(item, treeData.value);
-  //       if (key && !backupsExpandedKeys.some(item => item === key)) {
-  //         backupsExpandedKeys.push(key);
-  //       }
-  //     });
-  //     for (let i = 0; i < backupsExpandedKeys.length; i++) {
-  //       getAllParentKey(backupsExpandedKeys[i], treeData.value);
-  //     }
-  //     expandedKeys.value = backupsExpandedKeys.slice();
-  //   }
-  // };
+  const searchStr = ref('');
+  const backupsExpandedKeys: any[] = [];
+  const onSearch = () => {
+    searchStr.value = search.value;
+    if (searchStr.value === '') {
+      expandedKeys.value = [];
+    } else {
+      expandedKeys.value = [];
+      const candidateKeysList = getkeyList(searchStr.value, treeData.value, []);
+      candidateKeysList.forEach(item => {
+        const key = getParentKey(item, treeData.value);
+        if (key && !backupsExpandedKeys.some(item => item === key)) {
+          backupsExpandedKeys.push(key);
+        }
+      });
+      for (let i = 0; i < backupsExpandedKeys.length; i++) {
+        getAllParentKey(backupsExpandedKeys[i], treeData.value);
+      }
+      expandedKeys.value = backupsExpandedKeys.slice();
+    }
+  };
 
-  // // 获取节点中含有value的所有key集合
-  // const getkeyList = (value, tree, keyList) => {
-  //   let a = tree.length;
-  //   for (let i = 0; i < a; i++) {
-  //     const node = tree[i];
-  //     if (node.name.indexOf(value) > -1) {
-  //       keyList.push(node.directoryId);
-  //     }
-  //     if (node.children) {
-  //       getkeyList(value, node.children, keyList);
-  //     }
-  //   }
-  //   return keyList;
-  // };
-  // // 该递归主要用于获取key的父亲节点的key值
-  // const getParentKey = (key, tree) => {
-  //   let parentKey;
-  //   let temp;
-  //   for (let i = 0; i < tree.length; i++) {
-  //     const node = tree[i];
-  //     if (node.children) {
-  //       if (node.children.some(item => item.directoryId === key)) {
-  //         parentKey = node.directoryId;
-  //       } else if ((temp = getParentKey(key, node.children))) {
-  //         parentKey = temp;
-  //       }
-  //     }
-  //   }
-  //   return parentKey;
-  // };
+  // 获取节点中含有value的所有key集合
+  const getkeyList = (value, tree, keyList) => {
+    let a = tree.length;
+    for (let i = 0; i < a; i++) {
+      const node = tree[i];
+      if (node.name.indexOf(value) > -1) {
+        keyList.push(node.directoryId);
+      }
+      if (node.children) {
+        getkeyList(value, node.children, keyList);
+      }
+    }
+    return keyList;
+  };
+  // 该递归主要用于获取key的父亲节点的key值
+  const getParentKey = (key, tree) => {
+    let parentKey;
+    let temp;
+    for (let i = 0; i < tree.length; i++) {
+      const node = tree[i];
+      if (node.children) {
+        if (node.children.some(item => item.directoryId === key)) {
+          parentKey = node.directoryId;
+        } else if ((temp = getParentKey(key, node.children))) {
+          parentKey = temp;
+        }
+      }
+    }
+    return parentKey;
+  };
   // // 获取该节点的所有祖先节点
-  // const getAllParentKey = (key, tree) => {
-  //   let parentKey;
-  //   if (key) {
-  //     parentKey = getParentKey(key, tree);
-  //     if (parentKey) {
-  //       if (!backupsExpandedKeys.some(item => item === parentKey)) {
-  //         backupsExpandedKeys.push(parentKey);
-  //       }
-  //       getAllParentKey(parentKey, tree);
-  //     }
-  //   }
-  // };
+  const getAllParentKey = (key, tree) => {
+    let parentKey;
+    if (key) {
+      parentKey = getParentKey(key, tree);
+      if (parentKey) {
+        if (!backupsExpandedKeys.some(item => item === parentKey)) {
+          backupsExpandedKeys.push(parentKey);
+        }
+        getAllParentKey(parentKey, tree);
+      }
+    }
+  };
 
   //数据资产表目录新增目录
   interface AddData {
@@ -221,7 +224,7 @@
     stair_add.value = false;
     AddData.value.parentId = '0';
     AddData.value.directoryName = addStair.value;
-    InterfaceAddContents(AddData.value).then(res => {
+    InsertDirectory(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功添加资产表目录');
       }
@@ -232,7 +235,7 @@
         message.error('添加失败，资产表目录中有重复项');
       }
     });
-    showInterfaceClassification();
+    showDataAssetCatalog();
   };
   //数据资产表目录新增下级目录
   const visible_add = ref<boolean>(false);
@@ -245,7 +248,7 @@
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
     AddData.value.directoryName = addSecond.value;
-    InterfaceAddContents(AddData.value).then(res => {
+    InsertDirectory(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功新增资产表目录');
       }
@@ -256,7 +259,7 @@
         message.success('添加失败，资产表目录中有重复项');
       }
     });
-    showInterfaceClassification();
+    showDataAssetCatalog();
   };
 
   //数据资产表目录删除
@@ -267,14 +270,14 @@
       okText: '是',
       cancelText: '否',
       onOk() {
-        InterfaceDeleteContents(aa.value[0]).then(res => {
+        DeleteDirectory(aa.value[0]).then(res => {
           if (res.data.msg == '删除成功') {
             message.success('成功删除资产表目录');
           }
           if (res.data.msg == '该目录下存在正在使用的资产表，不可删除') {
             message.error(res.data.msg);
           }
-          showInterfaceClassification();
+          showDataAssetCatalog();
         });
       },
     });
@@ -294,7 +297,7 @@
     visible_edit.value = false;
     EditData.value.directoryId = aa.value[0];
     EditData.value.directoryName = editSecond.value;
-    InterfaceRenameContents(EditData.value).then(res => {
+    UpdateDirectoryName(EditData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功修改资产表目录');
       }
@@ -302,9 +305,9 @@
         message.error('修改失败，资产表目录只支持中文及英文大小写');
       }
     });
-    showInterfaceClassification();
+    showDataAssetCatalog();
   };
 </script>
-<style scoped lang="less">
+<style lang="less" scoped>
   @import '@/pages/management/DataAssetCatalog.less';
 </style>
