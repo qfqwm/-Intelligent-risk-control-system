@@ -1,7 +1,7 @@
 <template>
   <!-- 编辑栏 -->
   <a-drawer :title="edit_add_title" :width="450" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
-    <a-form :model="add_edit_object" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
+    <a-form ref="edit_and_Form" :model="add_edit_object" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="add_edit_couse">
       <!-- 遍历input框 -->
       <a-form-item v-for="(item, index) in a_input" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
@@ -12,24 +12,22 @@
       </a-form-item>
       <!-- float类型 -->
       <div v-show="add_edit_object.dataType === '2'" class="int_type">
-        <a-form-item label="数据精度：" name="数据精度" :rules="form_rules.dataPrecision">
+        <a-form-item label="数据精度：" name="dataPrecision" :rules="form_rules.dataPrecision">
           <div style="width: 100%" class="num_rang">
             <a-input v-model:value.number="add_edit_object.dataPrecision" placeholder="请输入数据精度" />
           </div>
         </a-form-item>
       </div>
       <!-- int类型 -->
-      <div v-show="add_edit_object.dataType === '1' || add_edit_object.dataType == '2'" class="int_type">
-        <a-form-item label="取值范围：" name="取值范围" :rules="form_rules.range">
-          <div style="width: 100%" class="num_rang">
-            <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" />----
-            <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
-          </div>
+      <div v-show="add_edit_object.dataType === '1' || add_edit_object.dataType == '2'">
+        <a-form-item label="取值范围：">
+          <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" /> ---
+          <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
         </a-form-item>
       </div>
       <!-- enum类型 -->
       <div v-show="add_edit_object.dataType === '3'" class="int_type">
-        <a-form-item label="枚举范围：" name="枚举范围" :rules="form_rules.enumRange">
+        <a-form-item label="枚举范围：" name="enumRange" :rules="form_rules.enumRange">
           <div style="width: 100%" class="num_rang">
             <a-select v-model:value="add_edit_object.enumRange" show-search placeholder="请输入枚举范围" style="width: 100%" :options="all_select.GetEnum" :filter-option="filterOption"> </a-select>
           </div>
@@ -37,7 +35,7 @@
       </div>
       <!-- string类型 -->
       <div v-show="add_edit_object.dataType === '4'" class="int_type">
-        <a-form-item label="数据长度：" name="数据长度" :rules="form_rules.dataLength">
+        <a-form-item label="数据长度：" name="dataLength" :rules="form_rules.dataLength">
           <div style="width: 100%" class="num_rang">
             <a-input v-model:value="add_edit_object.dataLength" placeholder="请输入数据长度" />
           </div>
@@ -53,7 +51,7 @@
       <div class="edit_drawer_bottom">
         <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
           <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
-          <a-button type="primary" size="big" html-type="submit" @click="add_edit_couse">确定</a-button>
+          <a-button type="primary" size="big" html-type="submit">确定</a-button>
         </a-form-item>
       </div>
     </a-form>
@@ -95,7 +93,19 @@
       showDrawer(props.add_edit_type, props.add_edit_standardid);
     },
   );
+  //监听模态框状态，清空表单错误提示
+  const edit_and_Form = ref<any>(null);
   const editvisible = ref<boolean>(false);
+  watch(
+    () => editvisible.value,
+    newval => {
+      if (newval) {
+        try {
+          return edit_and_Form._rawValue.resetFields();
+        } catch (e) {}
+      }
+    },
+  );
   const edit_add_title = ref<string>('');
   // 定义传递新增、编辑对象
   const add_edit_object = ref<add_edit_object_formState>({
@@ -123,7 +133,7 @@
     dataLength: [{ required: false, message: '' }],
     dataPrecision: [{ required: false, message: '' }],
     range: [{ required: false, message: '' }],
-    enumRange: [{ required: false, message: '' }],
+    enumRange: [{ required: true, message: '请选择枚举范围' }],
   });
   // 定义input框
   const a_input = ref([
