@@ -3,11 +3,11 @@
   <a-drawer :title="edit_add_title" :width="450" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
     <a-form :model="add_edit_object" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
       <!-- 遍历input框 -->
-      <a-form-item v-for="(item, index) in a_input" :key="index" :label="item.name" :name="item.name" :rules="form_rules[item.value]">
+      <a-form-item v-for="(item, index) in a_input" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
       </a-form-item>
       <!-- 遍历select框 -->
-      <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.name" :rules="form_rules[item.value]">
+      <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-select v-model:value="add_edit_object[item.value]" placeholder="Please select a country" style="width: 100%" :options="all_select[item.options]" :filter-option="filterOption"></a-select>
       </a-form-item>
       <!-- float类型 -->
@@ -113,11 +113,13 @@
     dataMax: null,
   });
   // 定义表单规则
-  const form_rules = reactive({
+  const form_rules = ref({
     chineseName: [{ required: true, message: '请输入手机号码' }],
     englishName: [{ required: true, message: 'aaa' }],
-    sourceAgencies: [{ required: true, message: 'bbb' }],
     standardExplain: [{ required: false, message: 'cc' }],
+    sourceAgencies: [{ required: true, message: 'bbb' }],
+    isNull: [{ required: true, message: 'bbb' }],
+    dataType: [{ required: true, message: 'bbb' }],
     dataLength: [{ required: false, message: 'cc' }],
     dataPrecision: [{ required: false, message: 'cc' }],
     range: [{ required: false, message: 'cc' }],
@@ -260,6 +262,8 @@
         if (res.data.msg == '新增成功') {
           message.success('新增成功！');
           emits('Getdata');
+          editvisible.value = false;
+          empty();
         } else return message.error('新增失败，' + res.data.msg);
       });
     }
@@ -270,15 +274,14 @@
       object.standardId = data_storage_edit.standardId;
       object.standardType = data_storage_edit.standardType;
       UpdateStandard(object).then(function (res) {
-        console.log(res);
         if (res.data.msg == '返回成功') {
           message.success('编辑成功！');
           emits('Getdata');
+          editvisible.value = false;
+          empty();
         } else return message.error('编辑失败，' + res.data.msg);
       });
     }
-    editvisible.value = false;
-    empty();
   };
   // 取消按钮，清空数据
   const add_edit_false = () => {
