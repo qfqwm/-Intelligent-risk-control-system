@@ -48,9 +48,11 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
             <a href="#" @click.prevent="showcode1(record.chineseName)">{{ record.chineseName }}</a>
+            <check ref="getdetail" :code1="record.chineseName"></check>
           </template>
           <template v-if="column.dataIndex === 'englishName'">
             <a href="#" @click.prevent="showcode2(record.englishName)">{{ record.englishName }}</a>
+            <check :code2="record.englishName"></check>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -90,7 +92,9 @@
             <span class="label"> 中文名称：</span> {{ personnelcodetable.chineseName }} <br />
             <span class="label"> 英文名称：</span>{{ personnelcodetable.englishName }} <br />
             <h4>数据资产表描述：</h4>
-            <span class="label"> 所属目录：</span> {{ personnelcodetable.directoryNames }}
+            <span class="label"> 所属目录：</span>
+            <a-button>{{ personnelcodetable.directoryNames[0] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[1] }}</a-button>
+            <a-button>{{ personnelcodetable.directoryNames[2] }}</a-button> <br />
           </div>
           <h3>字段信息</h3><br />
           <table class="PersonnelGendertable">
@@ -120,18 +124,6 @@
                 <td>{{}}</td>
                 <td>{{}}</td>
                 <td>{{}}</td>
-              </tr>
-              <tr v-for="(item1, index) in personnelcodetable.dataStandards" :key="index">
-                <td>{{ item1.englishName }}</td>
-                <td>{{ item1.chineseName }}</td>
-                <td>{{ item1.standardExplain }}</td>
-                <td>{{ item1.standardId }}</td>
-                <td>{{ item1.dataType }}</td>
-                <td>{{ item1.dataLength }}</td>
-                <td>{{}}</td>
-                <td>{{ item1.dataDefault }}</td>
-                <td>{{}}</td>
-                <td>{{ item1.enumRange }}</td>
               </tr>
             </tbody>
           </table>
@@ -268,15 +260,6 @@
 
   // 判断弹框显示隐藏
   const show = reactive({ outmask: false, addcode: false, inmask: false, addincode: false, editincode: false, PersonnelGender: false });
-
-  // const showcode3 = (code1: any) => {
-  //   const sdd = reactive({
-  //     code1:code1,
-  //     show:show,
-  //   });
-  //   emitter.emit('code', sdd);
-  // };
-
   // 人员性别编码弹框
   const personnelcodetable = ref({
     chineseName: '',
@@ -307,6 +290,11 @@
     ],
   });
 
+  //调用子组件方法
+  const getdetail = ref();
+  //中文 移植
+  //  const showcode1 = (code1: any) =>{getdetail.value.showcode1(code1)}
+
   //中文
   const showcode1 = (code1: any) => {
     personnelcodetable.value = {
@@ -323,6 +311,7 @@
     rebaseTbl(object).then(function (res: any) {
       if (res.data.msg == '返回成功') {
         //  var list=[...res.data.data.dataStandards,...res.data.data.dataAssetField]
+        console.log(getdetail.value.showcode1);
 
         personnelcodetable.value = res.data.data;
       }
@@ -430,7 +419,7 @@
     OnChange1(object_array).then(function (res: any) {
       console.log(res);
 
-      if (res.data.msg == '返回成功') {
+      if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
         selectCodeTable_way();

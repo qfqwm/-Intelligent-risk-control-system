@@ -8,6 +8,14 @@
 
 <template lang="">
   <a-button type="primary" @click="showModal">新增数据源</a-button>
+  <!-- <a-drawer
+    v-model:visible="visible"
+    class="custom-class"
+    style="color: red"
+    title="Basic Drawer"
+    placement="right"
+    @after-visible-change="afterVisibleChange"
+  > -->
   <a-modal v-model:visible="visible" title="新增数据源" width=" 40%" wrap-class-name="full-modal" @ok="handleOk">
     <a-form :model="formState" v-bind="layout" name="nest-messages" :validate-messages="validateMessages" @finish="onFinish">
       <a-form-item label="数据库类型" placeholder="请输入">
@@ -135,7 +143,7 @@
     },
   });
 </script>
-<style lang="less">
+<style lang="less" scoped>
   .full-modal {
     .ant-modal {
       top: 0;
