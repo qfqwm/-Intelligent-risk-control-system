@@ -51,11 +51,9 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
             <a href="#" @click.prevent="showcode1(record.chineseName)">{{ record.chineseName }}</a>
-            <check ref="getdetail" :code1="record.chineseName"></check>
           </template>
           <template v-if="column.dataIndex === 'englishName'">
             <a href="#" @click.prevent="showcode2(record.englishName)">{{ record.englishName }}</a>
-            <check :code2="record.englishName"></check>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -150,7 +148,6 @@
   import FiveButtons from './component/index.vue';
   import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
-  import check from './component/assetDetails.vue';
 
   // 搜索区域
   interface Search {
@@ -327,7 +324,6 @@
     rebaseTbl(object).then(function (res: any) {
       if (res.data.msg == '返回成功') {
         //  var list=[...res.data.data.dataStandards,...res.data.data.dataAssetField]
-        console.log(getdetail.value.showcode1);
 
         personnelcodetable.value = res.data.data;
       }
