@@ -76,8 +76,8 @@
 <script lang="ts" setup>
   import { message } from 'ant-design-vue';
   import { Catalog, PublishStandard, Delete_Standard, BlockStandard } from '@/api/test/index';
-  import AddEditVue from '@/pages/Catalogue/component/AddEdit.vue';
-  import DisplayDetails from '@/pages/Catalogue/component/DisplayDetails.vue';
+  import AddEditVue from './component/AddEdit.vue';
+  import DisplayDetails from './component/DisplayDetails.vue';
   import { ref, reactive } from 'vue';
   import type { Ref } from 'vue';
   interface DataItem {
