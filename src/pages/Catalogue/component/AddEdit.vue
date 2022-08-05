@@ -1,97 +1,104 @@
 <template>
   <!-- 编辑栏 -->
-  <a-drawer :title="edit_add_title" :width="720" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
-    <div v-for="(item, index) in a_input" :key="index" class="edit_drawer">
-      <span
-        ><span>{{ item.span }}</span
-        >{{ item.name }}</span
-      >
-      <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
-    </div>
-    <div v-for="(item, index) in a_select" :key="index" class="edit_drawer">
-      <span
-        ><span>{{ item.span }}</span
-        >{{ item.name }}</span
-      >
-      <a-select v-model:value="add_edit_object[item.value]" show-search placeholder="请输入来源机构" style="width: 100%" :options="all_select[item.options]" :filter-option="filterOption"></a-select>
-    </div>
-    <!-- int类型 -->
-    <div v-show="add_edit_object.dataType === '1'" class="int_type">
-      <div class="edit_drawer"
-        ><span>取值范围：</span>
-        <div style="width: 100%" class="num_rang">
-          <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" />----
-          <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
-        </div>
+  <a-drawer :title="edit_add_title" :width="450" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
+    <a-form :model="add_edit_object" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
+      <!-- 遍历input框 -->
+      <a-form-item v-for="(item, index) in a_input" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
+        <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
+      </a-form-item>
+      <!-- 遍历select框 -->
+      <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
+        <a-select v-model:value="add_edit_object[item.value]" placeholder="Please select a country" style="width: 100%" :options="all_select[item.options]" :filter-option="filterOption"></a-select>
+      </a-form-item>
+      <!-- float类型 -->
+      <div v-show="add_edit_object.dataType === '2'" class="int_type">
+        <a-form-item label="数据精度：" name="数据精度" :rules="form_rules.dataPrecision">
+          <div style="width: 100%" class="num_rang">
+            <a-input v-model:value.number="add_edit_object.dataPrecision" placeholder="请输入数据精度" />
+          </div>
+        </a-form-item>
       </div>
-    </div>
-    <!-- float类型 -->
-    <div v-show="add_edit_object.dataType === '2'" class="int_type">
-      <div class="edit_drawer"
-        ><span>数据精度：</span>
-        <a-input v-model:value="add_edit_object.dataPrecision" placeholder="请输入数据精度" />
+      <!-- int类型 -->
+      <div v-show="add_edit_object.dataType === '1' || add_edit_object.dataType == '2'" class="int_type">
+        <a-form-item label="取值范围：" name="取值范围" :rules="form_rules.range">
+          <div style="width: 100%" class="num_rang">
+            <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" />----
+            <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
+          </div>
+        </a-form-item>
       </div>
-      <div class="edit_drawer"
-        ><span>取值范围：</span>
-        <div style="width: 100%" class="num_rang">
-          <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" />----
-          <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
-        </div>
+      <!-- enum类型 -->
+      <div v-show="add_edit_object.dataType === '3'" class="int_type">
+        <a-form-item label="枚举范围：" name="枚举范围" :rules="form_rules.enumRange">
+          <div style="width: 100%" class="num_rang">
+            <a-select v-model:value="add_edit_object.enumRange" show-search placeholder="请输入枚举范围" style="width: 100%" :options="all_select.GetEnum" :filter-option="filterOption"> </a-select>
+          </div>
+        </a-form-item>
       </div>
-    </div>
-    <!-- enum类型 -->
-    <div v-show="add_edit_object.dataType === '3'" class="int_type">
-      <div class="edit_drawer"
-        ><span><span>*</span>枚举范围：</span>
-        <a-select v-model:value="add_edit_object.enumRange" show-search placeholder="请输入枚举范围" style="width: 100%" :options="all_select.GetEnum" :filter-option="filterOption"> </a-select>
+      <!-- string类型 -->
+      <div v-show="add_edit_object.dataType === '4'" class="int_type">
+        <a-form-item label="数据长度：" name="数据长度" :rules="form_rules.dataLength">
+          <div style="width: 100%" class="num_rang">
+            <a-input v-model:value="add_edit_object.dataLength" placeholder="请输入数据长度" />
+          </div>
+        </a-form-item>
       </div>
-    </div>
-    <!-- string类型 -->
-    <div v-show="add_edit_object.dataType === '4'" class="int_type">
-      <div class="edit_drawer"
-        ><span>数据长度：</span>
-        <a-input v-model:value="add_edit_object.dataLength" placeholder="Basic usage" />
+      <!-- 默认值 -->
+      <div v-show="add_edit_object.dataType !== ''" class="int_type">
+        <a-form-item label="默认值：" name="默认值">
+          <a-input v-model:value.trim="add_edit_object.dataPrecision" placeholder="请输入默认值" />
+        </a-form-item>
       </div>
-    </div>
-    <!-- 默认值 -->
-    <div v-show="add_edit_object.dataType !== ''" class="int_type">
-      <div class="edit_drawer"
-        ><span>默认值：</span>
-        <a-input v-model:value.trim="add_edit_object.dataPrecision" placeholder="Basic usage" />
+      <!-- 底部按钮 -->
+      <div class="edit_drawer_bottom">
+        <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
+          <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
+          <a-button type="primary" size="big" html-type="submit" @click="add_edit_couse">确定</a-button>
+        </a-form-item>
       </div>
-    </div>
-    <!-- 底部按钮 -->
-    <div class="edit_drawer_bottom">
-      <a-button size="big" @click="add_edit_false">取消</a-button>
-      <a-button type="primary" size="big" @click="add_edit_couse">确定</a-button>
-    </div>
+    </a-form>
   </a-drawer>
 </template>
 
 <script lang="ts" setup>
   import { SelectProps, message } from 'ant-design-vue';
   import { GetEnum_List, Lookup, AddStandard, UpdateStandard } from '@/api/test/index';
-  // import { log } from 'console';
+  // 表单验证
+  interface add_edit_object_formState {
+    chineseName: string;
+    englishName: string;
+    sourceAgencies: string;
+    dataDefault: string;
+    standardExplain: string;
+    dataType: string;
+    isNull: string;
+    enumRange: null | string;
+    dataPrecision: null | string;
+    dataLength: null | string;
+    dataMin: null | string;
+    dataMax: null | string;
+  }
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
     add_edit_type: string;
     // eslint-disable-next-line vue/prop-name-casing
-    add_edit_standardId: string;
+    add_edit_standardid: any;
     // eslint-disable-next-line vue/prop-name-casing
-    showDrawer_number: number;
+    show_drawer_number: number;
   };
+  const emits = defineEmits(['Getdata']);
   const props = defineProps<Props>();
   watch(
-    () => props.showDrawer_number,
+    () => props.show_drawer_number,
     () => {
-      showDrawer(props.add_edit_type, props.add_edit_standardId);
+      showDrawer(props.add_edit_type, props.add_edit_standardid);
     },
   );
   const editvisible = ref<boolean>(false);
   const edit_add_title = ref<string>('');
   // 定义传递新增、编辑对象
-  const add_edit_object = ref({
+  const add_edit_object = ref<add_edit_object_formState>({
     chineseName: '',
     englishName: '',
     sourceAgencies: '',
@@ -105,22 +112,32 @@
     dataMin: null,
     dataMax: null,
   });
+  // 定义表单规则
+  const form_rules = ref({
+    chineseName: [{ required: true, message: '请输入中文名称' }],
+    englishName: [{ required: true, message: '请输入英文名称' }],
+    standardExplain: [{ required: false, message: '' }],
+    sourceAgencies: [{ required: true, message: '请选择来源机构' }],
+    isNull: [{ required: true, message: '请选择是否为空' }],
+    dataType: [{ required: true, message: '请选择数据类型' }],
+    dataLength: [{ required: false, message: '' }],
+    dataPrecision: [{ required: false, message: '' }],
+    range: [{ required: false, message: '' }],
+    enumRange: [{ required: false, message: '' }],
+  });
   // 定义input框
   const a_input = ref([
     {
-      span: '*',
       name: '中文名称：',
       value: 'chineseName',
       placeholder: '请输入中文名称',
     },
     {
-      span: '*',
       name: '英文名称：',
       value: 'englishName',
       placeholder: '请输入英文名称',
     },
     {
-      span: '',
       name: '标准说明：',
       value: 'standardExplain',
       placeholder: '请输入标准说明',
@@ -129,21 +146,18 @@
   // 定义select框
   const a_select = ref([
     {
-      span: '*',
       name: '来源机构：',
       value: 'sourceAgencies',
       placeholder: '请输入英文名称',
       options: 'Source_institution',
     },
     {
-      span: '*',
       name: '是否可为空：',
       value: 'isNull',
       placeholder: '请输入英文名称',
       options: 'Judge_null',
     },
     {
-      span: '*',
       name: '数据类型：',
       value: 'dataType',
       placeholder: '请输入英文名称',
@@ -197,7 +211,7 @@
   };
 
   // 记录存储的数据
-  const data_storage_edit = reactive({ standardType: '', standardId: '', china: '', english: '' });
+  const data_storage_edit = reactive({ standardType: '', standardId: '' });
 
   // 请求编辑页面数据
   const showDrawer = (type: string, standardId: any) => {
@@ -222,8 +236,6 @@
           // 记录(标准状态、编号)
           data_storage_edit.standardType = res.data.data.standardType;
           data_storage_edit.standardId = standardId;
-          // data_storage_edit.china = res.data.data.chineseName;
-          // data_storage_edit.english = res.data.data.englishName;
           // 删除多余字段
           delete res.data.data.codeNameSplice;
           delete res.data.data.codeId;
@@ -245,70 +257,14 @@
 
   // 确定按钮——向后端发送数据进行新增、编辑标准
   const add_edit_couse = () => {
-    // let dataType = '';
-    // let dataMin: null | string = null;
-    // let dataMax: null | string = null;
-    // let enumRange: null | string = null;
-    // let dataPrecision: null | string = null;
-    // let dataLength: null | string = null;
-    // 判断是否为空
-    // if (add_edit_object.value.chineseName == '' || null) return message.error('中文名称为空！');
-    // if (add_edit_object.value.englishName== '' || null) return message.error('英文名称为空！');
-    // if (add_edit_object.value.sourceAgencies == '' || null) return message.error('请选择来源机构!');
-    // if (add_edit_object.value.dataType == '' || null) return message.error('请选择数据类型!');
-    // if (add_edit_object.value.isNull== '' || null) return message.error('请选择数据是否为空!');
-    // 正则判断
-    // if (morechinese_Name.value.indexOf(add_edit_chineseName.value) !== -1) {
-    //   if (edit_add_title.value == '编辑标准') {
-    //     if (add_edit_chineseName.value != data_storage.china) return message.error('中文名称重复！');
-    //   } else return message.error('中文名称重复！');
-    // }
-    // if (moreenglish_Name.value.indexOf(add_edit_englishName.value) !== -1) {
-    //   if (edit_add_title.value == '编辑标准') {
-    //     if (add_edit_englishName.value != data_storage.english) return message.error('英文名称重复！');
-    //   } else return message.error('英文名称重复！');
-    // }
     if (edit_add_title.value == '新增标准') {
-      // if (dataType == '1') {
-      //   object.dataMin = add_edit_dataMin.value;
-      //   object.dataMax = add_edit_dataMax.value;
-      //   if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
-      //   } else if (
-      //     isString(object.dataMax) ||
-      //     isString(object.dataMin) ||
-      //     !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
-      //   )
-      //     return message.error('请输入正确的取值范围!');
-      // }
-
-      // if (dataType == '2') {
-      //   object.dataMin = add_edit_dataMin.value;
-      //   object.dataMax = add_edit_dataMax.value;
-      //   if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
-      //   } else if (
-      //     isString(object.dataMax) ||
-      //     isString(object.dataMin) ||
-      //     !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
-      //   )
-      //     return message.error('请输入正确的取值范围!');
-      //   object.dataPrecision = add_edit_dataPrecision.value;
-      // }
-      // if (dataType == '3') {
-      //   object.enumRange = add_edit_enumRange.value;
-      //   if (add_edit_enumRange.value == '' || null) return message.error('请选择枚举范围!');
-      // }
-      // if (dataType == '4') {
-      //   object.dataLength = add_edit_dataLength.value;
-      // }
       AddStandard(add_edit_object.value).then(function (res) {
-        console.log(res);
-        // if (res.data.msg == 'chineseName只支持中文及英文大小写') return message.error('中文只支持中文及英文大小写！');
-        // if (res.data.msg == 'englishName只支持英文大小写、数字及下划线且只能是英文开头') return message.error('英文名称只支持英文大小写、数字及下划线且只能是英文开头！');
-        // if (res.data.msg == 'englishName为1到30字符') return message.error('英文名称为1到30字符');
-        // if (res.data.msg == 'chineseName为1到30字符') return message.error('中文名称为1到30字符');
         if (res.data.msg == '新增成功') {
           message.success('新增成功！');
-        }
+          emits('Getdata');
+          editvisible.value = false;
+          empty();
+        } else return message.error('新增失败，' + res.data.msg);
       });
     }
     if (edit_add_title.value == '编辑标准') {
@@ -317,45 +273,15 @@
       } as any;
       object.standardId = data_storage_edit.standardId;
       object.standardType = data_storage_edit.standardType;
-      // if (dataType == '1') {
-      //   object.dataMin = add_edit_dataMin.value;
-      //   object.dataMax = add_edit_dataMax.value;
-      //   if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
-      //   } else if (
-      //     isString(object.dataMax) ||
-      //     isString(object.dataMin) ||
-      //     !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
-      //   )
-      //     return message.error('请输入正确的取值范围!');
-      // }
-      // if (dataType == '2') {
-      //   object.dataMin = add_edit_dataMin.value;
-      //   object.dataMax = add_edit_dataMax.value;
-      //   if ((object.dataMax == '' || object.dataMax == null) && (object.dataMin == '' || object.dataMin == null)) {
-      //   } else if (
-      //     isString(object.dataMax) ||
-      //     isString(object.dataMin) ||
-      //     !(object.dataMax > object.dataMin && object.dataMin <= 999 && object.dataMin >= 0 && object.dataMax <= 999 && object.dataMax >= 0)
-      //   )
-      //     return message.error('请输入正确的取值范围!');
-      //   object.dataPrecision = add_edit_dataPrecision.value;
-      // }
-      // if (dataType == '3') {
-      //   object.enumRange = add_edit_enumRange.value;
-      //   if (add_edit_enumRange.value == '' || null) return message.error('请选择枚举范围!');
-      // }
-      // if (dataType == '4') {
-      //   object.dataLength = add_edit_dataLength.value;
-      // }
       UpdateStandard(object).then(function (res) {
-        console.log(res);
         if (res.data.msg == '返回成功') {
           message.success('编辑成功！');
-        }
+          emits('Getdata');
+          editvisible.value = false;
+          empty();
+        } else return message.error('编辑失败，' + res.data.msg);
       });
     }
-    editvisible.value = false;
-    empty();
   };
   // 取消按钮，清空数据
   const add_edit_false = () => {
@@ -365,36 +291,24 @@
 </script>
 
 <style scoped lang="less">
-  // 编辑页面
-  .edit_drawer {
-    display: flex;
-    margin-bottom: 10px;
-    margin-left: 20px;
-
-    span {
-      margin-right: 5px;
-      width: 140px;
-      font-size: 15px;
-      text-align: right;
-      line-height: 32px;
-
-      span {
-        color: red;
-      }
-    }
-  }
-
+  // 编辑页面底部
   .edit_drawer_bottom {
     position: absolute;
     bottom: 0;
-    display: flex;
-    justify-content: right;
     border-top: 1px gray solid;
     width: 100%;
     height: 50px;
 
-    button {
-      margin: auto 10px;
+    .ant-form-item {
+      height: 100%;
+
+      :deep(.ant-form-item-control-input) {
+        height: 100%;
+
+        .ant-form-item-control-input-content {
+          align-items: center;
+        }
+      }
     }
   }
 

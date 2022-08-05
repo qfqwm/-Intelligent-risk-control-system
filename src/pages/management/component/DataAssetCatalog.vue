@@ -308,6 +308,6 @@
     showDataAssetCatalog();
   };
 </script>
-<style scoped lang="less">
+<style lang="less" scoped>
   @import '@/pages/management/DataAssetCatalog.less';
 </style>

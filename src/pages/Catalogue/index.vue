@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <!-- 搜索区域 -->
   <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
@@ -30,7 +31,7 @@
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
       <a-button type="primary" size="small">标准导入</a-button>
-      <a-button type="primary" size="small" @click="showDrawer('add', null)">新增标准</a-button>
+      <a-button type="primary" size="small" @click="showDrawer('add')">新增标准</a-button>
     </div>
   </div>
   <!-- 表格区域 -->
@@ -67,16 +68,16 @@
     </template>
   </a-table>
   <!-- 新增/编辑组件 -->
-  <AddEditVue :add_edit_type="add_edit_type" :add-edit-standard-id="add_edit_standardId" :show-drawer-number="showDrawer_number"> </AddEditVue>
+  <AddEditVue :add_edit_type="add_edit_type" :add_edit_standardid="add_edit_standardId" :show_drawer_number="showDrawer_number" @Getdata="Getdata()"> </AddEditVue>
   <!-- 显示详情组件 -->
-  <DisplayDetails :to-standard-id="to_standardId" :details_number="details_number"> </DisplayDetails>
+  <DisplayDetails :to_standardid="to_standardId" :details_number="details_number"> </DisplayDetails>
 </template>
 
 <script lang="ts" setup>
   import { message } from 'ant-design-vue';
   import { Catalog, PublishStandard, Delete_Standard, BlockStandard } from '@/api/test/index';
-  import AddEditVue from '@/pages/Catalogue/component/AddEdit.vue';
-  import DisplayDetails from '@/pages/Catalogue/component/DisplayDetails.vue';
+  import AddEditVue from './component/AddEdit.vue';
+  import DisplayDetails from './component/DisplayDetails.vue';
   import { ref, reactive } from 'vue';
   import type { Ref } from 'vue';
   interface DataItem {
@@ -140,10 +141,10 @@
 
   // 新增-编辑
   const add_edit_type = ref<string>('');
-  const add_edit_standardId = ref<string>('');
+  const add_edit_standardId = ref<string | undefined>('');
   // 定义调用次数
   const showDrawer_number = ref<number>(0);
-  const showDrawer = (type: string, standardId: any) => {
+  const showDrawer = (type: string, standardId?: any) => {
     add_edit_type.value = type;
     add_edit_standardId.value = standardId;
     showDrawer_number.value++;
@@ -257,6 +258,7 @@
     Search.standardId = '';
     Search.chineseName = '';
     Search.englishName = '';
+    Getdata();
   };
   const query = () => {
     Getdata();
@@ -304,10 +306,9 @@
       arr.push(item);
     });
     PublishStandard(arr).then(function (res) {
-      if (res.data.msg == '存在已发布数据，请重新勾选数据') return message.error('已经发布的标准不能在发送哟');
       if (res.data.msg == '返回成功') {
         message.success('状态修改成功');
-      }
+      } else return message.error(res.data.msg);
       query();
     });
   };
@@ -317,10 +318,9 @@
       arr.push(item);
     });
     BlockStandard(arr).then(function (res) {
-      if (res.data.msg == '存在已停用数据或未发布数据，请重新勾选数据') return message.error('已经停用的标准不能在发送哟，或则存在未发布的数据');
       if (res.data.msg == '返回成功') {
         message.success('状态修改成功');
-      }
+      } else return message.error(res.data.msg);
       query();
     });
   };

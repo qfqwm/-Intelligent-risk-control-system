@@ -33,7 +33,7 @@
               <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
                 <a-form ref="formRef" name="dynamic_form_nest_item" :model="dynamicValidateForm">
                   <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 110px">
-                    <a-tree-select
+                    <!-- <a-tree-select
                       v-model:value="dynamicValidateForm.chineseName[0]"
                       show-search
                       style="width: 415px"
@@ -41,22 +41,30 @@
                       tree-default-expand-all
                       placeholder="请选择所属目录"
                       :tree-data="treeData"
+                      :field-names="fieldNames"
                       @click="convertData(treeData)"
+                      @change="adddata"
                     >
                       <template #title="{ value: directoryId, title: name }">
                         <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
                         <template v-else>{{ name }}</template>
                       </template>
-                    </a-tree-select>
-                    <a-space
-                      v-for="(sight, i) in dynamicValidateForm.sights"
-                      :key="sight.id"
-                      v-model:value="dynamicValidateForm.chineseName[i + 1]"
-                      style="display: flex; margin-bottom: 8px"
-                      align="baseline"
-                    >
+                    </a-tree-select> -->
+                    {{ dynamicValidateForm.sights }}-{{ dynamicValidateForm.chineseName }}
+                    <a-space v-for="(sight, i) in dynamicValidateForm.sights" :key="sight.id" style="display: flex; margin-bottom: 8px" align="baseline">
                       <a-form-item>
-                        <a-tree-select show-search style="width: 415px" allow-clear tree-default-expand-all placeholder="请选择所属目录" :tree-data="treeData" @click="convertData(treeData)">
+                        <a-tree-select
+                          v-model:value="dynamicValidateForm.chineseName[i]"
+                          show-search
+                          style="width: 415px"
+                          allow-clear
+                          tree-default-expand-all
+                          placeholder="请选择所属目录"
+                          :tree-data="treeData"
+                          :field-names="fieldNames"
+                          @click="convertData(treeData)"
+                          @change="adddata"
+                        >
                           <template #title="{ value: directoryId, title: name }">
                             <b v-if="directoryId === '11'" style="color: #08c">{{ name }}</b>
                             <template v-else>{{ name }}</template>
@@ -156,6 +164,13 @@
     showDrawer(type, record);
   });
 
+  const fieldNames = {
+    children: 'children',
+    title: 'name',
+    key: 'directoryId',
+    value: 'directoryId',
+  };
+
   const convertData = (treeData: any[]) => {
     treeData.forEach(item => {
       item.title = item.name;
@@ -175,10 +190,6 @@
     directoryId: string;
   }
 
-  // interface Sights3 {
-  //   chineseName: string
-  // }
-
   interface Sights2 {
     chineseName: string;
     englishName: string;
@@ -187,42 +198,34 @@
   }
 
   const formRef = ref<FormInstance>();
-  const dynamicValidateForm = ref<{ sights: Sights[]; chineseName: []; directoryId: Sights1[] }>({
+  const dynamicValidateForm = ref<{ sights: Sights[]; chineseName: ['']; directoryId: Sights1[] }>({
     sights: [],
-    chineseName: [],
+    chineseName: [''],
     directoryId: [],
   });
 
-  // const visible = ref<boolean>(false);
   const onClose = () => {
     visible.value = false;
   };
 
   const removeSight = (item: Sights) => {
+    console.log(item);
     let index = dynamicValidateForm.value.sights.indexOf(item);
     if (index !== -1) {
       dynamicValidateForm.value.sights.splice(index, 1);
     }
   };
 
+  //字段添加
   const Mapping = ref([]);
   const length = ref('');
-  const standard_id = ref('');
+  // const standard_id = ref('');
   const handleAdd1 = () => {
     StandardMapping().then(function (res) {
-      console.log(res.data.data);
       length.value = res.data.data.length;
       // standard_id.value = res.data.data.standard_id
       Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
-      standard_id.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standard_id }));
-      // for (let i = 0; i < res.data.data.length; i++) {
-      //   // Mapping.value.substr(0,6)
-      //   console.log(Mapping.value.splice(7,10));
-
-      // }
-      // console.log(Mapping.value);
-      // console.log(standard_id.value);
-      // console.log(length.value);
+      // standard_id.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standard_id }));
     });
     const newData = {
       key1: `${count1.value}`,
@@ -241,50 +244,26 @@
   //     assetId: '',
   //   });
 
-  const add1 = ref();
-  const sss = ref('');
-  const showDrawer = (type: string, record: any) => {
-    if (type == 'add') {
-      datas.chineseName = '';
-      datas.englishName = '';
-      datas.assetExplain = '';
-      // dynamicValidateForm.value = ''
-      visible.value = true;
-      // console.log(11);
-    }
-    if (type == 'edit') {
-      add1.value = { chineseName: record.chineseName };
-      visible.value = true;
-      QueryBasic(add1.value).then(function (res) {
-        console.log(res);
-        sss.value = res.data.data;
-        console.log(sss.value);
-      });
-      datas.chineseName = record.chineseName;
-      datas.englishName = record.englishName;
-      datas.assetExplain = record.assetExplain;
-      // dynamicValidateForm.value = sss.value
-      // console.log(22);
-      // EditData1(datas1).then(function(res){
-      //   console.log(res);
-      // })
-    }
-  };
-
-  //有问题
+  //添加一行
   const addSight = () => {
     dynamicValidateForm.value.sights.push({
       id: 'i' + Date.now(),
     });
+    dynamicValidateForm.value.chineseName.push('');
+  };
+
+  //选择目录改变事件
+  const adddata = () => {
+    dynamicValidateForm.value.directoryId = [];
     // console.log(dynamicValidateForm.chineseName);
+    // dynamicValidateForm.value.chineseName[''] = [];
     for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
       console.log(dynamicValidateForm.value.chineseName, 'cz');
-
       dynamicValidateForm.value.directoryId.push({
         directoryId: dynamicValidateForm.value.chineseName[i],
       });
     }
-    console.log(dynamicValidateForm.value);
+    console.log(dynamicValidateForm.value, 'as');
   };
 
   //确认新增数据资产表
@@ -370,7 +349,6 @@
         fieldExplain: dataSource1.value[i].address,
       });
     }
-    console.log(dataSource2.value);
   };
   const onDelete1 = (key1: string) => {
     dataSource1.value = dataSource1.value.filter(item => item.key1 !== key1);
@@ -378,6 +356,64 @@
   const cancel1 = (key1: string) => {
     delete editableData1[key1];
     onDelete1(key1);
+  };
+
+  const add1 = ref();
+  const showDrawer = (type: string, record: any) => {
+    if (type == 'add') {
+      datas.chineseName = '';
+      datas.englishName = '';
+      datas.assetExplain = '';
+      dynamicValidateForm.value = {
+        sights: [{ id: '0' }],
+        chineseName: [''],
+        directoryId: [],
+      };
+      dataSource1.value = [];
+      visible.value = true;
+    }
+    if (type == 'edit') {
+      add1.value = { chineseName: record.chineseName };
+      visible.value = true;
+      QueryBasic(add1.value).then(function (res) {
+        console.log(res);
+        // datas = res.data.data
+        // Object.keys(datas).forEach(item => )
+        datas.chineseName = res.data.data.chineseName;
+        datas.englishName = res.data.data.englishName;
+        datas.assetExplain = res.data.data.assetExplain;
+        dynamicValidateForm.value.chineseName.shift();
+        for (let i = 0; i < res.data.data.directoryNames.length; i++) {
+          let aa = res.data.data.directoryIds[i].split('/').slice(-1).toString();
+          dynamicValidateForm.value.sights.push({
+            id: 'i' + Date.now(),
+          });
+          dynamicValidateForm.value.chineseName.push(aa);
+        }
+
+        for (let i = 0; i < res.data.data.updateAssetFieldVos.length; i++) {
+          dataSource1.value.push({
+            name: res.data.data.updateAssetFieldVos[i].englishName,
+            age: res.data.data.updateAssetFieldVos[i].chineseName,
+            address1: res.data.data.updateAssetFieldVos[i].standNames,
+            key1: res.data.data.updateAssetFieldVos[i].fieldId,
+            address: res.data.data.updateAssetFieldVos[i].standardId,
+          });
+        }
+      });
+      handleAdd1();
+      // console.log(22);
+      // EditData1(datas1).then(function(res){
+      //   console.log(res);
+      // })
+      dynamicValidateForm.value = {
+        // sights: [{ id: '0' }],
+        sights: [],
+        chineseName: [''],
+        directoryId: [],
+      };
+      dataSource1.value = [];
+    }
   };
 </script>
 
