@@ -1,35 +1,33 @@
 <template>
   <!-- 编辑栏 -->
   <a-drawer :title="edit_add_title" :width="450" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="add_edit_false">
-    <a-form :model="add_edit_object" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
+    <a-form ref="edit_and_Form" :model="add_edit_object" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="add_edit_couse">
       <!-- 遍历input框 -->
-      <a-form-item v-for="(item, index) in a_input" :key="index" :label="item.name" :name="item.name" :rules="form_rules[item.value]">
+      <a-form-item v-for="(item, index) in a_input" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
       </a-form-item>
       <!-- 遍历select框 -->
-      <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.name" :rules="form_rules[item.value]">
+      <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-select v-model:value="add_edit_object[item.value]" placeholder="Please select a country" style="width: 100%" :options="all_select[item.options]" :filter-option="filterOption"></a-select>
       </a-form-item>
       <!-- float类型 -->
       <div v-show="add_edit_object.dataType === '2'" class="int_type">
-        <a-form-item label="数据精度：" name="数据精度" :rules="form_rules.dataPrecision">
+        <a-form-item label="数据精度：" name="dataPrecision" :rules="form_rules.dataPrecision">
           <div style="width: 100%" class="num_rang">
             <a-input v-model:value.number="add_edit_object.dataPrecision" placeholder="请输入数据精度" />
           </div>
         </a-form-item>
       </div>
       <!-- int类型 -->
-      <div v-show="add_edit_object.dataType === '1' || add_edit_object.dataType == '2'" class="int_type">
-        <a-form-item label="取值范围：" name="取值范围" :rules="form_rules.range">
-          <div style="width: 100%" class="num_rang">
-            <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" />----
-            <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
-          </div>
+      <div v-show="add_edit_object.dataType === '1' || add_edit_object.dataType == '2'">
+        <a-form-item label="取值范围：">
+          <a-input v-model:value.number="add_edit_object.dataMin" placeholder="请输入最小值" style="width: 45%" /> ---
+          <a-input v-model:value.number="add_edit_object.dataMax" placeholder="请输入最大值" style="width: 45%" />
         </a-form-item>
       </div>
       <!-- enum类型 -->
       <div v-show="add_edit_object.dataType === '3'" class="int_type">
-        <a-form-item label="枚举范围：" name="枚举范围" :rules="form_rules.enumRange">
+        <a-form-item label="枚举范围：" name="enumRange" :rules="form_rules.enumRange">
           <div style="width: 100%" class="num_rang">
             <a-select v-model:value="add_edit_object.enumRange" show-search placeholder="请输入枚举范围" style="width: 100%" :options="all_select.GetEnum" :filter-option="filterOption"> </a-select>
           </div>
@@ -37,7 +35,7 @@
       </div>
       <!-- string类型 -->
       <div v-show="add_edit_object.dataType === '4'" class="int_type">
-        <a-form-item label="数据长度：" name="数据长度" :rules="form_rules.dataLength">
+        <a-form-item label="数据长度：" name="dataLength" :rules="form_rules.dataLength">
           <div style="width: 100%" class="num_rang">
             <a-input v-model:value="add_edit_object.dataLength" placeholder="请输入数据长度" />
           </div>
@@ -53,7 +51,7 @@
       <div class="edit_drawer_bottom">
         <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
           <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
-          <a-button type="primary" size="big" html-type="submit" @click="add_edit_couse">确定</a-button>
+          <a-button type="primary" size="big" html-type="submit">确定</a-button>
         </a-form-item>
       </div>
     </a-form>
@@ -95,7 +93,19 @@
       showDrawer(props.add_edit_type, props.add_edit_standardid);
     },
   );
+  //监听模态框状态，清空表单错误提示
+  const edit_and_Form = ref<any>(null);
   const editvisible = ref<boolean>(false);
+  watch(
+    () => editvisible.value,
+    newval => {
+      if (newval) {
+        try {
+          return edit_and_Form._rawValue.resetFields();
+        } catch (e) {}
+      }
+    },
+  );
   const edit_add_title = ref<string>('');
   // 定义传递新增、编辑对象
   const add_edit_object = ref<add_edit_object_formState>({
@@ -113,15 +123,17 @@
     dataMax: null,
   });
   // 定义表单规则
-  const form_rules = reactive({
-    chineseName: [{ required: true, message: '请输入手机号码' }],
-    englishName: [{ required: true, message: 'aaa' }],
-    sourceAgencies: [{ required: true, message: 'bbb' }],
-    standardExplain: [{ required: false, message: 'cc' }],
-    dataLength: [{ required: false, message: 'cc' }],
-    dataPrecision: [{ required: false, message: 'cc' }],
-    range: [{ required: false, message: 'cc' }],
-    enumRange: [{ required: false, message: 'cc' }],
+  const form_rules = ref({
+    chineseName: [{ required: true, message: '请输入中文名称' }],
+    englishName: [{ required: true, message: '请输入英文名称' }],
+    standardExplain: [{ required: false, message: '' }],
+    sourceAgencies: [{ required: true, message: '请选择来源机构' }],
+    isNull: [{ required: true, message: '请选择是否为空' }],
+    dataType: [{ required: true, message: '请选择数据类型' }],
+    dataLength: [{ required: false, message: '' }],
+    dataPrecision: [{ required: false, message: '' }],
+    range: [{ required: false, message: '' }],
+    enumRange: [{ required: true, message: '请选择枚举范围' }],
   });
   // 定义input框
   const a_input = ref([
@@ -260,6 +272,8 @@
         if (res.data.msg == '新增成功') {
           message.success('新增成功！');
           emits('Getdata');
+          editvisible.value = false;
+          empty();
         } else return message.error('新增失败，' + res.data.msg);
       });
     }
@@ -270,15 +284,14 @@
       object.standardId = data_storage_edit.standardId;
       object.standardType = data_storage_edit.standardType;
       UpdateStandard(object).then(function (res) {
-        console.log(res);
         if (res.data.msg == '返回成功') {
           message.success('编辑成功！');
           emits('Getdata');
+          editvisible.value = false;
+          empty();
         } else return message.error('编辑失败，' + res.data.msg);
       });
     }
-    editvisible.value = false;
-    empty();
   };
   // 取消按钮，清空数据
   const add_edit_false = () => {
