@@ -114,16 +114,16 @@
   });
   // 定义表单规则
   const form_rules = ref({
-    chineseName: [{ required: true, message: '请输入手机号码' }],
-    englishName: [{ required: true, message: 'aaa' }],
-    standardExplain: [{ required: false, message: 'cc' }],
-    sourceAgencies: [{ required: true, message: 'bbb' }],
-    isNull: [{ required: true, message: 'bbb' }],
-    dataType: [{ required: true, message: 'bbb' }],
-    dataLength: [{ required: false, message: 'cc' }],
-    dataPrecision: [{ required: false, message: 'cc' }],
-    range: [{ required: false, message: 'cc' }],
-    enumRange: [{ required: false, message: 'cc' }],
+    chineseName: [{ required: true, message: '请输入中文名称' }],
+    englishName: [{ required: true, message: '请输入英文名称' }],
+    standardExplain: [{ required: false, message: '' }],
+    sourceAgencies: [{ required: true, message: '请选择来源机构' }],
+    isNull: [{ required: true, message: '请选择是否为空' }],
+    dataType: [{ required: true, message: '请选择数据类型' }],
+    dataLength: [{ required: false, message: '' }],
+    dataPrecision: [{ required: false, message: '' }],
+    range: [{ required: false, message: '' }],
+    enumRange: [{ required: false, message: '' }],
   });
   // 定义input框
   const a_input = ref([
