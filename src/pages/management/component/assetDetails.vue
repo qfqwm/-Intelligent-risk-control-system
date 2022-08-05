@@ -1,4 +1,4 @@
-<template lang="">
+<template>
   <!-- 蒙版区域 -->
   <div v-show="show.outmask" class="mask">
     <!-- 企业信息基本表 -->
@@ -70,4 +70,4 @@
 
   //   });
 </script>
-<style lang=""></style>
+<style lang="" scoped></style>

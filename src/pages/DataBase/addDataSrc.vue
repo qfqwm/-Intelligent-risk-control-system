@@ -135,7 +135,7 @@
     },
   });
 </script>
-<style lang="less">
+<style lang="less" scoped>
   .full-modal {
     .ant-modal {
       top: 0;

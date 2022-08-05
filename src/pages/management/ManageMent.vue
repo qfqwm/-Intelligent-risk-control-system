@@ -153,6 +153,7 @@
 
   //秦发强
   import FiveButtons from './component/index.vue';
+  import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
 
   import check from './component/assetDetails.vue';
