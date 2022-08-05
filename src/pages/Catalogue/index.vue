@@ -258,6 +258,7 @@
     Search.standardId = '';
     Search.chineseName = '';
     Search.englishName = '';
+    Getdata();
   };
   const query = () => {
     Getdata();

@@ -5,18 +5,21 @@
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
-      <div class="search">
-        <span>数据资产表状态：</span>
-        <select v-model="Codetablestatus">
-          <option value="未发布">未发布</option>
-          <option value="已发布">已发布</option>
-          <option value="已停用">已停用</option>
-          <option value="" selected></option>
-        </select>
-        <span>中文名称：</span><input v-model="Codetablename" type="text" /> <span>英文名称：</span><input v-model="Codetablename1" type="text" />
-        <a-button class="Reset" @click="Reset">重置</a-button>
-        <a-button class="query" @click="query">查询</a-button>
-      </div>
+      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
+        <a-form-item label="标准状态" name="standardType">
+          <a-select v-model:value.trim="Search.assetType" :options="standardType_areas" :style="{ minWidth: '100px' }" />
+        </a-form-item>
+        <a-form-item label="中文名称：" name="chineseName">
+          <a-input v-model:value.trim="Search.chineseName" />
+        </a-form-item>
+        <a-form-item label="英文名称：" name="englishName">
+          <a-input v-model:value.trim="Search.englishName" />
+        </a-form-item>
+        <a-form-item>
+          <a-button class="Reset" :style="{ marginRight: '10px' }" @click="Reset">重置</a-button>
+          <a-button class="query" @click="query">查询</a-button>
+        </a-form-item>
+      </a-form>
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
@@ -155,8 +158,25 @@
   import FiveButtons from './component/index.vue';
   import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
-
   import check from './component/assetDetails.vue';
+
+  // 搜索区域
+  interface Search {
+    chineseName: string;
+    englishName: string;
+    assetType: string;
+  }
+  const Search = reactive<Search>({
+    chineseName: '',
+    englishName: '',
+    assetType: '',
+  });
+  const standardType_areas = [
+    // 未发布查询出全部数据
+    { label: '未发布', value: '0' },
+    { label: '已发布', value: '1' },
+    { label: '已停用', value: '2' },
+  ];
 
   const treeData = ref<any[]>([]);
   SelectDirectory().then(res => {
@@ -187,10 +207,6 @@
     emitter.emit('sendchild', sdd);
   };
 
-  // 搜索功能
-  const Codetablestatus = ref<string>('');
-  const Codetablename = ref<string>('');
-  const Codetablename1 = ref<string>('');
   // 表格
   const columns = [
     {
@@ -225,20 +241,10 @@
   const dataSource: Ref<DataItem[]> = ref([]);
   // 调用接口加载表格
   const selectCodeTable_way = () => {
-    let state;
-    if (Codetablestatus.value == '未发布') state = 0;
-    if (Codetablestatus.value == '已发布') state = 1;
-    if (Codetablestatus.value == '已停用') state = 2;
-    let object = {
-      assetType: state,
-      chineseName: Codetablename.value,
-      englishName: Codetablename1.value,
-    };
-    SelectDataAsset(object).then(function (res: any) {
+    SelectDataAsset(Search).then(function (res: any) {
+      console.log(res);
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data;
-      console.log(dataSource.value);
-
       dataSource.value.forEach((item: any) => {
         if (item.assetType == 0) {
           item.assetType = '未发布';
@@ -253,7 +259,15 @@
       total.value = dataSource.value.length;
     });
   };
+
   selectCodeTable_way();
+  // 重置
+  const Reset = () => {
+    Search.chineseName = '';
+    Search.englishName = '';
+    Search.assetType = '';
+    selectCodeTable_way();
+  };
   // 查询按钮
   const query = () => {
     selectCodeTable_way();
@@ -269,14 +283,6 @@
 
   // 判断弹框显示隐藏
   const show = reactive({ outmask: false, addcode: false, inmask: false, addincode: false, editincode: false, PersonnelGender: false });
-
-  // const showcode3 = (code1: any) => {
-  //   const sdd = reactive({
-  //     code1:code1,
-  //     show:show,
-  //   });
-  //   emitter.emit('code', sdd);
-  // };
 
   // 人员性别编码弹框
   const personnelcodetable = ref({
@@ -360,13 +366,7 @@
     show.outmask = false;
     show.PersonnelGender = false;
   };
-  // 重置
-  const Reset = () => {
-    Codetablestatus.value = '';
-    Codetablename.value = '';
-    Codetablename1.value = '';
-    selectCodeTable_way();
-  };
+
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
@@ -402,7 +402,7 @@
         }
       }
     }
-    let list = Selectall_invert.value;
+    // let list = Selectall_invert.value;
     let change_array: any = {
       statusType: state,
       assetList: Selectall_invert.value,
@@ -429,9 +429,9 @@
       assetList: [assetId],
     };
     OnChange1(object_array).then(function (res: any) {
-      console.log(res);
+      console.log(res, 'czc');
 
-      if (res.data.msg == '返回成功') {
+      if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
         selectCodeTable_way();
