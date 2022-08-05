@@ -25,7 +25,7 @@
         <a-form-item has-feedback label="接口名称:" name="checkPass" style="width: 460px">
           <a-input v-model:value="formState.checkPass" type="text" autocomplete="off" />
         </a-form-item>
-        <a-form-item :wrapper-col="{ span: 14, offset: 4 }" style=" display: flex; justify-content: end;width: 360px">
+        <a-form-item :wrapper-col="{ span: 14, offset: 4 }" style="display: flex; justify-content: end; width: 360px">
           <a-button html-type="submit" @click="reset">重置</a-button>
           <a-button style="margin-left: 10px" type="primary" @click="query">查询</a-button>
         </a-form-item>
