@@ -1,7 +1,7 @@
 <template>
   <div class="left">
     <div class="left_title">
-      <span>数据资产表目录</span>
+      <span>接口分类</span>
       <PlusCircleOutlined @click="stairAdd" />
     </div>
     <div class="left_menu">
@@ -22,10 +22,9 @@
           </span>
           <span v-else>{{ name }}</span>
           <span>
-            <div id="components-a-popconfirm-demo-placement">
+            <div id="components-a-tooltip-demo-placement">
               <div :style="{ clear: 'both', whiteSpace: 'nowrap' }">
-                <a-popconfirm placement="bottom" ok-text="是" cancel-text="否" @confirm="confirm">
-                  <template #icon></template>
+                <a-tooltip placement="bottom" :color="color">
                   <template #title>
                     <p>
                       <a-button class="btn" @click="add">增加</a-button>
@@ -38,13 +37,14 @@
                     </p>
                   </template>
                   <MoreOutlined />
-                </a-popconfirm>
+                </a-tooltip>
               </div>
             </div>
           </span>
         </template>
       </a-tree>
     </div>
+    <router-link to="/interfaceDetail">接口详情</router-link>
     <!-- 数据资产表目录新增目录弹框 -->
     <a-modal
       v-model:visible="stair_add"
@@ -89,19 +89,26 @@
 <script lang="ts" setup>
   import { ref, createVNode, watch } from 'vue';
   import { PlusCircleOutlined, ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons-vue';
-  import { InterfaceDeleteContents, InterfaceRenameContents, InterfaceAddContents, InterfaceSelectDirectory } from '@/api/test/index';
+  import { InterfaceDeleteContents, InterfaceRenameContents, InterfaceAddContents } from '@/api/test/index';
   import _ from 'lodash';
   import { Modal, message } from 'ant-design-vue';
-  const confirm = () => {
-    message.info('Clicked on Yes.');
-  };
+
+  const color = ref('#fff');
   //数据资产目录展示
   const search = ref<string>('');
   const treeData = ref<any[]>([]);
   const showInterfaceClassification = () => {
-    InterfaceSelectDirectory().then(res => {
-      treeData.value = res.data.data;
-    });
+    // InterfaceSelectDirectory().then(res => {
+    //   console.log(res.data.data);
+    //   treeData.value = res.data.data;
+    // });
+    treeData.value = [
+      {
+        name: 'OPPO',
+        directoryId: '1',
+        parentId: '0',
+      },
+    ];
   };
   showInterfaceClassification();
   const fieldNames = {
@@ -306,5 +313,5 @@
   };
 </script>
 <style scoped lang="less">
-  @import '@/pages/management/DataAssetCatalog.less';
+  @import '@/pages/InterFace/css/InterfaceClassification.less';
 </style>

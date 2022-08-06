@@ -25,10 +25,9 @@
           </span>
           <span v-else>{{ name }}</span>
           <span>
-            <div id="components-a-popconfirm-demo-placement">
+            <div id="components-a-tooltip-demo-placement">
               <div :style="{ clear: 'both', whiteSpace: 'nowrap' }">
-                <a-popconfirm placement="bottom" ok-text="是" cancel-text="否" @confirm="confirm">
-                  <template #icon></template>
+                <a-tooltip placement="bottom" :color="color">
                   <template #title>
                     <p>
                       <a-button class="btn" @click="add">增加</a-button>
@@ -41,7 +40,7 @@
                     </p>
                   </template>
                   <MoreOutlined />
-                </a-popconfirm>
+                </a-tooltip>
               </div>
             </div>
           </span>
@@ -95,9 +94,8 @@
   import { DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
   import _ from 'lodash';
   import { Modal, message } from 'ant-design-vue';
-  const confirm = () => {
-    message.info('Clicked on Yes.');
-  };
+
+  const color = ref('#fff');
   //数据资产目录展示
   const search = ref<string>('');
   const treeData = ref<any[]>([]);

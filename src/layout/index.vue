@@ -36,9 +36,19 @@
           <a-breadcrumb-item
             ><router-link :to="route.meta.url" @click="jump">{{ route.meta.title }}</router-link></a-breadcrumb-item
           >
-          <a-breadcrumb-item v-if="route.meta.module"
-            ><router-link :to="route.meta.url">{{ route.meta.module }}</router-link></a-breadcrumb-item
-          >
+          <template v-if="route.meta.name">
+            <a-breadcrumb-item v-if="route.meta.module"
+              ><router-link :to="route.meta.url">{{ route.meta.module }}</router-link></a-breadcrumb-item
+            >
+            <a-breadcrumb-item v-if="route.meta.name"
+              ><router-link :to="route.path">{{ route.meta.name }}</router-link></a-breadcrumb-item
+            >
+          </template>
+          <template v-else>
+            <a-breadcrumb-item v-if="route.meta.module"
+              ><router-link :to="route.path">{{ route.meta.module }}</router-link></a-breadcrumb-item
+            >
+          </template>
         </a-breadcrumb>
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
           <router-view></router-view>
@@ -52,6 +62,7 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   const route = useRoute();
+  console.log(route.name);
   const selectedKeys2 = ref<string[]>([route.path]);
   const openKeys = ref<string[]>(['sub1']);
   if (route.path === '/interface' || route.path === '/database') {
@@ -130,5 +141,13 @@
     z-index: 1;
     overflow: 'auto';
     height: 100vh;
+  }
+
+  .interfaceDetail {
+    margin: 0 -23px 16px;
+    padding-top: 16px;
+    padding-left: 23px;
+    height: 100px;
+    background-color: #fff;
   }
 </style>
