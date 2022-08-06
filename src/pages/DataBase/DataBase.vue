@@ -4,11 +4,11 @@
     <div class="search">
       <!-- 搜索区域 -->
       <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
-        <a-form-item label="标准状态" name="standardType">
-          <a-select v-model:value.trim="Search.standardType" :options="standardType_areas" :style="{ minWidth: '100px' }" />
+        <a-form-item label="标准状态" name="databaseState">
+          <a-select v-model:value.trim="Search.databaseState" :options="standardType_areas" :style="{ minWidth: '100px' }" />
         </a-form-item>
-        <a-form-item label="数据库名称" name="standardId">
-          <a-input v-model:value.trim="Search.standardId" />
+        <a-form-item label="数据库名称" name="driverName">
+          <a-input v-model:value.trim="Search.sourceName" />
         </a-form-item>
         <a-form-item>
           <a-button class="Reset" :style="{ marginRight: '10px' }" @click="Reset">重置</a-button>
@@ -40,26 +40,26 @@
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
         <div v-if="record.databaseState == '未发布'">
-          <a-button type="primary" size="small">连通测试</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+          <a-button type="primary" size="small" @click="Connectivity(record)">连通测试</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="change('publish', record)">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
           <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?">
+          <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="del(record)">
             <a-button type="primary" size="small">删除</a-button>
           </a-popconfirm>
         </div>
         <!-- 已发布显示按钮 -->
         <div v-if="record.databaseState == '已发布'">
-          <a-button type="primary" size="small">连通测试</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+          <a-button type="primary" size="small" @click="Connectivity(record)">连通测试</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否停用该码表?" @confirm="change('Deactivate', record)">
             <a-button type="primary" size="small">停用</a-button>
           </a-popconfirm>
         </div>
         <!-- 已停用显示按钮 -->
         <div v-if="record.databaseState == '已停用'">
-          <a-button type="primary" size="small">连通测试</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+          <a-button type="primary" size="small" @click="Connectivity(record)">连通测试</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="change('publish', record)">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
           <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
@@ -69,20 +69,25 @@
   </a-table>
 </template>
 <script lang="ts" setup>
-  import { QueryAdministration } from '@/api/test/index';
+  import { QueryAdministration, ModifyBatabase, ConnectivityTest, DeleteDatabase } from '@/api/test/index';
   import { ref } from 'vue';
   import type { Ref } from 'vue';
   import AddDataSrc from './component/addDataSrc.vue';
   import emitter from '@/utils/bus';
+  import { message } from 'ant-design-vue';
+
+  emitter.on('send', () => {
+    show();
+  });
 
   // 搜索区域
   interface Search {
-    standardType: string;
-    standardId: string;
+    sourceName: string;
+    databaseState: string;
   }
   const Search = reactive<Search>({
-    standardType: '',
-    standardId: '',
+    databaseState: '',
+    sourceName: '',
   });
   const standardType_areas = [
     // 未发布查询出全部数据
@@ -169,26 +174,99 @@
 
   const visible = ref<boolean>(false);
 
+  //事件总线（数据传给子组件）
   const showDrawer = (type: string, record: any) => {
     const sdd = reactive({
       type: type,
       record: record,
       visible: visible,
     });
-    // Add();
     emitter.emit('sendchild', sdd);
   };
 
   show();
   // 重置
   const Reset = () => {
-    Search.standardId = '';
-    Search.standardType = '';
+    Search.sourceName = '';
+    Search.databaseState = '';
     show();
   };
   // 查询按钮
   const query = () => {
     show();
+  };
+
+  //改变状态需要的数据
+  const changestatus = reactive({
+    statusType: '',
+    databaseList: [],
+  });
+
+  //封装改变状态的方法
+  const method = (record: any) => {
+    changestatus.databaseList = [];
+    changestatus.databaseList.push(record.databaseId);
+    ModifyBatabase(changestatus).then(function (res) {
+      if (res.data.code == 100200) {
+        message.success('更新成功!');
+        show();
+      } else return message.error('更新失败！');
+    });
+  };
+
+  //改变状态
+  const change = (type: string, record: any) => {
+    console.log(record.databaseId);
+    if (type == 'publish') {
+      changestatus.statusType = '0';
+      method(record);
+    }
+    if (type == 'Deactivate') {
+      changestatus.statusType = '1';
+      method(record);
+    }
+  };
+
+  //连通测试传递的数据
+  // databaseType: 'quis',
+  //   sourceName: '测试',
+  //   sourceDescription: '二狗的',
+  //   connectMessage: 'jdbc:mysql://10.255.70.21:3306/group3dev1',
+  //   driverName: 'com.mysql.cj.jdbc.Driver',
+  //   username: 'root',
+  //   password: '123456',
+  const datas = reactive({
+    databaseType: '',
+    sourceName: '',
+    sourceDescription: '',
+    connectMessage: '',
+    driverName: '',
+    username: '',
+    password: '',
+  });
+
+  //连通测试
+  const Connectivity = (record: any) => {
+    console.log(record);
+    Object.keys(datas).forEach(function (key) {
+      datas[key] = record[key];
+    });
+    ConnectivityTest(datas).then(function (res) {
+      if (res.data.code == 100200) {
+        message.success(res.data.msg);
+        show();
+      } else return message.error(res.data.msg);
+    });
+  };
+
+  //删除
+  const del = (record: any) => {
+    DeleteDatabase(record.databaseId).then(function (res) {
+      if (res.data.code == 100200) {
+        message.success(res.data.msg);
+        show();
+      } else return message.error(res.data.msg);
+    });
   };
 </script>
 

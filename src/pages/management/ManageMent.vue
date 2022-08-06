@@ -150,7 +150,7 @@
   import type { Ref } from 'vue';
   import { deleteAsset, SelectDataAsset, SelectDirectory, OnChange1, rebaseTbl } from '@/api/test/index';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  import _, { filter } from 'lodash';
+  import _, { filter, keys } from 'lodash';
   import FiveButtons from './component/index.vue';
   import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import emitter from '@/utils/bus';
@@ -161,14 +161,15 @@
     chineseName: string;
     englishName: string;
     assetType: string;
+    directoryId: string;
   }
   const Search = reactive<Search>({
     chineseName: '',
     englishName: '',
     assetType: '',
+    directoryId: '',
   });
   const standardType_areas = [
-    // 未发布查询出全部数据
     { label: '未发布', value: '0' },
     { label: '已发布', value: '1' },
     { label: '已停用', value: '2' },
@@ -199,11 +200,15 @@
       visible: visible,
       treeData: treeData,
     });
-    // Add();
     emitter.emit('sendchild', sdd);
   };
 
   emitter.on('send', () => {
+    selectCodeTable_way();
+  });
+
+  emitter.on('sendf', val => {
+    Search.directoryId = val;
     selectCodeTable_way();
   });
 
@@ -266,6 +271,7 @@
     Search.chineseName = '';
     Search.englishName = '';
     Search.assetType = '';
+    Search.directoryId = '';
     selectCodeTable_way();
   };
   // 查询按钮

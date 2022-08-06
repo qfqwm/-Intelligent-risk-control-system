@@ -1,48 +1,4 @@
-<!--
- * @FileDescription: 新增数据库组件
- * @Author: wxy
- * @Date: 2022-08-3
- * @LastEditors: wxy
- * @LastEditTime: 最后更新时间
--->
-
 <template>
-  <!-- <a-modal v-model:visible="visible" title="新增数据源" width=" 40%" wrap-class-name="full-modal" @ok="handleOk">
-    <a-form :model="formState" v-bind="layout" name="nest-messages" :validate-messages="validateMessages" @finish="onFinish">
-      <a-form-item label="数据库类型" placeholder="请输入">
-        <a-select ref="select" v-model:value="value1" style="width: 300px" @focus="focus" @change="handleChange">
-          <a-select-option value="MySQL">MySQL</a-select-option>
-          <a-select-option value="MongoDB">MongoDB</a-select-option>
-          <a-select-option value="ElasticSearch">ElasticSearch</a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item :name="['user', 'name']" label="数据源名称" :rules="[{ required: true }]">
-        <a-input placeholder="请输入" />
-      </a-form-item>
-      <a-form-item :name="['user', 'name']" label="JDBC URL" :rules="[{ required: true }]">
-        <a-input placeholder="请输入" />
-      </a-form-item>
-      <a-form-item :name="['user', 'name']" label="驱动类名" :rules="[{ required: true }]">
-        <a-input placeholder="请输入" />
-      </a-form-item>
-      <a-form-item :name="['user', 'name']" label="连接参数配置" :rules="[{ required: true }]">
-        <a-input placeholder="请输入" />
-      </a-form-item>
-      <a-form-item :name="['user', 'name']" label="连接参数配置" :rules="[{ required: true }]">
-        <a-input placeholder="请输入" />
-      </a-form-item>
-
-      <a-form-item :name="['user', 'name']" label="数据源名称" :rules="[{ required: true }]">
-        <a-input v-model:value="formState.user.name" />
-      </a-form-item>
-      <a-form-item :name="['user', 'introduction']" label="数据源描述">
-        <a-textarea v-model:value="formState.user.introduction" />
-      </a-form-item>
-      <a-form-item :wrapper-col="{ ...layout.wrapperCol, offset: 8 }">
-        <a-button type="primary" html-type="submit">Submit</a-button>
-      </a-form-item>
-    </a-form>
-  </a-modal> -->
   <a-drawer title="新增数据源" :width="450" :visible="visible" :body-style="{ paddingBottom: '80px' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
     <a-form :model="form" :rules="rules" layout="vertical">
       <a-row :gutter="16">
@@ -98,9 +54,9 @@
 </template>
 <script lang="ts" setup>
   import { reactive, ref } from 'vue';
-  // import type { SelectProps } from 'ant-design-vue';
   import type { Rule } from 'ant-design-vue/es/form';
   import emitter from '@/utils/bus';
+  import { AddDataSource, EditDatabase } from '@/api/test/index';
 
   //弹窗气泡
   const visible = ref();
@@ -113,18 +69,37 @@
     showDrawer(type, record);
   });
 
+  //编辑所需要的id
+  const databaseId = ref('');
+  //抽屉的开关控制
   const showDrawer = (type: string, record?: any) => {
     if (type == 'add') {
       visible.value = true;
-      console.log(1121);
+      Object.keys(form).forEach(function (key) {
+        form[key] = '';
+      });
     }
     if (type == 'edit') {
       visible.value = true;
-      console.log(232323);
+      databaseId.value = record.databaseId;
+      Object.keys(form).forEach(function (key) {
+        form[key] = record[key];
+      });
     }
   };
 
   const form = reactive({
+    databaseType: '',
+    sourceName: '',
+    connectMessage: '',
+    driverName: '',
+    username: '',
+    password: '',
+    sourceDescription: '',
+  });
+
+  const form_edit = reactive({
+    databaseId: '',
     databaseType: '',
     sourceName: '',
     connectMessage: '',
@@ -144,51 +119,39 @@
     sourceDescription: [{ required: true, message: '请输入' }],
   };
 
+  //关闭抽屉
   const onClose = () => {
     visible.value = false;
   };
 
+  //数据库新增，编辑
   const sure = () => {
-    console.log(11);
+    if (type == 'add') {
+      AddDataSource(form).then(function (res) {
+        if (res.data.msg == '返回成功') {
+          emitter.emit('send');
+        } else {
+          alert(res.data.msg);
+        }
+      });
+    }
+    if (type == 'edit') {
+      Object.keys(form_edit).forEach(function (key) {
+        form_edit[key] = form[key];
+      });
+      form_edit.databaseId = databaseId.value;
+      console.log(form_edit, 'ksjd');
+      EditDatabase(form_edit).then(function (res) {
+        if (res.data.msg == '修改成功') {
+          console.log(res);
+
+          emitter.emit('send');
+        } else {
+          alert(res.data.msg);
+        }
+      });
+    }
   };
-
-  //添加内容
-  // const layout = {
-  //   labelCol: { span: 8 },
-  //   wrapperCol: { span: 16 },
-  // };
-
-  // const validateMessages = {
-  //   required: '${label} is required!',
-  //   types: {
-  //     email: '${label} is not a valid email!',
-  //     number: '${label} is not a valid number!',
-  //   },
-  //   number: {
-  //     range: '${label} must be between ${min} and ${max}',
-  //   },
-  // };
-
-  // const formState = reactive({
-  //   user: {
-  //     name: '',
-  //     age: undefined,
-  //     email: '',
-  //     website: '',
-  //     introduction: '',
-  //   },
-  // });
-  // const onFinish = (values: any) => {
-  //   console.log('Success:', values);
-  // };
-
-  // const focus = () => {
-  //   console.log('focus');
-  // };
-
-  // const handleChange = (value: string) => {
-  //   console.log(`selected ${value}`);
-  // };
 </script>
 <style lang="less" scoped>
   .full-modal {

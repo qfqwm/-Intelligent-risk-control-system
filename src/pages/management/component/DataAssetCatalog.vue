@@ -94,6 +94,7 @@
   import { PlusCircleOutlined, ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons-vue';
   import { DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
   import _ from 'lodash';
+  import emitter from '@/utils/bus';
   import { Modal, message } from 'ant-design-vue';
   const confirm = () => {
     message.info('Clicked on Yes.');
@@ -134,9 +135,13 @@
       expandedKeys.value = [];
     }
   };
+
+  const Asset = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
     console.log(keys, selected, 'fff');
     editSecond.value = node.name;
+    Asset.value = keys[0];
+    emitter.emit('sendf', Asset.value);
   };
   // 点击搜索进行模糊筛选
   const searchStr = ref('');

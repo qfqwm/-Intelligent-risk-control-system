@@ -71,6 +71,16 @@ enum Api {
   //数据库管理
   //查询数据库管理
   Query_database_administration = '/SelectDatabaseTables',
+  //修改数据库状态
+  Modify_the_database_state = '/updateDatabaseState',
+  //连通测试
+  Connectivity_test = '/ConnectJDBC',
+  //新增数据源
+  Add_new_data_source = '/InsertDatabaseTables',
+  //编辑数据库信息
+  Edit_the_database_information = '/updateDatabaseInfo',
+  //删除数据库
+  Delete_database = '/deleteDatabase/',
 }
 
 //码表管理
@@ -152,3 +162,8 @@ export const Lookup = (standardId: string) =>
 
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
+export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);
+export const ConnectivityTest = (object: object) => api.post(Api.Connectivity_test, object);
+export const AddDataSource = (object: object) => api.post(Api.Add_new_data_source, object);
+export const EditDatabase = (object: object) => api.post(Api.Edit_the_database_information, object);
+export const DeleteDatabase = (databaseId: any) => api.post(Api.Delete_database + databaseId);
