@@ -115,9 +115,22 @@
     value: 'directoryId',
   };
 
+  const fg = ref('');
+
+  emitter.on('reset', (t: any) => {
+    console.log(t.keys);
+    fg.value = t.keys;
+    console.log(fg.value, 'ojk');
+  });
+
   //数据资产表目录按表名称或目录名称查询
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
+
+  //点击重置取消资产目录的高亮显示
+  watch(fg, () => {
+    selectedKeys.value = [];
+  });
   watch(expandedKeys, () => {
     console.log('expandedKeys', expandedKeys.value);
   });
@@ -138,7 +151,6 @@
 
   const Asset = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
-    console.log(keys, selected, 'fff');
     editSecond.value = node.name;
     Asset.value = keys[0];
     emitter.emit('sendf', Asset.value);
