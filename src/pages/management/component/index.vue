@@ -1,35 +1,35 @@
 <!-- eslint-disable vue/no-template-shadow -->
 <template>
   <div>
-    <a-drawer title="数据资产表基础信息" :width="1500" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
+    <a-drawer title="数据资产表基础信息" :width="600" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
       <!-- 数据资产表基础信息区域 -->
       <div style="margin-top: -15px; background-color: white">
         <span style="margin-left: 10px; font-size: 18px; line-height: 40px">数据资产表基础信息</span>
         <hr />
         <a-form ref="formRef" :model="datas" layout="vertical" style="margin-left: 50px">
           <a-row :gutter="16">
-            <a-col :span="12">
+            <a-col :span="24">
               <a-form-item label="＊中文名称：" name="＊中文名称：">
                 <a-input v-model:value="datas.chineseName" placeholder="请输入数据资产表名称" />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="16">
-            <a-col :span="12">
+            <a-col :span="24">
               <a-form-item label="＊英文名称：" name="＊英文名称：">
                 <a-input v-model:value="datas.englishName" placeholder="请输入数据资产表名称" />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="16">
-            <a-col :span="12">
+            <a-col :span="24">
               <a-form-item label="资产表描述：" name="资产表描述：">
                 <a-textarea v-model:value="datas.assetExplain" :rows="4" placeholder="请输入资产表描述" />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="16">
-            <a-col :span="12">
+            <a-col :span="24">
               <a-form-item label="＊所属目录：" name="＊所属目录：" class="xia">
                 <a-form ref="formRef" name="dynamic_form_nest_item" :model="dynamicValidateForm">
                   <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 110px">
@@ -69,10 +69,10 @@
         </a-form>
       </div>
       <!-- 字段配置区域 -->
-      <div style="display: flex; margin-top: 10px; background-color: white; flex-direction: row; flex-wrap: wrap">
+      <div style="display: flex; margin-top: 10px; width: 550px; background-color: white; flex-direction: row; flex-wrap: wrap">
         <div style="margin-left: 10px; padding-top: 10px; width: 100px; font-size: 18px">＊字段配置</div>
-        <a-button class="editable-add-btn" style="margin-top: -30px; margin-bottom: 8px; margin-left: 1330px" @click="handleAdd1">添加字段 </a-button>
-        <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 1400px" :scroll="{ y: 170 }" :pagination="false">
+        <a-button class="editable-add-btn" style="margin-top: -30px; margin-bottom: 8px; margin-left: 450px" @click="handleAdd1">添加字段 </a-button>
+        <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 520px" :scroll="{ x: 800, y: 170 }" :pagination="false">
           <template #bodyCell="{ column, text, record }">
             <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
               <div>
@@ -84,7 +84,7 @@
             </template>
             <template v-if="['address1'].includes(column.dataIndex)">
               <div>
-                <a-select v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 520px" show-search :options="Mapping"></a-select>
+                <a-select v-if="editableData1[record.key1]" v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 100%" show-search :options="Mapping"></a-select>
                 <template v-else>
                   {{ text }}
                 </template>
@@ -121,7 +121,7 @@
   import { reactive, Ref, ref, UnwrapRef } from 'vue';
   import { AssetSheet, QueryBasic, StandardMapping, EditData1 } from '@/api/test/index';
   import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
-  import type { FormInstance } from 'ant-design-vue';
+  import { FormInstance, message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
   import { cloneDeep } from 'lodash';
   //   import type { TreeSelectProps } from 'ant-design-vue';
@@ -205,9 +205,7 @@
   const handleAdd1 = () => {
     StandardMapping().then(function (res) {
       length.value = res.data.data.length;
-      // standard_id.value = res.data.data.standard_id
       Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
-      // standard_id.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standard_id }));
     });
     const newData = {
       key1: `${count1.value}`,
@@ -231,15 +229,12 @@
   //选择目录改变事件
   const adddata = () => {
     dynamicValidateForm.value.directoryId = [];
-    // console.log(dynamicValidateForm.chineseName);
-    // dynamicValidateForm.value.chineseName[''] = [];
     for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
       console.log(dynamicValidateForm.value.chineseName, 'cz');
       dynamicValidateForm.value.directoryId.push({
         directoryId: dynamicValidateForm.value.chineseName[i],
       });
     }
-    console.log(dynamicValidateForm.value, 'as');
   };
 
   interface Sights4 {
@@ -271,29 +266,21 @@
       datas.dataAssetField = dataSource2.value;
       console.log(datas);
       AssetSheet(datas).then(function (res) {
-        // console.log(res.data.msg);
-        // console.log(res, 'sdadaddada');
         if (res.data.msg == '返回成功') {
-          // location.reload();
           emitter.emit('send');
-        } else {
-          alert(res.data.msg);
-        }
+        } else return message.error(res.data.msg);
       });
     }
     if (type == 'edit') {
-      // Object.keys(datas1).forEach(item => {
-      //   console.log(item, 'asa');
-      // });
       const directoryIddata = ref([]);
       for (let i = 0; i < dynamicValidateForm.value.directoryId.length; i++) {
         console.log(dynamicValidateForm.value.directoryId[i].directoryId, 'ddd');
         directoryIddata.value.push(dynamicValidateForm.value.directoryId[i].directoryId);
       }
       console.log(directoryIddata.value, 'kk');
-      datas1.chineseName = datas.chineseName;
-      datas1.englishName = datas.englishName;
-      datas1.assetExplain = datas.assetExplain;
+      Object.keys(datas1).forEach(function (key) {
+        datas1[key] = datas[key];
+      });
       datas1.assetId = assetId.value;
       datas1.assetDirectory = dynamicValidateForm.value.directoryId;
       datas1.dataAssetField = [];
@@ -306,10 +293,10 @@
           fieldExplain: dataSource1.value[i].address,
         });
       }
-      console.log(datas, 'sdadadqwqq');
-      console.log(datas1, 'sdadad');
       EditData1(datas1).then(function (res) {
-        console.log(res);
+        if (res.data.code == 100200) {
+          emitter.emit('send');
+        } else return message.error(res.data.msg);
       });
     }
   };
@@ -335,11 +322,12 @@
     {
       title: '标准映射',
       dataIndex: 'address1',
-      width: '40%',
+      width: '37%',
     },
     {
       title: '操作',
       dataIndex: 'operation',
+      width: '13%',
     },
   ];
 
@@ -392,9 +380,9 @@
   const add1 = ref();
   const showDrawer = (type: string, record: any) => {
     if (type == 'add') {
-      datas.chineseName = '';
-      datas.englishName = '';
-      datas.assetExplain = '';
+      Object.keys(datas).forEach(function (key) {
+        datas[key] = '';
+      });
       dynamicValidateForm.value = {
         sights: [{ id: '0' }],
         chineseName: [''],
@@ -408,11 +396,9 @@
       visible.value = true;
       QueryBasic(add1.value).then(function (res) {
         console.log(res, 'asdad');
-        // datas = res.data.data
-        // Object.keys(datas).forEach(item => )
-        datas.chineseName = res.data.data.chineseName;
-        datas.englishName = res.data.data.englishName;
-        datas.assetExplain = res.data.data.assetExplain;
+        Object.keys(datas).forEach(function (key) {
+          datas[key] = res.data.data[key];
+        });
         assetId.value = res.data.data.assetId;
         dynamicValidateForm.value.chineseName.shift();
         for (let i = 0; i < res.data.data.directoryNames.length; i++) {
@@ -438,7 +424,6 @@
       });
       handleAdd1();
       dynamicValidateForm.value = {
-        // sights: [{ id: '0' }],
         sights: [],
         chineseName: [''],
         directoryId: [],
