@@ -1,4 +1,5 @@
 <template>
+  {{ editableData }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
@@ -20,7 +21,6 @@
             <a-select
               v-if="editableData[record.key]"
               v-model:value="editableData[record.key][column.dataIndex]"
-              show-search
               :options="props.table_object.options[column.dataIndex]"
               :filter-option="filterOption"
               style="width: 100%"
@@ -55,7 +55,8 @@
 <script lang="ts" setup>
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, forEach } from 'lodash-es';
+  import { log } from 'console';
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
@@ -72,10 +73,12 @@
   // 删除
   const onDelete = (key: string) => {
     dataSource.value = dataSource.value.filter(item => item.key !== key);
+    console.log(props.table_object);
   };
   //   编辑
   const edit = (key: string) => {
     editableData[key] = cloneDeep(dataSource.value.filter(item => key === item.key)[0]);
+    console.log(editableData);
   };
   //   取消
   const cancel = (key: string) => {
@@ -90,13 +93,12 @@
   const handleAdd = () => {
     const newData = {
       key: dataSource.value.length.toString(),
-      name: '',
-      weizhi: undefined,
-      leixing: undefined,
-      bitian: undefined,
-      moren: '',
-      miaoshu: '',
-    };
+    } as any;
+    props.table_object.columns.forEach((item: any) => {
+      newData[item.dataIndex] = '';
+      if (props.table_object.select.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
+    });
+    if (newData.operation) delete newData.operation;
     dataSource.value.push(newData);
     edit((dataSource.value.length - 1).toString());
   };

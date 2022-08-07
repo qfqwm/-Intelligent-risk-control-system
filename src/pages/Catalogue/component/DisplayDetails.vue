@@ -54,6 +54,7 @@
     configureMean: string;
     configureType: null | string;
   }
+  // 展示数据详情弹框
   watch(
     () => props.details_number,
     () => {

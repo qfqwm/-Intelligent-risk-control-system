@@ -44,7 +44,7 @@
       <!-- 默认值 -->
       <div v-show="add_edit_object.dataType !== ''" class="int_type">
         <a-form-item label="默认值：" name="默认值">
-          <a-input v-model:value.trim="add_edit_object.dataPrecision" placeholder="请输入默认值" />
+          <a-input v-model:value.trim="add_edit_object.dataDefault" placeholder="请输入默认值" />
         </a-form-item>
       </div>
       <!-- 底部按钮 -->
@@ -96,6 +96,7 @@
   //监听模态框状态，清空表单错误提示
   const edit_and_Form = ref<any>(null);
   const editvisible = ref<boolean>(false);
+  //监听模态框的变化，进入新增/编辑模态框清空表单验证的错误提示
   watch(
     () => editvisible.value,
     newval => {
@@ -206,13 +207,9 @@
 
   // 清空传递新增、编辑对象对象
   const empty = () => {
-    add_edit_object.value.chineseName = '';
-    add_edit_object.value.englishName = '';
-    add_edit_object.value.sourceAgencies = '';
-    add_edit_object.value.dataDefault = '';
-    add_edit_object.value.standardExplain = '';
-    add_edit_object.value.dataType = '';
-    add_edit_object.value.isNull = '';
+    Object.keys(add_edit_object.value).forEach((item: any) => {
+      add_edit_object.value[item] = '';
+    });
     add_edit_object.value.enumRange = null;
     add_edit_object.value.dataPrecision = null;
     add_edit_object.value.dataLength = null;
@@ -246,17 +243,9 @@
           // 记录(标准状态、编号)
           data_storage_edit.standardType = res.data.data.standardType;
           data_storage_edit.standardId = standardId;
-          // 删除多余字段
-          delete res.data.data.codeNameSplice;
-          delete res.data.data.codeId;
-          delete res.data.data.codeName;
-          delete res.data.data.creatTime;
-          delete res.data.data.del;
-          delete res.data.data.updateTime;
-          delete res.data.data.dataRange;
-          delete res.data.data.standardId;
-          delete res.data.data.standardType;
-          add_edit_object.value = res.data.data;
+          Object.keys(add_edit_object.value).forEach(item => {
+            add_edit_object.value[item] = res.data.data[item];
+          });
           // 处理后端数据，将数字型变为字符串型
           add_edit_object.value.isNull = add_edit_object.value.isNull.toString();
           add_edit_object.value.dataType = add_edit_object.value.dataType.toString();

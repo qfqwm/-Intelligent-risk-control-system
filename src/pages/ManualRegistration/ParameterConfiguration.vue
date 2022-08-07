@@ -80,8 +80,19 @@
     { label: 'Query', value: 'Query' },
     { label: 'Header', value: 'Header' },
   ];
+  const Simple_type = [
+    { label: 'String', value: 'Query' },
+    { label: 'Int', value: 'Int' },
+    { label: 'Float', value: 'Float' },
+  ];
+  const bitian = [
+    { label: '是', value: '是' },
+    { label: '否', value: '否' },
+  ];
   const select_parameter_options = ref({
     weizhi: weizhi,
+    leixing: Simple_type,
+    bitian: bitian,
   });
   const input_parameter_data: Ref<input_parameter_DataItem[]> = ref([
     {
@@ -148,6 +159,17 @@
       shuoming: 'string',
     },
   ]);
+  const Complex_type = [
+    { label: 'String', value: 'Query' },
+    { label: 'Int', value: 'Int' },
+    { label: 'Float', value: 'Float' },
+    { label: 'Object', value: 'Object' },
+    { label: 'Array', value: 'Array' },
+  ];
+  const quest_body_options = ref({
+    leixing: Complex_type,
+    bitian: bitian,
+  });
   const input_quest_body = ref(['name', 'moren', 'miaoshu', 'shuoming']);
   const select_quest_body = ref(['leixing', 'bitian']);
   const quest_body__object = ref({
@@ -156,6 +178,7 @@
     dataSource: quest_body_data,
     input: input_quest_body.value,
     select: select_quest_body.value,
+    options: quest_body_options,
   });
   //返回参数表格
   const return_parameter_columns = [
@@ -170,7 +193,7 @@
       width: '25%',
     },
     {
-      title: '	参数说明',
+      title: '参数说明',
       dataIndex: 'shuoming',
       width: '25%',
     },
