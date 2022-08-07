@@ -60,12 +60,11 @@ enum Api {
   Update_Standard = '/updateStandard',
   //编号查询
   Number_lookup = '/selectInfoById',
-  // 发布
-  Publish_Standard = '/publishStandard',
+
   // 删除
   Delete_Standard = '/deleteStandard',
-  // 停用
-  Block_Standard = '/blockStandard',
+  update_StandardType = '/updateStandardType',
+
   // 枚举查询
   GetEnum_List = '/getEnumList',
   // 枚举范围详情
@@ -102,8 +101,6 @@ export const InsertDirectory = (object: object) => api.post(Api.Insert_Directory
 export const SelectDirectory = () => api.get(Api.Select_Directory);
 export const StandardMapping = () => api.get(Api.Standard_mapping);
 export const SelectDataAsset = (object: object) => api.post(Api.Select_DataAsset, object);
-export const PublishStandard = (array: any) => api.post(Api.Publish_Standard, array);
-export const BlockStandard = (array: any) => api.post(Api.Block_Standard, array);
 export const AssetSheet = (object: object) => api.post(Api.New_data_asset_sheet, object);
 export const EditData1 = (object: object) => api.post(Api.Edit_data_asset_management, object);
 export const QueryBasic = (name: any) => api.post(Api.Query_the_basic, name);
@@ -137,6 +134,7 @@ export const Delete_Standard = (standardId: string) =>
     url: Api.Delete_Standard,
     params: { standardId: standardId },
   });
+export const update_StandardType = (object: object) => api.post(Api.update_StandardType, object);
 export const GetEnum_List = () => api.get(Api.GetEnum_List);
 export const Select_ConfigureInfoById = (codeId: string) =>
   api({

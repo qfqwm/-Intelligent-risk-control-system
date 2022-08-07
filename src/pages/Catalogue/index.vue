@@ -25,8 +25,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" size="small" @click="ALLChangeup">批量发布</a-button>
-      <a-button type="primary" size="small" @click="ALLChangestop">批量停用</a-button>
+      <a-button type="primary" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
+      <a-button type="primary" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
@@ -43,7 +43,7 @@
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
         <div v-if="record.standardType == '未发布'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该标准?" @confirm="release(record.standardId)">
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该标准?" @confirm="updateStandardType(record.standardId, '1')">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
           <a-button type="primary" size="small" @click="showDrawer('edit', record.standardId)">编辑</a-button>
@@ -53,13 +53,13 @@
         </div>
         <!-- 已发布显示按钮 -->
         <div v-if="record.standardType == '已发布'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否停用该标准?" @confirm="Deactivate(record.standardId)">
+          <a-popconfirm v-if="dataSource.length" title="请确认否停用该标准?" @confirm="updateStandardType(record.standardId, '2')">
             <a-button type="primary" size="small">停用</a-button>
           </a-popconfirm>
         </div>
         <!-- 已停用显示按钮 -->
         <div v-if="record.standardType == '已停用'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该标准?" @confirm="release(record.standardId)">
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该标准?" @confirm="updateStandardType(record.standardId, '1')">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
           <a-button type="primary" size="small" @click="showDrawer('edit', record.standardId)">编辑</a-button>
@@ -75,11 +75,12 @@
 
 <script lang="ts" setup>
   import { message } from 'ant-design-vue';
-  import { Catalog, PublishStandard, Delete_Standard, BlockStandard } from '@/api/test/index';
+  import { Catalog, Delete_Standard, update_StandardType } from '@/api/test/index';
   import AddEditVue from './component/AddEdit.vue';
   import DisplayDetails from './component/DisplayDetails.vue';
   import { ref, reactive } from 'vue';
   import type { Ref } from 'vue';
+  import { log } from 'console';
   interface DataItem {
     chineseName: string;
     creatTime: string;
@@ -263,16 +264,6 @@
   const query = () => {
     Getdata();
   };
-  // 发布
-  const release = (id: string) => {
-    let arr = [id];
-    PublishStandard(arr).then(function (res) {
-      if (res.data.msg == '返回成功') {
-        message.success('状态修改成功');
-      }
-      query();
-    });
-  };
   // 删除
   const delete_code = (id: string) => {
     Delete_Standard(id).then(function (res) {
@@ -282,48 +273,35 @@
       query();
     });
   };
-  // 停用
-  const Deactivate = (id: string) => {
-    let arr = [id];
-    BlockStandard(arr).then(function (res) {
-      if (res.data.msg == '返回成功') {
-        message.success('状态修改成功');
-      }
-      query();
-    });
-  };
   // 批量操作
   const Selectall_invert = ref([]);
   const rowSelection = ref({
-    checkStrictly: false,
+    selectedRowKeys: Selectall_invert,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
     },
   });
-  const ALLChangeup = () => {
-    let arr = [];
-    Selectall_invert.value.forEach(item => {
-      arr.push(item);
-    });
-    PublishStandard(arr).then(function (res) {
+  // 更新状态
+  const updateStandardType = (id: any, mode: string) => {
+    let arr: any = [];
+    if (typeof id === 'string') {
+      arr.push(id);
+    } else {
+      arr = [...id];
+    }
+    const updateStandardType_object = {
+      statusType: mode,
+      dataStandardList: arr,
+    };
+    update_StandardType(updateStandardType_object).then(function (res) {
       if (res.data.msg == '返回成功') {
         message.success('状态修改成功');
-      } else return message.error(res.data.msg);
-      query();
+        if (typeof id === 'object') Selectall_invert.value = [];
+        query();
+      } else message.error(res.data.msg);
     });
   };
-  const ALLChangestop = () => {
-    let arr = [];
-    Selectall_invert.value.forEach(item => {
-      arr.push(item);
-    });
-    BlockStandard(arr).then(function (res) {
-      if (res.data.msg == '返回成功') {
-        message.success('状态修改成功');
-      } else return message.error(res.data.msg);
-      query();
-    });
-  };
+
   // 显示详情
   const details_number = ref<number>(0);
   const to_standardId = ref('');

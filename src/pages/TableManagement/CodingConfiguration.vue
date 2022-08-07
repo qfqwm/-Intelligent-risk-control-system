@@ -69,7 +69,7 @@
       more_name.push(codepztable.value[i].configureName);
     }
     more_name = [...new Set(more_name)];
-    if (more_name.indexOf(codename.value) !== -1) return message.error('码值名字重复');
+    if (more_name.indexOf(codename.value) !== -1 && props.record_index == null) return message.error('码值名字重复');
     // 新增页面
     if (props.change_add_edit) {
       // 添加
@@ -78,6 +78,7 @@
       }
       // 编辑
       else {
+        if (more_name.indexOf(codename.value) !== -1 && codepztable.value[props.record_index].configureName != codename.value) return message.error('码值名字重复');
         codepztable.value[props.record_index].configureName = codename.value;
         codepztable.value[props.record_index].configureMean = codemeaning.value;
       }
@@ -97,6 +98,7 @@
       }
       //   编辑
       else {
+        if (more_name.indexOf(codename.value) !== -1 && codepztable.value[props.record_index].configureName != codename.value) return message.error('码值名字重复');
         // 判断是否是新加入的数据，或则已经做了删除操作的数据
         if (codepztable.value[props.record_index].configureType !== 2 || codepztable.value[props.record_index].configureType !== 1) {
           codepztable.value[props.record_index].configureType = 3;

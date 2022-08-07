@@ -26,7 +26,7 @@
         </a-form-item>
       </div>
       <!-- enum类型 -->
-      <div v-show="add_edit_object.dataType === '3'" class="int_type">
+      <div v-if="add_edit_object.dataType === '3'" class="int_type">
         <a-form-item label="枚举范围：" name="enumRange" :rules="form_rules.enumRange">
           <div style="width: 100%" class="num_rang">
             <a-select v-model:value="add_edit_object.enumRange" show-search placeholder="请输入枚举范围" style="width: 100%" :options="all_select.GetEnum" :filter-option="filterOption"> </a-select>

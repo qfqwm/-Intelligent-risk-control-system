@@ -34,7 +34,7 @@
         <a-button type="dark"> 批量发布 </a-button>
         <a-button type="dark" style="margin-left: 15px"> 批量停用 </a-button>
         <a-button type="dark" style="margin-left: 15px"> 批量分类 </a-button>
-        <a-button type="primary" style="margin-left: 15px"> 人工注册 </a-button>
+        <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
       <!-- 表格区域 -->
       <a-table
@@ -145,6 +145,8 @@
   import type { Ref } from 'vue';
   import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
   import emitter from '@/utils/bus';
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
   interface FormState {
     pass: string;
     checkPass: string;
@@ -432,6 +434,11 @@
         selectCodeTable_way();
       }
     });
+  };
+
+  // 人工注册跳转
+  const router_link = () => {
+    router.push({ name: 'manualregistration' });
   };
 </script>
 
