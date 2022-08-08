@@ -54,7 +54,7 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</a>
+            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -345,7 +345,6 @@
       codename: codeId,
       CodeConfigure: [],
     };
-
     SelectCodeConfigure(codeId).then(function (res: any) {
       if (res.data.msg == '获取成功') {
         personnelcodetable.value.CodeConfigure = res.data.data;

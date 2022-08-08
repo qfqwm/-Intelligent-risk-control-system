@@ -44,7 +44,6 @@
         </template>
       </a-tree>
     </div>
-    <router-link to="/interfaceDetail">接口详情</router-link>
     <!-- 数据资产表目录新增目录弹框 -->
     <a-modal
       v-model:visible="stair_add"

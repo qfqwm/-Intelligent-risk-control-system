@@ -62,7 +62,6 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   const route = useRoute();
-  console.log(route.name);
   const selectedKeys2 = ref<string[]>([route.path]);
   const openKeys = ref<string[]>(['sub1']);
   if (route.path === '/interface' || route.path === '/database') {
