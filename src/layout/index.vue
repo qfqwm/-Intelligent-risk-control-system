@@ -36,13 +36,28 @@
           <a-breadcrumb-item
             ><router-link :to="route.meta.url" @click="jump">{{ route.meta.title }}</router-link></a-breadcrumb-item
           >
-          <a-breadcrumb-item v-if="route.meta.module"
-            ><router-link :to="route.meta.url">{{ route.meta.module }}</router-link></a-breadcrumb-item
-          >
+          <template v-if="route.meta.name">
+            <a-breadcrumb-item v-if="route.meta.module"
+              ><router-link :to="route.meta.url">{{ route.meta.module }}</router-link></a-breadcrumb-item
+            >
+            <a-breadcrumb-item v-if="route.meta.name"
+              ><router-link :to="route.path">{{ route.meta.name }}</router-link></a-breadcrumb-item
+            >
+          </template>
+          <template v-else>
+            <a-breadcrumb-item v-if="route.meta.module"
+              ><router-link :to="route.path">{{ route.meta.module }}</router-link></a-breadcrumb-item
+            >
+          </template>
         </a-breadcrumb>
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
           <router-view></router-view>
         </a-layout-content>
+        <a-affix :offset-bottom="1">
+          <div :style="{ width: '100%', height: '40px', backgroundColor: '#fff' }">
+            <a-button type="primary">返回上一页</a-button>
+          </div>
+        </a-affix>
       </a-layout>
     </a-layout>
   </a-layout>
