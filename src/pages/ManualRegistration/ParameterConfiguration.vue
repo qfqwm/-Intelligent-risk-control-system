@@ -1,7 +1,7 @@
 <template>
   <DefinitionTables :table_object="input_parameter_object"></DefinitionTables>
-  <DefinitionTables v-if="object_form_information.Interface_request === 'POST'" :table_object="quest_body__object"></DefinitionTables>
-  <DefinitionTables :table_object="return_parameter__object"></DefinitionTables>
+  <DefinitionTables v-if="object_form_information.Interface_request === 'POST'" :table_object="quest_body_object"></DefinitionTables>
+  <DefinitionTables :table_object="return_parameter_object"></DefinitionTables>
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
@@ -172,7 +172,7 @@
   });
   const input_quest_body = ref(['name', 'moren', 'miaoshu', 'shuoming']);
   const select_quest_body = ref(['leixing', 'bitian']);
-  const quest_body__object = ref({
+  const quest_body_object = ref({
     title: '请求Body',
     columns: quest_body_columns,
     dataSource: quest_body_data,
@@ -207,18 +207,22 @@
     {
       key: '0',
       name: 'Edward King 0',
-      leixing: 'London, Park Lane no. 0',
+      leixing: 'aaaaaaaaaaaaaa',
       shuoming: '12312',
     },
   ]);
   const input_return_parameter = ref(['name', 'shuoming']);
   const select_return_parameter = ref(['leixing']);
-  const return_parameter__object = ref({
+  const return_parameter_options = ref({
+    leixing: Complex_type,
+  });
+  const return_parameter_object = ref({
     title: '返回参数',
     columns: return_parameter_columns,
     dataSource: return_parameter_data,
     input: input_return_parameter.value,
     select: select_return_parameter.value,
+    options: return_parameter_options,
   });
 </script>
 <style lang="less" scoped></style>

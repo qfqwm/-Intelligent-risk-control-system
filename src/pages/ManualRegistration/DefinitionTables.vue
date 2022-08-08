@@ -1,5 +1,4 @@
 <template>
-  {{ editableData }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
@@ -49,14 +48,11 @@
       </template>
     </a-table></div
   >
-
-  <Returnparameters></Returnparameters>
 </template>
 <script lang="ts" setup>
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
-  import { cloneDeep, forEach } from 'lodash-es';
-  import { log } from 'console';
+  import { cloneDeep } from 'lodash-es';
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
@@ -78,7 +74,6 @@
   //   编辑
   const edit = (key: string) => {
     editableData[key] = cloneDeep(dataSource.value.filter(item => key === item.key)[0]);
-    console.log(editableData);
   };
   //   取消
   const cancel = (key: string) => {
