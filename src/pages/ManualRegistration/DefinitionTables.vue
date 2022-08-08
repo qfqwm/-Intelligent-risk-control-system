@@ -9,10 +9,11 @@
     <a-form-model ref="tableformRef" :model="props.table_object">
       <a-table bordered :data-source="props.table_object.dataSource" :columns="props.table_object.columns" :pagination="false">
         <template #bodyCell="{ column, text, record }">
+          {{ record[column.dataIndex] }}
           <template v-if="props.table_object.input.includes(column.dataIndex)">
             <div>
               <a-form-model-item v-if="editableData[record.key]">
-                <a-input v-if="editableData[record.key]" v-model:value="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" />
+                <a-input v-if="editableData[record.key]" v-model:value="props.table_object.dataSource[record.key][column.dataIndex]" style="margin: -5px 0" placeholder="请输入" />
               </a-form-model-item>
               <template v-else>
                 {{ text }}
@@ -66,7 +67,10 @@
     // eslint-disable-next-line vue/prop-name-casing
     table_object: any;
   };
+
   const props = defineProps<Props>();
+  // const dataSource = ref(props.table_object.dataSource);
+  // const columns = ref(props.table_object.columns);
   const filterOption = (input: string, option: any) => {
     return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
   };
