@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="Input_parameter_table">
     <!--表格头部 -->
@@ -5,48 +6,55 @@
       ><span class="span">{{ props.table_object.title }}</span
       ><a-button class="editable-add-btn" style="margin-bottom: 8px" type="primary" size="big" @click="handleAdd">新增参数</a-button></div
     >
-    <a-table bordered :data-source="dataSource" :columns="columns" :pagination="false">
-      <template #bodyCell="{ column, text, record }">
-        <template v-if="props.table_object.input.includes(column.dataIndex)">
-          <div>
-            <a-input v-if="editableData[record.key]" v-model:value="editableData[record.key][column.dataIndex]" style="margin: -5px 0" placeholder="请输入" />
-            <template v-else>
-              {{ text }}
-            </template>
-          </div>
+    <a-form-model ref="tableformRef" :model="props.table_object">
+      <a-table bordered :data-source="props.table_object.dataSource" :columns="props.table_object.columns" :pagination="false">
+        <template #bodyCell="{ column, text, record }">
+          <template v-if="props.table_object.input.includes(column.dataIndex)">
+            <div>
+              <a-form-model-item v-if="editableData[record.key]">
+                <a-input v-if="editableData[record.key]" v-model:value="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" />
+              </a-form-model-item>
+              <template v-else>
+                {{ text }}
+              </template>
+            </div>
+          </template>
+          <template v-if="props.table_object.select.includes(column.dataIndex)">
+            <div>
+              <a-form-model-item v-if="editableData[record.key]">
+                <a-select
+                  v-if="editableData[record.key]"
+                  v-model:value="props.table_object.dataSource[record.key][column.dataIndex]"
+                  :options="props.table_object.options[column.dataIndex]"
+                  :filter-option="filterOption"
+                  style="width: 100%"
+                  placeholder="请选择"
+                >
+                </a-select>
+              </a-form-model-item>
+
+              <template v-else>
+                {{ text }}
+              </template>
+            </div>
+          </template>
+          <template v-else-if="column.dataIndex === 'operation'">
+            <div class="editable-row-operations">
+              <span v-if="editableData[record.key]">
+                <a-typography-link html-type="submit" @click="save(record.key)">保存</a-typography-link>
+                <a @click="cancel(record.key)">取消</a>
+              </span>
+              <span v-else>
+                <a @click="edit(record.key)">编辑</a>
+                <a-popconfirm title="Sure to cancel?" @confirm="onDelete(record.key)">
+                  <a>删除</a>
+                </a-popconfirm>
+              </span>
+            </div>
+          </template>
         </template>
-        <template v-if="props.table_object.select.includes(column.dataIndex)">
-          <div>
-            <a-select
-              v-if="editableData[record.key]"
-              v-model:value="editableData[record.key][column.dataIndex]"
-              :options="props.table_object.options[column.dataIndex]"
-              :filter-option="filterOption"
-              style="width: 100%"
-              placeholder="请选择"
-            >
-            </a-select>
-            <template v-else>
-              {{ text }}
-            </template>
-          </div>
-        </template>
-        <template v-else-if="column.dataIndex === 'operation'">
-          <div class="editable-row-operations">
-            <span v-if="editableData[record.key]">
-              <a-typography-link @click="save(record.key)">保存</a-typography-link>
-              <a @click="cancel(record.key)">取消</a>
-            </span>
-            <span v-else>
-              <a @click="edit(record.key)">编辑</a>
-              <a-popconfirm title="Sure to cancel?" @confirm="onDelete(record.key)">
-                <a>删除</a>
-              </a-popconfirm>
-            </span>
-          </div>
-        </template>
-      </template>
-    </a-table></div
+      </a-table></a-form-model
+    ></div
   >
 </template>
 <script lang="ts" setup>
@@ -59,21 +67,19 @@
     table_object: any;
   };
   const props = defineProps<Props>();
-  const dataSource = ref(props.table_object.dataSource);
-  const columns = ref(props.table_object.columns);
   const filterOption = (input: string, option: any) => {
     return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
   };
 
-  const editableData: UnwrapRef<Record<string, DataItem>> = reactive({});
+  const editableData: UnwrapRef<Record<string, any>> = reactive({});
   // 删除
   const onDelete = (key: string) => {
-    dataSource.value = dataSource.value.filter(item => item.key !== key);
-    console.log(props.table_object);
+    // eslint-disable-next-line vue/no-mutating-props
+    props.table_object.dataSource = props.table_object.dataSource.filter(item => item.key !== key);
   };
   //   编辑
   const edit = (key: string) => {
-    editableData[key] = cloneDeep(dataSource.value.filter(item => key === item.key)[0]);
+    editableData[key] = cloneDeep(props.table_object.dataSource.filter(item => key === item.key)[0]);
   };
   //   取消
   const cancel = (key: string) => {
@@ -81,21 +87,22 @@
   };
   //   保存
   const save = (key: string) => {
-    Object.assign(dataSource.value.filter(item => key === item.key)[0], editableData[key]);
+    Object.assign(props.table_object.dataSource.filter(item => key === item.key)[0], props.table_object.dataSource[key]);
     delete editableData[key];
   };
   // 添加表格区域
   const handleAdd = () => {
     const newData = {
-      key: dataSource.value.length.toString(),
+      key: props.table_object.dataSource.length.toString(),
     } as any;
     props.table_object.columns.forEach((item: any) => {
       newData[item.dataIndex] = '';
       if (props.table_object.select.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
     });
     if (newData.operation) delete newData.operation;
-    dataSource.value.push(newData);
-    edit((dataSource.value.length - 1).toString());
+    // eslint-disable-next-line vue/no-mutating-props
+    props.table_object.dataSource.push(newData);
+    edit((props.table_object.dataSource.length - 1).toString());
   };
 </script>
 <style lang="less" scoped>

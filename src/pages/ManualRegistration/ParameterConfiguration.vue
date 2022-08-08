@@ -81,7 +81,7 @@
     { label: 'Header', value: 'Header' },
   ];
   const Simple_type = [
-    { label: 'String', value: 'Query' },
+    { label: 'String', value: 'String' },
     { label: 'Int', value: 'Int' },
     { label: 'Float', value: 'Float' },
   ];
@@ -113,6 +113,9 @@
     input: input_parameter_input.value,
     select: select_parameter_input.value,
     options: select_parameter_options,
+    rules: {
+      name: { required: true, message: '姓名不能为空' },
+    },
   });
   // 请求Body表格
   const quest_body_columns = [
@@ -209,6 +212,14 @@
       name: 'Edward King 0',
       leixing: 'aaaaaaaaaaaaaa',
       shuoming: '12312',
+      children: [
+        {
+          key: 11,
+          name: 'Edward King 0',
+          leixing: 'aaaaaaaaaaaaaa',
+          shuoming: '12312',
+        },
+      ],
     },
   ]);
   const input_return_parameter = ref(['name', 'shuoming']);

@@ -137,7 +137,7 @@
 </template>
 
 <script lang="ts" setup>
-  import InterfaceClassification from '@/pages/Interface/component/InterfaceClassification.vue';
+  import InterfaceClassification from './component/InterfaceClassification.vue';
   import type { Rule } from 'ant-design-vue/es/form';
   import type { FormInstance } from 'ant-design-vue';
   import { ref, reactive } from 'vue';
