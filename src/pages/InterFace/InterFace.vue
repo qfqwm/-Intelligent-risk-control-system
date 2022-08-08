@@ -16,16 +16,16 @@
         @validate="handleValidate"
         @finishFailed="handleFinishFailed"
       >
-        <a-form-item name="area" label="接口来源" :rules="[{ message: 'Missing area' }]" style="width: 460px">
+        <a-form-item name="area" label="接口来源" :rules="[{ message: 'Missing area' }]" style="width: 41%">
           <a-select :options="areas" />
         </a-form-item>
-        <a-form-item name="area" label="API状态" :rules="[{ message: 'Missing area' }]" style="width: 460px">
+        <a-form-item name="area" label="API状态" :rules="[{ message: 'Missing area' }]" style="width: 41%">
           <a-select :options="areas" />
         </a-form-item>
-        <a-form-item has-feedback label="接口名称:" name="checkPass" style="width: 460px">
+        <a-form-item has-feedback label="接口名称:" name="checkPass" style="width: 41%">
           <a-input v-model:value="formState.checkPass" type="text" autocomplete="off" />
         </a-form-item>
-        <a-form-item :wrapper-col="{ span: 14, offset: 4 }" style="display: flex; justify-content: end; width: 360px">
+        <a-form-item :wrapper-col="{ span: 14, offset: 4 }" style="display: flex; justify-content: end; width: 28%">
           <a-button html-type="submit" @click="reset">重置</a-button>
           <a-button style="margin-left: 10px" type="primary" @click="query">查询</a-button>
         </a-form-item>
@@ -54,7 +54,7 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</a>
+            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -347,7 +347,6 @@
       codename: codeId,
       CodeConfigure: [],
     };
-
     SelectCodeConfigure(codeId).then(function (res: any) {
       if (res.data.msg == '获取成功') {
         personnelcodetable.value.CodeConfigure = res.data.data;
