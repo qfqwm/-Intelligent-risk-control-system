@@ -7,6 +7,7 @@ import Catalogue from '@/pages/Catalogue/index.vue';
 import ManageMent from '@/pages/management/ManageMent.vue';
 import Scriptment from '@/pages/Scriptment/Scriptment.vue';
 import Taskment from '@/pages/Taskment/Taskment.vue';
+import ManualRegistration from '@/pages/ManualRegistration/ManualRegistration.vue';
 export default {
   path: '/',
   component: Index,
@@ -62,6 +63,12 @@ export default {
       name: 'taskment',
       component: Taskment,
       meta: { title: '任务管理', url: '/taskment' },
+    },
+    {
+      path: 'manualregistration',
+      name: 'manualregistration',
+      component: ManualRegistration,
+      meta: { title: '人工注册', url: '/manualregistration' },
     },
   ],
 };

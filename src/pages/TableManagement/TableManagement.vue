@@ -75,6 +75,7 @@
   import AddEdit from '@/pages/TableManagement/AddEdit.vue';
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
+  import { log } from 'console';
   interface DataItem {
     key: string;
     codeId: string;
@@ -121,6 +122,7 @@
   const Reset = () => {
     Search.codeType = '';
     Search.codeName = '';
+    select_CodeTable();
   };
   // 查询
   const query = () => {
@@ -197,7 +199,7 @@
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
-    checkStrictly: false,
+    selectedRowKeys: Selectall_invert,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
     },
@@ -251,6 +253,11 @@
     if (change_array.length == 0) return message.error('请选择码表进行操作!');
     OnChange(change_array).then(function (res: any) {
       if (res.data.msg == '更新成功') {
+        console.log(11111);
+        console.log(Selectall_invert.value);
+
+        Selectall_invert.value = [];
+        console.log(Selectall_invert.value);
         message.success('更新成功!');
         select_CodeTable();
       } else return message.error('更新失败！');

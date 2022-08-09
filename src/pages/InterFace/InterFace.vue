@@ -34,7 +34,7 @@
         <a-button type="dark"> 批量发布 </a-button>
         <a-button type="dark" style="margin-left: 15px"> 批量停用 </a-button>
         <a-button type="dark" style="margin-left: 15px"> 批量分类 </a-button>
-        <a-button type="primary" style="margin-left: 15px"> 人工注册 </a-button>
+        <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
       <!-- 表格区域 -->
       <a-table
@@ -139,8 +139,8 @@
 </template>
 
 <script lang="ts" setup>
-  import InterfaceClassification from '@/pages/Interface/component/InterfaceClassification.vue';
   import InterfaceTest from '@/pages/Interface/component/InterfaceTest.vue';
+  import InterfaceClassification from './component/InterfaceClassification.vue';
   import type { Rule } from 'ant-design-vue/es/form';
   import type { FormInstance } from 'ant-design-vue';
   import { ref, reactive } from 'vue';
@@ -148,6 +148,8 @@
   import type { Ref } from 'vue';
   import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
   import emitter from '@/utils/bus';
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
   interface FormState {
     pass: string;
     checkPass: string;
@@ -440,8 +442,11 @@
   //接口测试抽屉
   const showTestDrawer = (record: any) => {
     console.log(record);
-
     emitter.emit('interfaceTest', visible.value);
+  };
+  // 人工注册跳转
+  const router_link = () => {
+    router.push({ name: 'manualregistration' });
   };
 </script>
 
