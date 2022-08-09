@@ -5,25 +5,15 @@
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
-      <a-form
-        ref="formRef"
-        name="custom-validation"
-        :model="formState"
-        :rules="rules"
-        v-bind="layout"
-        style="display: flex"
-        @finish="handleFinish"
-        @validate="handleValidate"
-        @finishFailed="handleFinishFailed"
-      >
-        <a-form-item name="area" label="接口来源" :rules="[{ message: 'Missing area' }]" style="width: 460px">
-          <a-select :options="areas" />
+      <a-form ref="formRef" name="custom-validation" :model="formState" v-bind="layout" style="display: flex">
+        <a-form-item name="area" label="接口来源" style="width: 460px">
+          <a-select v-model:value.trim="formState.interMsgSource" :options="areas" />
         </a-form-item>
-        <a-form-item name="area" label="API状态" :rules="[{ message: 'Missing area' }]" style="width: 460px">
-          <a-select :options="areas" />
+        <a-form-item name="area" label="API状态" style="width: 460px">
+          <a-select v-model:value.trim="formState.interMsgApiType" :options="areas1" />
         </a-form-item>
         <a-form-item has-feedback label="接口名称:" name="checkPass" style="width: 460px">
-          <a-input v-model:value="formState.checkPass" type="text" autocomplete="off" />
+          <a-input v-model:value="formState.interMsgName" type="text" autocomplete="off" />
         </a-form-item>
         <a-form-item :wrapper-col="{ span: 14, offset: 4 }" style="display: flex; justify-content: end; width: 360px">
           <a-button html-type="submit" @click="reset">重置</a-button>
@@ -39,9 +29,9 @@
       <!-- 表格区域 -->
       <a-table
         :data-source="dataSource"
-        :columns="columns"
+        :columns="columns1"
         :row-selection="rowSelection"
-        :row-key="(dataSource: any) => { return dataSource.assetId }"
+        :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
           pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
           showSizeChanger: true,
@@ -53,12 +43,12 @@
         }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</a>
+          <template v-if="column.dataIndex === 'interMsgName'">
+            <a href="#" @click.prevent="showcode(record.interMsgName)">{{ record.interMsgName }}</a>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
-            <div v-if="record.assetType == '未发布'">
+            <div v-if="record.interMsgApiType == '未发布'">
               <a-button type="primary" size="small">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
@@ -69,14 +59,14 @@
               </a-popconfirm>
             </div>
             <!-- 已发布显示按钮 -->
-            <div v-if="record.assetType == '已发布'">
+            <div v-if="record.interMsgApiType == '已发布'">
               <a-button type="primary" size="small">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '2')">
                 <a-button type="primary" size="small">停用</a-button>
               </a-popconfirm>
             </div>
             <!-- 已停用显示按钮 -->
-            <div v-if="record.assetType == '已停用'">
+            <div v-if="record.interMsgApiType == '已停用'">
               <a-button type="primary" size="small">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
@@ -138,80 +128,40 @@
 
 <script lang="ts" setup>
   import InterfaceClassification from '@/pages/Interface/component/InterfaceClassification.vue';
-  import type { Rule } from 'ant-design-vue/es/form';
+
   import type { FormInstance } from 'ant-design-vue';
   import { ref, reactive } from 'vue';
   import { message } from 'ant-design-vue';
   import type { Ref } from 'vue';
-  import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory } from '@/api/test/index';
+  import { OnChange, DeleteCode, SelectCodeConfigure, SelectDataAsset, SelectDirectory, queryIntfc } from '@/api/test/index';
   import emitter from '@/utils/bus';
+
+  //查询区域
   interface FormState {
-    pass: string;
-    checkPass: string;
-    age: number | undefined;
+    interMsgSource: string;
+    interMsgApiType: string;
+    interMsgName: string;
   }
   const formRef = ref<FormInstance>();
   const formState = reactive<FormState>({
-    pass: '',
-    checkPass: '',
-    age: undefined,
+    interMsgSource: '',
+    interMsgApiType: '',
+    interMsgName: '',
   });
-  let checkAge = async (_rule: Rule, value: number) => {
-    if (!value) {
-      return Promise.reject('Please input the age');
-    }
-    if (!Number.isInteger(value)) {
-      return Promise.reject('Please input digits');
-    } else {
-      if (value < 18) {
-        return Promise.reject('Age must be greater than 18');
-      } else {
-        return Promise.resolve();
-      }
-    }
-  };
-  let validatePass = async (_rule: Rule, value: string) => {
-    if (value === '') {
-      return Promise.reject('Please input the password');
-    } else {
-      if (formState.checkPass !== '') {
-        formRef.value.validateFields('checkPass');
-      }
-      return Promise.resolve();
-    }
-  };
-  let validatePass2 = async (_rule: Rule, value: string) => {
-    if (value === '') {
-      return Promise.reject('Please input the password again');
-    } else if (value !== formState.pass) {
-      return Promise.reject("Two inputs don't match!");
-    } else {
-      return Promise.resolve();
-    }
-  };
-
-  const rules: Record<string, Rule[]> = {
-    pass: [{ required: true, validator: validatePass, trigger: 'change' }],
-    checkPass: [{ validator: validatePass2, trigger: 'change' }],
-    age: [{ validator: checkAge, trigger: 'change' }],
-  };
   const layout = {
     labelCol: { span: 4 },
     wrapperCol: { span: 14 },
   };
-  const handleFinish = (values: FormState) => {
-    console.log(values, formState);
-  };
-  const handleFinishFailed = errors => {
-    console.log(errors);
-  };
-  const handleValidate = (...args) => {
-    console.log(args);
-  };
 
   const areas = [
-    { label: 'Beijing', value: 'Beijing' },
-    { label: 'Shanghai', value: 'Shanghai' },
+    { label: '数据服务', value: '0' },
+    { label: '指标管理', value: '1' },
+    { label: '决策引擎', value: '2' },
+  ];
+  const areas1 = [
+    { label: '未发布', value: '0' },
+    { label: '已发布', value: '1' },
+    { label: '已停用', value: '2' },
   ];
 
   const treeData = ref<any[]>([]);
@@ -244,37 +194,51 @@
   };
 
   // 搜索功能
+  const interMsgSource = ref<string>('');
+  const interMsgApiType = ref<string>('');
+  const interMsgName = ref<string>('');
+
+  //后续要删
   const Codetablestatus = ref<string>('');
   const Codetablename = ref<string>('');
   const Codetablename1 = ref<string>('');
-  // 表格
-  const columns = [
+
+  //表格
+  const columns1 = [
     {
       title: '接口名称',
-      dataIndex: 'chineseName',
+      dataIndex: 'interMsgName',
       width: '13%',
     },
     {
       title: '接口描述',
-      dataIndex: 'englishName',
+      dataIndex: 'interMsgDescribe',
       width: '13%',
     },
     {
       title: '接口分类',
-      dataIndex: 'assetExplain',
+      dataIndex: 'interDirId',
       width: '13%',
     },
     {
       title: '接口来源',
-      dataIndex: 'assetExplain',
+      dataIndex: 'interMsgSource',
     },
     {
       title: 'API状态',
-      dataIndex: 'assetType',
+      dataIndex: 'interMsgApiType',
     },
     {
       title: '更新时间',
-      dataIndex: 'updateTime',
+      dataIndex: 'interMsgUpdateTime',
+      key: 'interMsgUpdateTime',
+      //排序方法
+      sorter: (a, b) => {
+        let aTime = new Date(a.interMsgUpdateTime).getTime();
+        let bTime = new Date(b.interMsgUpdateTime).getTime();
+
+        return aTime - bTime;
+      },
     },
     {
       title: '操作',
@@ -282,44 +246,69 @@
       width: '22%',
     },
   ];
+
   const dataSource: Ref<DataItem[]> = ref([]);
-  // 调用接口加载表格
+  //调用接口加载表格
   const selectCodeTable_way = () => {
     let state = '';
-    if (Codetablestatus.value == '未发布') state = '0';
-    if (Codetablestatus.value == '已发布') state = '1';
-    if (Codetablestatus.value == '已停用') state = '2';
+    if (interMsgApiType.value == '未发布') state = '0';
+    if (interMsgApiType.value == '已发布') state = '1';
+    if (interMsgApiType.value == '已停用') state = '2';
+    let Source = '';
+    if (interMsgSource.value == '数据服务') Source = '0';
+    if (interMsgSource.value == '指标管理') Source = '1';
+    if (interMsgSource.value == '决策引擎') Source = '2';
+
     let object = {
-      assetType: state,
-      chineseName: Codetablename.value,
-      englishName: Codetablename1.value,
+      page: 1,
+      size: 20,
     };
-    SelectDataAsset(object).then(function (res: any) {
+    let object1 = { ...object, ...formState };
+    console.log(object1);
+    queryIntfc(object1).then(function (res: any) {
       console.log(res);
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
-      dataSource.value = res.data.data;
+      dataSource.value = res.data.data.interfaceMsgList;
       console.log(dataSource.value);
-
       dataSource.value.forEach((item: any) => {
-        if (item.assetType == 0) {
-          item.assetType = '未发布';
+        if (item.interMsgApiType == 0) {
+          item.interMsgApiType = '未发布';
         }
-        if (item.assetType == 1) {
-          item.assetType = '已发布';
+        if (item.interMsgApiType == 1) {
+          item.interMsgApiType = '已发布';
         }
-        if (item.assetType == 2) {
-          item.assetType = '已停用';
+        if (item.interMsgApiType == 2) {
+          item.interMsgApiType = '已停用';
+        }
+        if (item.interMsgSource == 0) {
+          item.interMsgSource = '数据服务';
+        }
+        if (item.interMsgSource == 1) {
+          item.interMsgSource = '指标管理';
+        }
+        if (item.interMsgSource == 2) {
+          item.interMsgSource = '决策引擎';
         }
       });
       total.value = dataSource.value.length;
     });
   };
   selectCodeTable_way();
+
   // 查询按钮
   const query = () => {
     selectCodeTable_way();
   };
+
+  // 重置按钮
+  const reset = () => {
+    formState.interMsgSource = '';
+    formState.interMsgApiType = '';
+    formState.interMsgName = '';
+    selectCodeTable_way();
+  };
+
   const onDelete = (code: string) => {
     DeleteCode(code).then(function (res: any) {
       if (res.data.msg == '删除成功') {
@@ -359,13 +348,7 @@
     show.outmask = false;
     show.PersonnelGender = false;
   };
-  // 重置
-  const reset = () => {
-    Codetablestatus.value = '';
-    Codetablename.value = '';
-    Codetablename1.value = '';
-    selectCodeTable_way();
-  };
+
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({

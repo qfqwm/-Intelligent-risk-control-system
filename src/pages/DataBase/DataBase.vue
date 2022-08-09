@@ -1,17 +1,25 @@
 <template>
   <!-- 搜索区域 -->
-  <div class="search">
-    <span>状态应用：</span>
-    <select v-model="standardType">
-      <option value="未发布">未发布</option>
-      <option value="已发布">已发布</option>
-      <option value="已停用">已停用</option>
-      <option value="" selected style="display: none">请选择</option>
-    </select>
-    <span>数据库名称：</span><input v-model.trim="standardId" type="text" placeholder="请输入标准编号" />
-    <a-button class="Reset" @click="Reset">重置</a-button>
-    <a-button class="query">查询</a-button>
-    <AddDataSrc></AddDataSrc>
+  <div class="all">
+    <div class="search">
+      <!-- 搜索区域 -->
+      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
+        <a-form-item label="标准状态" name="databaseState">
+          <a-select v-model:value.trim="Search.databaseState" :options="standardType_areas" :style="{ minWidth: '100px' }" />
+        </a-form-item>
+        <a-form-item label="数据库名称" name="driverName">
+          <a-input v-model:value.trim="Search.sourceName" />
+        </a-form-item>
+        <a-form-item>
+          <a-button class="Reset" :style="{ marginRight: '10px' }" @click="Reset">重置</a-button>
+          <a-button class="query" @click="query">查询</a-button>
+        </a-form-item>
+      </a-form>
+    </div>
+    <div class="right">
+      <div>数据列表</div>
+      <a-button type="primary" @click="showDrawer('add', {})">新增数据源</a-button>
+    </div>
   </div>
 
   <!-- 表格区域 -->
@@ -26,222 +34,95 @@
       return Number(size.value) + ' 项' + '/' + '页'
     }
   }"
-    :row-key="(dataSource: any)=>{ return dataSource.standardId }"
   >
     <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'codeId'">
-        <a href="#" @click.prevent="showModal(record.standardId)">{{ record.standardId }}</a>
-      </template>
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
-        <div v-if="record.standardType == '未发布'">
-          <a-button type="primary" size="small">连通测试</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+        <div v-if="record.databaseState == '未发布'">
+          <a-button type="primary" size="small" @click="Connectivity(record)">连通测试</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="change('publish', record)">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
-          <a-button type="primary" size="small" @click="showDrawer">编辑</a-button>
-          <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?">
+          <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="del(record)">
             <a-button type="primary" size="small">删除</a-button>
           </a-popconfirm>
         </div>
         <!-- 已发布显示按钮 -->
-        <div v-if="record.standardType == '已发布'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+        <div v-if="record.databaseState == '已发布'">
+          <a-button type="primary" size="small" @click="Connectivity(record)">连通测试</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否停用该码表?" @confirm="change('Deactivate', record)">
             <a-button type="primary" size="small">停用</a-button>
           </a-popconfirm>
         </div>
         <!-- 已停用显示按钮 -->
-        <div v-if="record.standardType == '已停用'">
-          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?">
+        <div v-if="record.databaseState == '已停用'">
+          <a-button type="primary" size="small" @click="Connectivity(record)">连通测试</a-button>
+          <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="change('publish', record)">
             <a-button type="primary" size="small">发布</a-button>
           </a-popconfirm>
-          <a-button type="primary" size="small" @click="showDrawer">编辑</a-button>
+          <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
         </div>
       </template>
     </template>
   </a-table>
-  <!-- 编辑栏 -->
-  <a-drawer title="编辑标准" :width="720" :visible="editvisible" :body-style="{ paddingBottom: '80px', paddingLeft: '0' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
-    <div class="edit_drawer"
-      ><span><span>*</span>中文名称：</span>
-      <a-input placeholder="Basic usage" />
-    </div>
-    <div class="edit_drawer"
-      ><span><span>*</span>英文名称：</span>
-      <a-input placeholder="Basic usage" />
-    </div>
-    <div class="edit_drawer"
-      ><span>标准说明：</span>
-      <a-input placeholder="Basic usage" />
-    </div>
-    <div class="edit_drawer"
-      ><span><span>*</span>来源机构：</span>
-      <a-select v-model:value="select_Source_institution" show-search placeholder="Select a person" style="width: 100%" :options="Source_institution" :filter-option="filterOption"></a-select>
-    </div>
-    <div class="edit_drawer"
-      ><span><span>*</span>是否可为空：</span>
-      <a-select v-model:value="select_Judge_null" show-search placeholder="Select a person" style="width: 100%" :options="Judge_null" :filter-option="filterOption"></a-select>
-    </div>
-    <div class="edit_drawer"
-      ><span><span>*</span>数据类型：</span>
-      <a-select v-model:value="select_data_type" show-search placeholder="Select a person" style="width: 100%" :options="data_type" :filter-option="filterOption"></a-select>
-    </div>
-    <!-- int类型 -->
-    <div v-show="select_data_type === 'Int'" class="int_type">
-      <div class="edit_drawer"
-        ><span>取值范围：</span>
-        <div style="width: 100%" class="num_rang">
-          <a-input placeholder="Basic usage" style="width: 45%" />----
-          <a-input placeholder="Basic usage" style="width: 45%" />
-        </div>
-      </div>
-      <div class="edit_drawer"
-        ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
-      </div>
-    </div>
-    <!-- enum类型 -->
-    <div v-show="select_data_type === 'Enum'" class="int_type">
-      <div class="edit_drawer"
-        ><span><span>*</span>枚举范围：</span>
-        <a-select v-model:value="select_Judge_null" show-search placeholder="Select a person" style="width: 100%" :options="Judge_null" :filter-option="filterOption"></a-select>
-      </div>
-      <div class="edit_drawer"
-        ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
-      </div>
-    </div>
-    <!-- float类型 -->
-    <div v-show="select_data_type === 'Float'" class="int_type">
-      <div class="edit_drawer"
-        ><span>数据精度：</span>
-        <a-input placeholder="Basic usage" />
-      </div>
-      <div class="edit_drawer"
-        ><span>取值范围：</span>
-        <div style="width: 100%" class="num_rang">
-          <a-input placeholder="Basic usage" style="width: 45%" />----
-          <a-input placeholder="Basic usage" style="width: 45%" />
-        </div>
-      </div>
-      <div class="edit_drawer"
-        ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
-      </div>
-    </div>
-    <!-- string类型 -->
-    <div v-show="select_data_type === 'String'" class="int_type">
-      <div class="edit_drawer"
-        ><span>数据长度：</span>
-        <a-input placeholder="Basic usage" />
-      </div>
-      <div class="edit_drawer"
-        ><span>默认值：</span>
-        <a-input placeholder="Basic usage" />
-      </div>
-    </div>
-    <!-- 底部按钮 -->
-    <div class="edit_drawer_bottom">
-      <a-button size="big">取消</a-button>
-      <a-button type="primary" size="big">确定</a-button>
-    </div>
-  </a-drawer>
-  <!-- 显示详情 -->
-  <div>
-    <a-modal v-model:visible="Detailsvisible" :title="Detailed.chineseName + '(' + Detailed.standardId + ')'">
-      <span> 标准编号：</span>{{ Detailed.standardId }}<br />
-      <span> 中文名称：</span>{{ Detailed.chineseName }}<br />
-      <span> 英文名称：</span>{{ Detailed.englishName }}<br />
-      <span> 标准说明：</span>{{ Detailed.standardExplain }}<br />
-      <span> 来源机构：</span>{{ Detailed.sourceAgencies }}<br />
-      <span> 是否为空：</span>{{ Detailed.isNull }}<br />
-      <span> 数据类型：</span>{{ Detailed.dataType }}<br />
-      <!-- int -->
-      <div v-show="Detailed.dataType == 'Int'">
-        <span> 取值范围：</span>{{ Detailed.dataMin }}~{{ Detailed.dataMax }}<br />
-        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
-      </div>
-      <!-- float -->
-      <div v-show="Detailed.dataType == 'Float'">
-        <span> 数据精度：</span>{{ Detailed.dataPrecision }}<br />
-        <span> 取值范围：</span>{{ Detailed.dataMin }}~{{ Detailed.dataMax }}<br />
-        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
-      </div>
-      <!-- enum -->
-      <div v-show="Detailed.dataType == 'Enum'">
-        <span> 枚举范围精度：</span>{{ Detailed.enumRange }}<br />
-        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
-      </div>
-      <!-- string -->
-      <div v-show="Detailed.dataType == 'String'">
-        <span> 数据长度：</span>{{ Detailed.dataLength }}<br />
-        <span> 默认值：</span>{{ Detailed.dataDefault }}<br />
-      </div>
-      <template #footer>
-        <a-button @click="handleCancel">关闭</a-button>
-      </template>
-    </a-modal>
-  </div>
 </template>
 <script lang="ts" setup>
-  import type { SelectProps } from 'ant-design-vue';
-  import { Catalog, Lookup } from '@/api/test/index';
-  import { ref, onMounted } from 'vue';
+  import { QueryAdministration, ModifyBatabase, ConnectivityTest, DeleteDatabase } from '@/api/test/index';
+  import { ref } from 'vue';
   import type { Ref } from 'vue';
 
-  import AddDataSrc from './addDataSrc.vue';
-  interface DataItem {
-    chineseName: string;
-    creatTime: string;
-    dataDefault: string;
-    dataLength: any;
-    dataMax: string;
-    dataMin: string;
-    dataPrecision: any;
-    dataRange: string;
-    dataType: string;
-    del: number;
-    englishName: string;
-    enumRange: any;
-    isNull: string;
-    sourceAgencies: string;
-    standardExplain: string;
-    standardId: string;
-    standardType: string;
-    updateTime: string;
-  }
+  import emitter from '@/utils/bus';
+  import { message } from 'ant-design-vue';
 
-  onMounted(() => {
+  emitter.on('send', () => {
     show();
   });
+
+  // 搜索区域
+  interface Search {
+    sourceName: string;
+    databaseState: string;
+  }
+  const Search = reactive<Search>({
+    databaseState: '',
+    sourceName: '',
+  });
+  const standardType_areas = [
+    // 未发布查询出全部数据
+    { label: '未发布', value: '0' },
+    { label: '已发布', value: '1' },
+    { label: '已停用', value: '2' },
+  ];
+
+  interface DataItem {
+    countId: any;
+    current: number;
+    maxLimit: any;
+    optimizeCountSql: any;
+    orders: [];
+    pages: number;
+    records: [];
+    searchCount: any;
+    size: number;
+    total: number;
+  }
 
   //页面数据展示
   const dataSource: Ref<DataItem[]> = ref([]);
   const show = function () {
-    Catalog().then(function (res) {
-      console.log(res);
-      dataSource.value = res.data.data;
+    QueryAdministration(Search).then(function (res) {
+      console.log(res.data.data, 'dsad');
+      dataSource.value = res.data.data.records;
       dataSource.value.forEach((item: any) => {
-        if (item.standardType == 0) {
-          item.standardType = '未发布';
+        if (item.databaseState == 0) {
+          item.databaseState = '未发布';
         }
-        if (item.standardType == 1) {
-          item.standardType = '已发布';
+        if (item.databaseState == 1) {
+          item.databaseState = '已发布';
         }
-        if (item.standardType == 2) {
-          item.standardType = '已停用';
-        }
-        if (item.dataType == 1) {
-          item.dataType = 'Int';
-        }
-        if (item.dataType == 2) {
-          item.dataType = 'Float';
-        }
-        if (item.dataType == 3) {
-          item.dataType = 'Enum';
-        }
-        if (item.dataType == 4) {
-          item.dataType = 'String';
+        if (item.databaseState == 2) {
+          item.databaseState = '已停用';
         }
       });
     });
@@ -250,27 +131,27 @@
   const columns = [
     {
       title: '数据源名称',
-      dataIndex: 'codeId',
+      dataIndex: 'sourceName',
       width: '10%',
     },
     {
       title: '数据库类型',
-      dataIndex: 'chineseName',
+      dataIndex: 'databaseType',
       width: '10%',
     },
     {
       title: '数据源描述',
-      dataIndex: 'englishName',
+      dataIndex: 'sourceDescription',
       width: '15%',
     },
     {
       title: '连接信息',
-      dataIndex: 'standardExplain',
+      dataIndex: 'connectMessage',
       width: '15%',
     },
     {
       title: '应用状态',
-      dataIndex: 'standardType',
+      dataIndex: 'databaseState',
       width: '10%',
     },
     {
@@ -279,7 +160,7 @@
       width: '15%',
 
       sorter: {
-        compare: (a, b) => a.updateTime - b.updateTime,
+        compare: (a: any, b: any) => a.updateTime - b.updateTime,
         multiple: 1,
       },
     },
@@ -290,107 +171,101 @@
     },
   ];
 
-  const editvisible = ref<boolean>(false);
+  const visible = ref<boolean>(false);
 
-  const showDrawer = () => {
-    editvisible.value = true;
+  //事件总线（数据传给子组件）
+  const showDrawer = (type: string, record: any) => {
+    const sdd = reactive({
+      type: type,
+      record: record,
+      visible: visible,
+    });
+    emitter.emit('sendchild', sdd);
   };
 
-  const onClose = () => {
-    editvisible.value = false;
+  show();
+  // 重置
+  const Reset = () => {
+    Search.sourceName = '';
+    Search.databaseState = '';
+    show();
+  };
+  // 查询按钮
+  const query = () => {
+    show();
   };
 
-  // 编辑页面
-  // 下拉菜单
-  // 数据类型
-  const data_type = ref<SelectProps['options']>([
-    { value: 'Int', label: 'Int' },
-    { value: 'Enum', label: 'Enum' },
-    { value: 'Float', label: 'Float' },
-    { value: 'String', label: 'String' },
-  ]);
-  const select_data_type = ref<string>();
-  //是否可为空
-  const Judge_null = ref<SelectProps['options']>([
-    { value: '可为空', label: '可为空' },
-    { value: '不可为空', label: '不可为空' },
-  ]);
-  const select_Judge_null = ref<string>();
-  // 来源机构
-  const Source_institution = ref<SelectProps['options']>([{ value: '哈哈哈', label: '哈哈哈' }]);
-  const select_Source_institution = ref<string>();
-  const filterOption = (input: string, option: any) => {
-    return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-  };
-  // 显示详情
-  const Detailsvisible = ref<boolean>(false);
-  const Detailed = reactive({
-    chineseName: '',
-    standardId: '',
-    englishName: '',
-    standardExplain: '',
-    sourceAgencies: '',
-    isNull: '',
-    dataType: '',
-    dataPrecision: '',
-    dataDefault: '',
-    dataMin: '',
-    dataMax: '',
-    enumRange: '',
-    dataLength: '',
+  //改变状态需要的数据
+  const changestatus = reactive({
+    statusType: '',
+    databaseList: [],
   });
-  const showModal = (standardId: string) => {
-    Detailsvisible.value = true;
-    Lookup(standardId).then(function (res) {
-      Detailed.standardId = res.data.data.standardId;
-      Detailed.chineseName = res.data.data.chineseName;
-      Detailed.englishName = res.data.data.englishName;
-      Detailed.standardExplain = res.data.data.standardExplain;
-      Detailed.sourceAgencies = res.data.data.sourceAgencies;
-      Detailed.isNull = res.data.data.isNull;
-      Detailed.dataType = res.data.data.dataType;
-      Detailed.dataPrecision = res.data.data.dataPrecision;
-      Detailed.dataDefault = res.data.data.dataDefault;
-      Detailed.dataMin = res.data.data.dataMin;
-      Detailed.dataMax = res.data.data.dataMax;
-      Detailed.enumRange = res.data.data.enumRange;
-      Detailed.dataLength = res.data.data.dataLength;
-      if (Detailed.dataType == '1') {
-        Detailed.dataType = 'Int';
-      }
-      if (Detailed.dataType == '2') {
-        Detailed.dataType = 'Float';
-      }
-      if (Detailed.dataType == '3') {
-        Detailed.dataType = 'Enum';
-      }
-      if (Detailed.dataType == '4') {
-        Detailed.dataType = 'String';
-      }
-      if (Detailed.isNull == '0') {
-        Detailed.isNull = '可为空';
-      }
-      if (Detailed.isNull == '1') {
-        Detailed.isNull = '不可为空';
-      }
+
+  //封装改变状态的方法
+  const method = (record: any) => {
+    changestatus.databaseList = [];
+    changestatus.databaseList.push(record.databaseId);
+    ModifyBatabase(changestatus).then(function (res) {
+      if (res.data.code == 100200) {
+        message.success('更新成功!');
+        show();
+      } else return message.error('更新失败！');
     });
   };
-  const handleCancel = () => {
-    Detailsvisible.value = false;
+
+  //改变状态
+  const change = (type: string, record: any) => {
+    console.log(record.databaseId);
+    if (type == 'publish') {
+      changestatus.statusType = '0';
+      method(record);
+    }
+    if (type == 'Deactivate') {
+      changestatus.statusType = '1';
+      method(record);
+    }
   };
 
-  // 查询功能
-  const sourceAgencies = ref<string>('');
-  const standardType = ref<string>('');
-  const standardId = ref<string>('');
-  const chineseName = ref<string>('');
-  const englishName = ref<string>('');
-  const Reset = () => {
-    sourceAgencies.value = '';
-    standardType.value = '';
-    standardId.value = '';
-    chineseName.value = '';
-    englishName.value = '';
+  //连通测试传递的数据
+  // databaseType: 'quis',
+  //   sourceName: '测试',
+  //   sourceDescription: '二狗的',
+  //   connectMessage: 'jdbc:mysql://10.255.70.21:3306/group3dev1',
+  //   driverName: 'com.mysql.cj.jdbc.Driver',
+  //   username: 'root',
+  //   password: '123456',
+  const datas = reactive({
+    databaseType: '',
+    sourceName: '',
+    sourceDescription: '',
+    connectMessage: '',
+    driverName: '',
+    username: '',
+    password: '',
+  });
+
+  //连通测试
+  const Connectivity = (record: any) => {
+    console.log(record);
+    Object.keys(datas).forEach(function (key) {
+      datas[key] = record[key];
+    });
+    ConnectivityTest(datas).then(function (res) {
+      if (res.data.code == 100200) {
+        message.success(res.data.msg);
+        show();
+      } else return message.error(res.data.msg);
+    });
+  };
+
+  //删除
+  const del = (record: any) => {
+    DeleteDatabase(record.databaseId).then(function (res) {
+      if (res.data.code == 100200) {
+        message.success(res.data.msg);
+        show();
+      } else return message.error(res.data.msg);
+    });
   };
 </script>
 

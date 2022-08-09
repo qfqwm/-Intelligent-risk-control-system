@@ -25,10 +25,9 @@
           </span>
           <span v-else>{{ name }}</span>
           <span>
-            <div id="components-a-popconfirm-demo-placement">
+            <div id="components-a-tooltip-demo-placement">
               <div :style="{ clear: 'both', whiteSpace: 'nowrap' }">
-                <a-popconfirm placement="bottom" ok-text="是" cancel-text="否" @confirm="confirm">
-                  <template #icon></template>
+                <a-tooltip placement="bottom" :color="color">
                   <template #title>
                     <p>
                       <a-button class="btn" @click="add">增加</a-button>
@@ -41,7 +40,7 @@
                     </p>
                   </template>
                   <MoreOutlined />
-                </a-popconfirm>
+                </a-tooltip>
               </div>
             </div>
           </span>
@@ -94,18 +93,18 @@
   import { PlusCircleOutlined, ExclamationCircleOutlined, MoreOutlined } from '@ant-design/icons-vue';
   import { DeleteDirectory, UpdateDirectoryName, InsertDirectory, SelectDirectory } from '@/api/test/index';
   import _ from 'lodash';
+  import emitter from '@/utils/bus';
   import { Modal, message } from 'ant-design-vue';
-  const confirm = () => {
-    message.info('Clicked on Yes.');
-  };
+
+  const color = ref('#fff');
   //数据资产目录展示
   const search = ref<string>('');
   const treeData = ref<any[]>([]);
-  const showDataAssetCatalog = () => {
-    SelectDirectory().then(res => {
+  async function showDataAssetCatalog() {
+    await SelectDirectory().then(res => {
       treeData.value = res.data.data;
     });
-  };
+  }
   showDataAssetCatalog();
   const fieldNames = {
     children: 'children',
@@ -114,9 +113,22 @@
     value: 'directoryId',
   };
 
+  const fg = ref('');
+
+  emitter.on('reset', (t: any) => {
+    console.log(t.keys);
+    fg.value = t.keys;
+    console.log(fg.value, 'ojk');
+  });
+
   //数据资产表目录按表名称或目录名称查询
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
+
+  //点击重置取消资产目录的高亮显示
+  watch(fg, () => {
+    selectedKeys.value = [];
+  });
   watch(expandedKeys, () => {
     console.log('expandedKeys', expandedKeys.value);
   });
@@ -134,9 +146,12 @@
       expandedKeys.value = [];
     }
   };
+
+  const Asset = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
-    console.log(keys, selected, 'fff');
     editSecond.value = node.name;
+    Asset.value = keys[0];
+    emitter.emit('sendf', Asset.value);
   };
   // 点击搜索进行模糊筛选
   const searchStr = ref('');
@@ -220,11 +235,11 @@
     stair_add.value = true;
     addStair.value = '';
   };
-  const handleOkStairAdd = () => {
+  async function handleOkStairAdd() {
     stair_add.value = false;
     AddData.value.parentId = '0';
     AddData.value.directoryName = addStair.value;
-    InsertDirectory(AddData.value).then(res => {
+    await InsertDirectory(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功添加资产表目录');
       }
@@ -236,7 +251,7 @@
       }
     });
     showDataAssetCatalog();
-  };
+  }
   //数据资产表目录新增下级目录
   const visible_add = ref<boolean>(false);
   const addSecond = ref();
@@ -244,11 +259,11 @@
     visible_add.value = true;
     addSecond.value = '';
   };
-  const handleOkAdd = () => {
+  async function handleOkAdd() {
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
     AddData.value.directoryName = addSecond.value;
-    InsertDirectory(AddData.value).then(res => {
+    await InsertDirectory(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功新增资产表目录');
       }
@@ -260,7 +275,7 @@
       }
     });
     showDataAssetCatalog();
-  };
+  }
 
   //数据资产表目录删除
   const remove = () => {
@@ -269,8 +284,8 @@
       icon: createVNode(ExclamationCircleOutlined),
       okText: '是',
       cancelText: '否',
-      onOk() {
-        DeleteDirectory(aa.value[0]).then(res => {
+      async onOk() {
+        await DeleteDirectory(aa.value[0]).then(res => {
           if (res.data.msg == '删除成功') {
             message.success('成功删除资产表目录');
           }
@@ -293,11 +308,11 @@
   const edit = () => {
     visible_edit.value = true;
   };
-  const handleOkEdit = () => {
+  async function handleOkEdit() {
     visible_edit.value = false;
     EditData.value.directoryId = aa.value[0];
     EditData.value.directoryName = editSecond.value;
-    UpdateDirectoryName(EditData.value).then(res => {
+    await UpdateDirectoryName(EditData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功修改资产表目录');
       }
@@ -306,7 +321,7 @@
       }
     });
     showDataAssetCatalog();
-  };
+  }
 </script>
 <style lang="less" scoped>
   @import '@/pages/management/DataAssetCatalog.less';
