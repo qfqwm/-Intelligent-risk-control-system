@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <div class="all">
     <!-- 左边资产目录区域 -->
@@ -54,7 +55,7 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.chineseName)">{{ record.chineseName }}</router-link>
+            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.assetId)">{{ record.chineseName }}</router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -86,7 +87,7 @@
           </template>
         </template>
       </a-table>
-      //
+      <!-- 接口测试抽屉 -->
       <InterfaceTest></InterfaceTest>
       <!-- 蒙版区域 -->
       <div v-show="show.outmask" class="mask">
@@ -139,7 +140,7 @@
 </template>
 
 <script lang="ts" setup>
-  import InterfaceTest from '@/pages/Interface/component/InterfaceTest.vue';
+  import InterfaceTest from '@/pages/InterFace/component/InterfaceTest.vue';
   import InterfaceClassification from './component/InterfaceClassification.vue';
   import type { Rule } from 'ant-design-vue/es/form';
   import type { FormInstance } from 'ant-design-vue';
@@ -357,6 +358,12 @@
         personnelcodetable.value.CodeConfigure = res.data.data;
       }
     });
+    console.log(codeId);
+
+    router.push({
+      path: '/InterfaceDetail',
+      query: { interMsgId: codeId },
+    });
     show.outmask = true;
     show.PersonnelGender = true;
   };
@@ -441,8 +448,8 @@
   };
   //接口测试抽屉
   const showTestDrawer = (record: any) => {
-    console.log(record);
-    emitter.emit('interfaceTest', visible.value);
+    console.log(333, record);
+    // emitter.emit('interfaceTest', record);
   };
   // 人工注册跳转
   const router_link = () => {
