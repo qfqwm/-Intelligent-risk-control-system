@@ -78,6 +78,8 @@ enum Api {
   Interface_Rename_Contents = '/api/renameContents',
   //查询接口详情
   Interface_Detail_Select = '/api/selectApiConfig',
+  // 接口管理查询
+  Intfc_Management_Query = '/api/selectApiMsg',
 
   //数据库管理
   //查询数据库管理
@@ -181,6 +183,8 @@ export const InterfaceDeleteContents = (directoryId: string) => api.delete(Api.I
 export const InterfaceRenameContents = (object: object) => api.post(Api.Interface_Rename_Contents, object);
 //查询接口详情
 export const InterfaceDetailSelect = (interMsgId: string) => api.get(Api.Interface_Detail_Select + '/' + interMsgId);
+// 接口管理查询
+export const queryIntfc = (object: object) => api.post(Api.Intfc_Management_Query, object);
 
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);

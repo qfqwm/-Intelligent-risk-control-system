@@ -75,7 +75,6 @@
   import AddDataSrc from './component/addDataSrc.vue';
   import emitter from '@/utils/bus';
   import { message } from 'ant-design-vue';
-
   emitter.on('send', () => {
     show();
   });
