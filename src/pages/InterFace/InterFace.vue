@@ -59,7 +59,7 @@
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
             <div v-if="record.assetType == '未发布'">
-              <a-button type="primary" size="small">接口测试</a-button>
+              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
@@ -70,14 +70,14 @@
             </div>
             <!-- 已发布显示按钮 -->
             <div v-if="record.assetType == '已发布'">
-              <a-button type="primary" size="small">接口测试</a-button>
+              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '2')">
                 <a-button type="primary" size="small">停用</a-button>
               </a-popconfirm>
             </div>
             <!-- 已停用显示按钮 -->
             <div v-if="record.assetType == '已停用'">
-              <a-button type="primary" size="small">接口测试</a-button>
+              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.codeId, '1')">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
@@ -86,6 +86,8 @@
           </template>
         </template>
       </a-table>
+      //
+      <InterfaceTest></InterfaceTest>
       <!-- 蒙版区域 -->
       <div v-show="show.outmask" class="mask">
         <!-- 企业信息基本表 -->
@@ -138,6 +140,7 @@
 
 <script lang="ts" setup>
   import InterfaceClassification from '@/pages/Interface/component/InterfaceClassification.vue';
+  import InterfaceTest from '@/pages/Interface/component/InterfaceTest.vue';
   import type { Rule } from 'ant-design-vue/es/form';
   import type { FormInstance } from 'ant-design-vue';
   import { ref, reactive } from 'vue';
@@ -202,10 +205,10 @@
   const handleFinish = (values: FormState) => {
     console.log(values, formState);
   };
-  const handleFinishFailed = errors => {
+  const handleFinishFailed = (errors: any) => {
     console.log(errors);
   };
-  const handleValidate = (...args) => {
+  const handleValidate = (...args: any[]) => {
     console.log(args);
   };
 
@@ -239,6 +242,8 @@
       visible: visible,
       treeData: treeData,
     });
+    console.log(11111222, sdd.record);
+
     // Add();
     emitter.emit('sendchild', sdd);
   };
@@ -279,7 +284,7 @@
     {
       title: '操作',
       dataIndex: 'operation',
-      width: '22%',
+      width: '23%',
     },
   ];
   const dataSource: Ref<DataItem[]> = ref([]);
@@ -431,6 +436,12 @@
         selectCodeTable_way();
       }
     });
+  };
+  //接口测试抽屉
+  const showTestDrawer = (record: any) => {
+    console.log(record);
+
+    emitter.emit('interfaceTest', visible.value);
   };
 </script>
 

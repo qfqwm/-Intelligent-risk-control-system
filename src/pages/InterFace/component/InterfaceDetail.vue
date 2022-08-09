@@ -64,11 +64,11 @@
     </a-tab-pane>
   </a-tabs>
   <div :style="{ background: '#f0f2f5', margin: '0 -24px', minHeight: '20px' }"></div>
-  <!-- <a-affix :offset-bottom="1">
-    <div :style="{ width: '100%', height: '40px', backgroundColor: '#ccc', padding: '0 100px' }">
+  <a-affix :offset-bottom="1" :style="{ display: 'flex', justifyContent: 'end', marginTop: '20px' }">
+    <div class="affix">
       <a-button type="primary">返回上一页</a-button>
     </div>
-  </a-affix> -->
+  </a-affix>
 </template>
 <script lang="ts" setup>
   import { ref, reactive } from 'vue';
@@ -206,6 +206,14 @@
   ];
   const data4 = [];
   //返回上一页固钉
-  const bottom = ref<number>(10);
 </script>
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  .affix {
+    display: flex;
+    // justify-content: end;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    background-color: #fff;
+  }
+</style>
