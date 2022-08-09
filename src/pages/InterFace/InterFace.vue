@@ -197,12 +197,6 @@
   const interMsgSource = ref<string>('');
   const interMsgApiType = ref<string>('');
   const interMsgName = ref<string>('');
-
-  //后续要删
-  const Codetablestatus = ref<string>('');
-  const Codetablename = ref<string>('');
-  const Codetablename1 = ref<string>('');
-
   //表格
   const columns1 = [
     {
