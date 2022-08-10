@@ -10,7 +10,9 @@
         <span class="label"> 中文名称：</span> {{ personnelcodetable.chineseName }} <br />
         <span class="label"> 英文名称：</span>{{ personnelcodetable.englishName }} <br />
         <h4>数据资产表描述：</h4>
-        <span class="label"> 所属目录：</span> {{ personnelcodetable.directoryNames }}
+        <span class="label"> 所属目录：</span>
+        <a-button>{{ personnelcodetable.directoryNames[0] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[1] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[2] }}</a-button>
+        <br />
       </div>
       <h3>字段信息</h3><br />
       <table class="PersonnelGendertable">

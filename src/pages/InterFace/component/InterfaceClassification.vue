@@ -91,6 +91,7 @@
   import { InterfaceDeleteContents, InterfaceRenameContents, InterfaceAddContents, InterfaceSelectDirectory } from '@/api/test/index';
   import _ from 'lodash';
   import { Modal, message } from 'ant-design-vue';
+  import emitter from '@/utils/bus';
 
   const color = ref('#fff');
   //数据资产目录展示
@@ -130,9 +131,13 @@
       expandedKeys.value = [];
     }
   };
+
+  const intfc = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
     console.log(keys, selected, 'fff');
     editSecond.value = node.name;
+    intfc.value = keys[0];
+    emitter.emit('sendf', intfc.value);
   };
 
   //数据资产表目录新增目录

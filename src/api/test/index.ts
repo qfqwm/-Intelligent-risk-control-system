@@ -76,8 +76,14 @@ enum Api {
   Interface_Delete_Contents = '/api/deleteContents',
   //编辑分类目录
   Interface_Rename_Contents = '/api/renameContents',
-  //查询接口信息
-  Query_interface_information = '/api/selectApiMsg',
+  //查询接口详情
+  Interface_Detail_Select = '/api/selectApiConfig',
+  // 接口管理查询
+  Intfc_Management_Query = '/api/selectApiMsg',
+  //接口发布停用
+  Intfc_Rlse_Disabled = '/api/updateInterfaceApiType',
+  //接口删除
+  Delete_Intfc = '/api/deleteInterfaceMsg',
 
   //数据库管理
   //查询数据库管理
@@ -179,9 +185,14 @@ export const InterfaceAddContents = (object: object) => api.post(Api.Interface_A
 export const InterfaceDeleteContents = (directoryId: string) => api.delete(Api.Interface_Delete_Contents, { params: { directoryId: directoryId } });
 //目录分类编辑
 export const InterfaceRenameContents = (object: object) => api.post(Api.Interface_Rename_Contents, object);
-//查询接口信息
-export const QueryInterface = (object: object) => api.get(Api.Query_interface_information, object);
-
+//查询接口详情
+export const InterfaceDetailSelect = (interMsgId: string) => api.get(Api.Interface_Detail_Select + '/' + interMsgId);
+// 接口管理查询
+export const queryIntfc = (object: object) => api.post(Api.Intfc_Management_Query, object);
+//接口发布停用
+export const postDeactivation = (object: object) => api.post(Api.Intfc_Rlse_Disabled, object);
+//接口删除
+export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' + interMsgId);
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
 export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);
