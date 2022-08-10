@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <div class="all">
     <!-- 左边资产目录区域 -->
