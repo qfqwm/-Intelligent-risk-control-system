@@ -4,25 +4,33 @@
       <a-col :span="14" :style="{ height: '88vh' }">
         <a-row :style="{ height: '40px' }">
           <a-col :span="5" class="inttest">接口名称：</a-col>
-          <a-col :span="19"></a-col>
+          <a-col :span="19"
+            ><a-typography-text>{{ interfaceMsgs.interMsgName }}</a-typography-text></a-col
+          >
         </a-row>
         <a-row :style="{ height: '40px' }">
           <a-col :span="5" class="inttest">Request URL：</a-col>
-          <a-col :span="19"></a-col>
+          <a-col :span="19"
+            ><a-typography-text>{{ requestUrl }}</a-typography-text></a-col
+          >
         </a-row>
         <a-row :style="{ height: '40px' }">
           <a-col :span="5" class="inttest">请求方式：</a-col>
-          <a-col :span="19"></a-col>
+          <a-col :span="19"
+            ><a-typography-text>{{ interfaceMsgs.interMsgRequest }}</a-typography-text></a-col
+          >
         </a-row>
+        <!-- 输入参数 -->
         <a-tabs v-model:activeKey="activeKey" size="large">
           <a-tab-pane key="1" tab="输入参数">
             <a-table :columns="columns" :data-source="data" :pagination="false">
-              <template #bodyCell="{ column }">
+              <template #bodyCell="{ column, record }">
                 <template v-if="column.dataIndex === 'cc'">
-                  <a-input v-model:value="testValue" placeholder="请输入" allow-clear />
+                  <a-input v-model:value="record.testValue" placeholder="请输入" allow-clear :rule="rules" @change="dataTest(record)" />
                 </template>
               </template>
             </a-table>
+            <!-- <button @click="sss()">点击</button> -->
           </a-tab-pane>
         </a-tabs>
       </a-col>
@@ -47,7 +55,7 @@
         borderRadius: '0 0 4px 4px',
       }"
     >
-      <a-button style="margin-right: 8px" disabled @click="onClose">接口测试</a-button>
+      <a-button style="margin-right: 8px" :disabled="interfaceTest" @click="onClose">接口测试</a-button>
       <a-button style="margin-right: 8px" disabled @click="onClose">复制返回结果</a-button>
       <a-button @click="onClose">关闭</a-button>
     </div>
@@ -63,12 +71,31 @@
   const onClose = () => {
     visible.value = false;
   };
-  emitter.on('interfaceTest', (t: any) => {
-    console.log(111, t);
-    visible.value = t;
+  interface interfaceMsgs {
+    interDirId: number;
+    interMsgApiProtocol: string; //请求协议
+    interMsgApiType: string; //接口分类
+    interMsgApiUrl: string; //Path
+    interMsgCreateTime: string;
+    interMsgDescribe: string; //接口描述
+    interMsgId: number;
+    interMsgIp: string; //IP端口
+    interMsgName: string;
+    interMsgOvertime: number;
+    interMsgRequest: string; //请求协议
+    interMsgSource: string;
+    interMsgUpdateTime: string;
+    isDelete: number;
+  }
+  //显示接口信息的接口名称、Request URL、请求方式
+  const requestUrl = ref<string>();
+  const interfaceMsgs = ref<interfaceMsgs>({} as any);
+  emitter.on('interfaceTest', (record: any) => {
+    // console.log(111, record);
+    interfaceMsgs.value = record;
+    requestUrl.value = record.interMsgApiProtocol + '://' + record.interMsgApiUrl;
     showDrawer();
   });
-
   const activeKey = ref('1');
   const columns = [
     {
@@ -103,21 +130,49 @@
     },
   ];
 
-  const data = [
+  const data = ref([
     {
       name: 'name',
       aa: 'query',
       type: 'String',
       bb: '否',
+      testValue: '',
     },
     {
       name: 'num',
       aa: 'query',
       type: 'String',
       bb: '是',
+      testValue: '',
     },
-  ];
+  ]);
+  //输入参数判断测试值是否输入
   const testValue = ref();
+  watch(testValue, () => {
+    console.log(testValue.value);
+  });
+  watch(data.value, () => {
+    // console.log(data.value);
+    // for (let p in data.value) {
+    //   if (data.value[p].testValue == '') {
+    //     interfaceTest.value = false;
+    //     break;
+    //   }
+    // }
+  });
+  console.log(data.value);
+
+  const interfaceTest = ref<boolean>(true);
+  const dataTest = (record: any) => {
+    data.value.forEach(p => {
+      if (p.testValue != '' && p.testValue != null) {
+        interfaceTest.value = false;
+      }
+    });
+  };
+  const rules = {
+    testValue: [{ required: true, message: '新增目录不能为空', trigger: 'blur' }],
+  };
 </script>
 <style scoped leng="less">
   button {
