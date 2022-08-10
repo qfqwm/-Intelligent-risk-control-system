@@ -121,6 +121,7 @@
   const Reset = () => {
     Search.codeType = '';
     Search.codeName = '';
+    select_CodeTable();
   };
   // 查询
   const query = () => {
