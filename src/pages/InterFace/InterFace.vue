@@ -22,9 +22,9 @@
         </a-form-item>
       </a-form>
       <div style="display: flex; justify-content: end">
-        <a-button type="dark" @click="ALLonChangecode(1)"> 批量发布 </a-button>
-        <a-button type="dark" style="margin-left: 15px" @click="ALLonChangecode(2)"> 批量停用 </a-button>
-        <a-button type="dark" style="margin-left: 15px"> 批量分类 </a-button>
+        <a-button type="dark" :disabled="batch" @click="ALLonChangecode(1)"> 批量发布 </a-button>
+        <a-button type="dark" :disabled="batch" style="margin-left: 15px" @click="ALLonChangecode(2)"> 批量停用 </a-button>
+        <a-button type="dark" :disabled="batch" style="margin-left: 15px" @click="batchClassification"> 批量分类 </a-button>
         <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
       <!-- 表格区域 -->
@@ -211,6 +211,10 @@
     formState.interDirId = val;
     selectCodeTable_way();
   });
+
+  //批量按钮操作
+  const batch = ref<boolean>(true);
+
   //表格
   const columns1 = [
     {
@@ -370,7 +374,13 @@
     checkStrictly: false,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
-      console.log(Selectall_invert.value);
+      //多选进行批量操作
+      if (Selectall_invert.value != ('' as any)) {
+        batch.value = false;
+      }
+      if (Selectall_invert.value == ('' as any)) {
+        batch.value = true;
+      }
     },
   });
   // 批量操作
@@ -439,6 +449,10 @@
   const showTestDrawer = (record: any) => {
     // console.log(333, record);
     emitter.emit('interfaceTest', record);
+  };
+  //批量分类
+  const batchClassification = () => {
+    console.log();
   };
   // 人工注册跳转
   const router_link = () => {
