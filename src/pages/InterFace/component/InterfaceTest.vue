@@ -25,8 +25,8 @@
           <a-tab-pane key="1" tab="输入参数">
             <a-table :columns="columns" :data-source="data" :pagination="false">
               <template #bodyCell="{ column, record }">
-                <template v-if="column.dataIndex === 'cc'">
-                  <a-input v-model:value="record.testValue" placeholder="请输入" allow-clear :rule="rules" @change="dataTest(record)" />
+                <template v-if="column.dataIndex === 'testValue'">
+                  <a-input v-model:value="record.testValue" placeholder="请输入" allow-clear :rule="rules" @change="dataTest()" />
                 </template>
               </template>
             </a-table>
@@ -35,7 +35,7 @@
         <template v-if="interfaceMsgs.interMsgRequest == 'POST'">
           <a-tabs v-model:activeKey="activeKey" size="large">
             <a-tab-pane key="1" tab="请求Body">
-              <a-textarea v-model:value="textArea" placeholder="请输入" :rows="18" />
+              <a-textarea v-model:value="textArea" placeholder="请输入" :rows="15" @change="bodyText()" />
             </a-tab-pane>
           </a-tabs>
         </template>
@@ -61,7 +61,7 @@
         borderRadius: '0 0 4px 4px',
       }"
     >
-      <a-button style="margin-right: 8px" :disabled="interfaceTest" @click="onClose">接口测试</a-button>
+      <a-button style="margin-right: 8px" :disabled="interfaceTest" @click="faceTest">接口测试</a-button>
       <a-button style="margin-right: 8px" disabled @click="onClose">复制返回结果</a-button>
       <a-button @click="onClose">关闭</a-button>
     </div>
@@ -70,6 +70,8 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import emitter from '@/utils/bus';
+  import { InterfaceTestc } from '@/api/test/index';
+
   const visible = ref<boolean>(false);
   const showDrawer = () => {
     visible.value = true;
@@ -102,65 +104,69 @@
     requestUrl.value = record.interMsgApiProtocol + '://' + record.interMsgApiUrl + ':' + record.interMsgIp;
     showDrawer();
   });
+
   const activeKey = ref('1');
   const columns = [
     {
       title: '参数名称',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'paramName',
+      key: 'paramName',
       width: '16%',
     },
     {
       title: '参数位置',
-      dataIndex: 'aa',
-      key: 'aa',
+      dataIndex: 'paramPosition',
+      key: 'paramPosition',
       width: '16%',
     },
     {
       title: '数据类型',
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'DataType',
+      key: 'DataType',
       width: '16%',
     },
     {
       title: '是否必填',
-      dataIndex: 'bb',
-      key: 'bb',
+      dataIndex: 'requireed',
+      key: 'requireed',
       width: '18%',
     },
     {
       title: '测试值',
-      dataIndex: 'cc',
-      key: 'cc',
+      dataIndex: 'testValue',
+      key: 'testValue',
       width: '34%',
     },
   ];
 
   const data = ref([
     {
-      name: 'name',
-      aa: 'query',
-      type: 'String',
-      bb: '否',
+      paramName: 'name',
+      paramPosition: 'query',
+      DataType: 'String',
+      requireed: '否',
       testValue: '',
     },
     {
-      name: 'num',
-      aa: 'query',
-      type: 'String',
-      bb: '是',
+      paramName: 'num',
+      paramPosition: 'query',
+      DataType: 'String',
+      requireed: '是',
       testValue: '',
     },
   ]);
   //判断请求方式出现请求body文本域
   const textArea = ref<string>('');
+  const bodyText = () => {
+    testData.value.requestBody = textArea.value;
+  };
   //输入参数判断测试值是否正确输入，然后开启接口测试按钮
-  const testValue = ref();
-  watch(testValue, () => {
-    console.log(testValue.value);
-  });
+  // const testValue = ref();
+  // watch(testValue, () => {
+  //   console.log(1111, testValue.value);
+  // });
   const interfaceTest = ref<boolean>(true);
-  const dataTest = (record: any) => {
+  const dataTest = () => {
     data.value.forEach(p => {
       if (p.testValue == '') {
         interfaceTest.value = true;
@@ -169,7 +175,32 @@
         interfaceTest.value = false;
       }
     });
+    let obj = {};
+    for (let i in data.value) {
+      obj[data.value[i].paramName] = data.value[i].testValue;
+    }
+    testData.value.inputParam = JSON.stringify(obj);
   };
+
+  //接口测试调用接口
+  interface TestData {
+    requestURL: string | undefined;
+    requestMethod: string;
+    inputParam: {};
+    requestBody: {};
+  }
+  const testData = ref<TestData>({} as any);
+  watch(interfaceMsgs, () => {
+    testData.value.requestURL = requestUrl.value;
+    testData.value.requestMethod = interfaceMsgs.value.interMsgRequest;
+    // testData.value.inputParam = obj;
+    // testData.value.requestBody = {};
+  });
+  async function faceTest() {
+    await InterfaceTestc(testData.value).then(res => {
+      console.log(res.data);
+    });
+  }
   //验证规则
   const rules = {
     testValue: [{ required: true, message: '新增目录不能为空', trigger: 'blur' }],
@@ -192,7 +223,7 @@
 
   .box {
     width: 100%;
-    height: 750px;
+    height: 730px;
     color: #fff;
     background-color: #333;
   }

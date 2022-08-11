@@ -84,6 +84,8 @@ enum Api {
   Intfc_Rlse_Disabled = '/api/updateInterfaceApiType',
   //接口删除
   Delete_Intfc = '/api/deleteInterfaceMsg',
+  //接口测试
+  Interface_Test = '/api/test',
 
   //数据库管理
   //查询数据库管理
@@ -193,6 +195,9 @@ export const queryIntfc = (object: object) => api.post(Api.Intfc_Management_Quer
 export const postDeactivation = (object: object) => api.post(Api.Intfc_Rlse_Disabled, object);
 //接口删除
 export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' + interMsgId);
+//接口测试
+export const InterfaceTestc = (testData: object) => api.post(Api.Interface_Test, testData);
+
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
 export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);
