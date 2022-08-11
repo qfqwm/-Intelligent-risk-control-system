@@ -11,7 +11,6 @@
   import DefinitionTables from './DefinitionTables.vue';
   import JosnTo from './JosnTo.vue';
   interface input_parameter_DataItem {
-    key: string;
     name: string;
     weizhi: string;
     leixing: string;
@@ -20,7 +19,6 @@
     miaoshu: string;
   }
   interface quest_body_DataItem {
-    key: string;
     name: string;
     leixing: string;
     bitian: string;
@@ -29,7 +27,6 @@
     shuoming: string;
   }
   interface return_parameter_DataItem {
-    key: string;
     name: string;
     leixing: string;
     shuoming: string;
@@ -107,7 +104,6 @@
   });
   const input_parameter_data: Ref<input_parameter_DataItem[]> = ref([
     {
-      key: '0',
       name: 'Edward King 0',
       weizhi: '111',
       leixing: 'London, Park Lane no. 0',
@@ -167,7 +163,6 @@
   ];
   const quest_body_data: Ref<quest_body_DataItem[]> = ref([
     {
-      key: '0',
       name: 'string',
       leixing: 'string',
       bitian: 'string',
@@ -224,19 +219,16 @@
   ];
   const return_parameter_data: Ref<return_parameter_DataItem[]> = ref([
     {
-      key: '0',
       name: 'Edward King 0',
       leixing: 'aaaaaaaaaaaaaa',
       shuoming: '12312',
       children: [
         {
-          key: '0-0',
           name: 'Edward King 1',
           leixing: 'aaaaaaaaaaaaaa',
           shuoming: '12312',
           children: [
             {
-              key: '0-0-0',
               name: 'Edward King 2',
               leixing: 'aaaaaaaaaaaaaa',
               shuoming: '12312',
