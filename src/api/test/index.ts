@@ -80,6 +80,10 @@ enum Api {
   Interface_Detail_Select = '/api/selectApiConfig',
   // 接口管理查询
   Intfc_Management_Query = '/api/selectApiMsg',
+  //接口发布停用
+  Intfc_Rlse_Disabled = '/api/updateInterfaceApiType',
+  //接口删除
+  Delete_Intfc = '/api/deleteInterfaceMsg',
 
   //数据库管理
   //查询数据库管理
@@ -185,7 +189,10 @@ export const InterfaceRenameContents = (object: object) => api.post(Api.Interfac
 export const InterfaceDetailSelect = (interMsgId: string) => api.get(Api.Interface_Detail_Select + '/' + interMsgId);
 // 接口管理查询
 export const queryIntfc = (object: object) => api.post(Api.Intfc_Management_Query, object);
-
+//接口发布停用
+export const postDeactivation = (object: object) => api.post(Api.Intfc_Rlse_Disabled, object);
+//接口删除
+export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' + interMsgId);
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
 export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);

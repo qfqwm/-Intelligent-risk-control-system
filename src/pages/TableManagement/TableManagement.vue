@@ -75,7 +75,6 @@
   import AddEdit from '@/pages/TableManagement/AddEdit.vue';
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
-  import { log } from 'console';
   interface DataItem {
     key: string;
     codeId: string;
