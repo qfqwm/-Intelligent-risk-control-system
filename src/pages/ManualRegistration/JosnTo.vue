@@ -1,9 +1,9 @@
 <template>
   <div>
-    <a-modal v-model:visible="visible" title="JOSN数据导入" @ok="handleOk">
-      <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="onFinish">
+    <a-modal v-model:visible="visible" :width="1000" title="JOSN数据导入" @ok="handleOk">
+      <a-form :model="formState" layout="vertical" name="basic" :label-col="{ span: 2 }" :wrapper-col="{ span: 25 }" autocomplete="off" @finish="onFinish">
         <a-form-item label="Josn数据" name="Josn" :rules="[{ required: true, message: '请输入Josn数据!' }]">
-          <a-input v-model:value="formState.Josn" />
+          <a-textarea v-model:value="formState.Josn" :rows="10" placeholder="请导入参数" />
         </a-form-item>
       </a-form>
     </a-modal>

@@ -49,8 +49,9 @@
             <span v-if="editableData[record.key]">
               <a @click="save(record)">保存</a>
               <a @click="cancel(record.key)">取消</a>
-              <a v-if="record.leixing == 'Int' || record.leixing == 'String'">码值定义</a>
+              <a v-if="record.leixing == 'Int' || record.leixing == 'String'" @click="showcode(record)">码值定义</a>
               <a v-if="record.leixing == 'Object' || record.leixing == 'Array'" @click="add_subordinate(record)">添加下级</a>
+              <Definition />
             </span>
             <span v-else>
               <a @click="edit(record.key)">编辑</a>
@@ -61,16 +62,16 @@
           </div>
         </template>
       </template>
-    </a-table></div
-  >
+    </a-table>
+  </div>
 </template>
 <script lang="ts" setup>
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
   import { message } from 'ant-design-vue';
   import { cloneDeep } from 'lodash-es';
+  import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
-  import { log } from 'console';
 
   // 接收参数
   type Props = {
@@ -356,6 +357,16 @@
   emitter.on('keep', () => {
     emitter.emit('data_' + props.table_object.title, table_data.value);
   });
+
+  const visible = ref<boolean>(false);
+  //码值定义模态框开关
+  const showcode = (record: any) => {
+    const sddsq = reactive({
+      record: record,
+      visible: visible,
+    });
+    emitter.emit('Sendchildsq', sddsq);
+  };
 </script>
 <style lang="less" scoped>
   .Input_parameter_table {
