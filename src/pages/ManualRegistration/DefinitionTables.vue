@@ -49,7 +49,8 @@
             <span v-if="editableData[record.key]">
               <a @click="save(record.key)">保存</a>
               <a @click="cancel(record.key)">取消</a>
-              <a v-if="record.leixing == 'Int' || record.leixing == 'String'">码值定义</a>
+              <a v-if="record.leixing == 'Int' || record.leixing == 'String'" @click="showcode(record)">码值定义</a>
+              <Definition />
             </span>
             <span v-else>
               <a @click="edit(record.key)">编辑</a>
@@ -63,14 +64,15 @@
           </div>
         </template>
       </template>
-    </a-table></div
-  >
+    </a-table>
+  </div>
 </template>
 <script lang="ts" setup>
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
   import { message } from 'ant-design-vue';
   import { cloneDeep } from 'lodash-es';
+  import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
   // 接收参数
   type Props = {
@@ -97,7 +99,7 @@
 
   // 表单验证
   const getFildStatus = (key: any, dataIndex: string) => {
-    const data = Verificationprompt.filter(item => key === item.key)[0];
+    const data = Verificationprompt.filter((item: { key: any }) => key === item.key)[0];
     // 判断是否为必填字段，不是必填字段直接返回成功提示
     if (Required.value.indexOf(dataIndex) == -1)
       return {
@@ -114,7 +116,7 @@
     }
   };
 
-  const validatePrime = content => {
+  const validatePrime = (content: string | null | undefined) => {
     if (content == '' || content == undefined || content == null) {
       return {
         validateStatus: 'error',
@@ -129,13 +131,13 @@
 
   // 验证提示
   const Verificationprompt = [] as any;
-  const handleChange = (value, key, column_dataIndex) => {
+  const handleChange = (value: any, key: string, column_dataIndex: string | number) => {
     console.log(Verificationprompt, 'dasdsadas');
 
     // 判断是否是验证字段，如不是，直接return退出
     if (Required.value.indexOf(column_dataIndex) == -1) return;
     const newData = table_data.value;
-    const target = steamroller(newData).filter(item => item.key === key)[0];
+    const target = steamroller(newData).filter((item: { key: any }) => item.key === key)[0];
     if (target) {
       const { errorMsg, validateStatus } = validatePrime(value);
       let flag = true;
@@ -170,7 +172,7 @@
     return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
   };
   // 将多维数组拉平方法
-  const steamroller = arr => {
+  const steamroller = (arr: any[]) => {
     let newArr = [] as any;
     arr.forEach((element: any) => {
       newArr.push(element);
@@ -185,8 +187,8 @@
   const editableData: UnwrapRef<Record<string, any>> = reactive({});
 
   // /递归删除指定对象
-  const recursivefilter = (arr, value) => {
-    return arr.filter(item => {
+  const recursivefilter = (arr: any[], value: string) => {
+    return arr.filter((item: { key: any; children: string | any[] }) => {
       if (item.key === value) {
         return false;
       }
@@ -202,7 +204,7 @@
   };
   //   编辑
   const edit = (key: string) => {
-    editableData[key] = cloneDeep(steamroller(table_data.value).filter(item => key === item.key)[0]);
+    editableData[key] = cloneDeep(steamroller(table_data.value).filter((item: { key: string }) => key === item.key)[0]);
   };
   //   取消
   const cancel = (key: string) => {
@@ -212,7 +214,7 @@
   //   保存
   const save = (key: string) => {
     // 记录下标
-    let object = steamroller(table_data.value).filter(item => key === item.key)[0];
+    let object = steamroller(table_data.value).filter((item: { key: string }) => key === item.key)[0];
     for (let i = 0; i < Required.value.length; i++) {
       handleChange(object[Required.value[i]], key, Required.value[i]);
       // 改变值，触发监听事件，渲染出错误提示
@@ -220,7 +222,7 @@
       object[Required.value[i]] = null;
       object[Required.value[i]] = dataSource_change;
     }
-    let Verificationprompt_index = Verificationprompt.findIndex(item => item.key === key);
+    let Verificationprompt_index = Verificationprompt.findIndex((item: { key: string }) => item.key === key);
     let array_Verificationprompt = [...Object.values(Verificationprompt[Verificationprompt_index])] as any;
     let flag = true;
     for (let i = 0; i < array_Verificationprompt.length; i++) {
@@ -280,6 +282,16 @@
   // Josn导入
   const Josn_to = () => {
     emitter.emit('Josn');
+  };
+
+  const visible = ref<boolean>(false);
+  //码值定义模态框开关
+  const showcode = (record: any) => {
+    const sddsq = reactive({
+      record: record,
+      visible: visible,
+    });
+    emitter.emit('Sendchildsq', sddsq);
   };
 </script>
 <style lang="less" scoped>
