@@ -12,11 +12,11 @@
           ref="searchInput"
           :placeholder="`Search ${column.dataIndex}`"
           :value="selectedKeys[0]"
-          style=" display: block; margin-bottom: 8px;width: 188px"
+          style="display: block; margin-bottom: 8px; width: 188px"
           @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
           @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
         />
-        <a-button type="primary" size="small" style=" margin-right: 8px;width: 90px" @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
+        <a-button type="primary" size="small" style="margin-right: 8px; width: 90px" @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
           <template #icon><SearchOutlined /></template>
           Search
         </a-button>

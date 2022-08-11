@@ -2,7 +2,7 @@
   <div>
     <a-modal v-model:visible="visible" width="1000px" ok-text="确定" cancel-text="取消" :title="valuea" @ok="handleOk">
       <a-form :model="AddCodeTable" layout="inline" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
-        <div style=" margin-bottom: 20px;padding-left: 30px">
+        <div style="margin-bottom: 20px; padding-left: 30px">
           <a-row :gutter="16" style="margin-top: 10px">
             <a-col :span="24">
               <a-form-item style="width: 455%" has-feedback label="码表选择：" name="CodeTableSelection" :rules="[{ required: true }]">
