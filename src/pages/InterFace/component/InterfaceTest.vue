@@ -30,9 +30,15 @@
                 </template>
               </template>
             </a-table>
-            <!-- <button @click="sss()">点击</button> -->
           </a-tab-pane>
         </a-tabs>
+        <template v-if="interfaceMsgs.interMsgRequest == 'POST'">
+          <a-tabs v-model:activeKey="activeKey" size="large">
+            <a-tab-pane key="1" tab="请求Body">
+              <a-textarea v-model:value="textArea" placeholder="请输入" :rows="18" />
+            </a-tab-pane>
+          </a-tabs>
+        </template>
       </a-col>
       <a-col :span="10">
         <a-tabs v-model:activeKey="activeKey" size="large">
@@ -93,7 +99,7 @@
   emitter.on('interfaceTest', (record: any) => {
     // console.log(111, record);
     interfaceMsgs.value = record;
-    requestUrl.value = record.interMsgApiProtocol + '://' + record.interMsgApiUrl;
+    requestUrl.value = record.interMsgApiProtocol + '://' + record.interMsgApiUrl + ':' + record.interMsgIp;
     showDrawer();
   });
   const activeKey = ref('1');
@@ -146,30 +152,25 @@
       testValue: '',
     },
   ]);
-  //输入参数判断测试值是否输入
+  //判断请求方式出现请求body文本域
+  const textArea = ref<string>('');
+  //输入参数判断测试值是否正确输入，然后开启接口测试按钮
   const testValue = ref();
   watch(testValue, () => {
     console.log(testValue.value);
   });
-  watch(data.value, () => {
-    // console.log(data.value);
-    // for (let p in data.value) {
-    //   if (data.value[p].testValue == '') {
-    //     interfaceTest.value = false;
-    //     break;
-    //   }
-    // }
-  });
-  console.log(data.value);
-
   const interfaceTest = ref<boolean>(true);
   const dataTest = (record: any) => {
     data.value.forEach(p => {
-      if (p.testValue != '' && p.testValue != null) {
+      if (p.testValue == '') {
+        interfaceTest.value = true;
+      }
+      if (p.testValue != '') {
         interfaceTest.value = false;
       }
     });
   };
+  //验证规则
   const rules = {
     testValue: [{ required: true, message: '新增目录不能为空', trigger: 'blur' }],
   };
@@ -190,8 +191,8 @@
   }
 
   .box {
-    width: 90%;
-    height: 600px;
+    width: 100%;
+    height: 750px;
     color: #fff;
     background-color: #333;
   }
