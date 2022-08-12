@@ -1,5 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
+  {{ editableData }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
@@ -19,7 +20,7 @@
             :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus"
             :help="getFildStatus(record.key, column.dataIndex).errorMsg"
           >
-            <a-input v-model:value="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" @change="handleChange(record[column.dataIndex], record.key, column.dataIndex)" />
+            <a-input v-model:value="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" @change="handleChange(record[column.dataIndex], record.key, column.dataIndex, record)" />
           </a-form-item>
           <template v-else>
             {{ text }}
@@ -34,7 +35,7 @@
               :filter-option="filterOption"
               style="width: 100%"
               placeholder="请选择"
-              @change="handleChange(record[column.dataIndex], record.key, column.dataIndex)"
+              @change="handleChange(record[column.dataIndex], record.key, column.dataIndex, record)"
             >
             </a-select>
           </a-form-item>
@@ -85,9 +86,9 @@
   const add_data_id = (val, front: string) => {
     return val.forEach((item, index) => {
       item.key = front + index;
-      const i = index + '-';
+      front = item.key + '-';
       if (item.children) {
-        add_data_id(item.children, i);
+        add_data_id(item.children, front);
       }
     });
   };
@@ -152,11 +153,47 @@
     });
     return newArr;
   };
+  // 记录切换数据类型时的children
+  const children_object = [] as any;
   // 验证提示
   const Verificationprompt = [] as any;
-  const handleChange = (value, key, column_dataIndex) => {
+  const handleChange = (value, key, column_dataIndex, record) => {
+    // 监听select数据类型框的变化，如果不为Object类型和Array类型，则清空子集
+    if (column_dataIndex === 'leixing') {
+      if (['Array', 'Object'].indexOf(value) === -1) {
+        if (record.children) {
+          let children_object_index = Object.values(children_object).findIndex((item: any) => {
+            return item.key === key;
+          });
+          if (children_object_index == -1) {
+            children_object.push({
+              key: key,
+              children: record.children,
+            });
+          } else {
+            children_object[children_object_index].children = record.children;
+          }
+          delete record.children;
+          // 删除编辑对象中内容
+          let string_length = key.length;
+          Object.keys(editableData).forEach((item: any) => {
+            if (item.length > key.length && item.substr(0, string_length) == key) {
+              delete editableData[item];
+            }
+          });
+        }
+      } else {
+        let children_object_index = Object.values(children_object).findIndex((item: any) => {
+          return item.key === key;
+        });
+        if (children_object_index != -1) {
+          record.children = children_object[children_object_index].children;
+        }
+      }
+    }
     // 判断是否是验证字段，如不是，直接return退出
     if (Required.value.indexOf(column_dataIndex) == -1) return;
+
     const newData = table_data.value;
     const target = steamroller(newData).filter((item: any) => item.key === key)[0];
     if (target) {
@@ -194,7 +231,9 @@
     return arr.filter(item => {
       if (item.key === value) {
         if (!item.children || item.children.length == 0) return false;
-        else message.error('存在子集，无法删除');
+        else {
+          message.error('存在子集，无法删除');
+        }
       }
       if (item.children && item.children.length > 0) {
         item.children = recursivefilter(item.children, value);
@@ -228,13 +267,23 @@
   };
   // 删除
   const onDelete = (key: string) => {
+    // 删除存储的children
+    let old_table_length = steamroller(table_data.value).length;
     if (table_data.value.findIndex(item => item.key == key) == -1) {
+      // 删除表格类容
       recursivefilter(table_data.value, key);
       check_null(table_data.value);
     } else {
       if (table_data.value[table_data.value.findIndex(item => item.key == key)].children && table_data.value[table_data.value.findIndex(item => item.key == key)].children.length !== 0)
-        return message.error('存在子集，无法删除');
+        message.error('存在子集，无法删除');
       else table_data.value = table_data.value.filter(item => item.key !== key);
+    }
+    let new_table_length = steamroller(table_data.value).length;
+    if (old_table_length !== new_table_length) {
+      let string_length = key.length;
+      children_object.filter(item => {
+        return item.key.substr(0, string_length) != key;
+      });
     }
   };
   //   编辑
@@ -257,6 +306,7 @@
   };
   // 取消按钮
   const cancel = (key: string) => {
+    // 判断是否为新增的数据
     if (
       steamroller(table_data.value)[steamroller(table_data.value).findIndex(item => item.key == key)].newlyadded &&
       steamroller(table_data.value)[steamroller(table_data.value).findIndex(item => item.key == key)].newlyadded == true
@@ -283,7 +333,7 @@
     // 记录下标
     let object = steamroller(table_data.value).filter(item => record.key === item.key)[0];
     for (let i = 0; i < Required.value.length; i++) {
-      handleChange(object[Required.value[i]], record.key, Required.value[i]);
+      handleChange(object[Required.value[i]], record.key, Required.value[i], record);
       // 改变值，触发监听事件，渲染出错误提示
       let dataSource_change: any = object[Required.value[i]];
       object[Required.value[i]] = null;
@@ -313,10 +363,9 @@
       newlyadded: true,
     } as any;
     props.table_object.columns.forEach((item: any) => {
-      newData[item.dataIndex] = '';
+      if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
       if (select.value.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
     });
-    if (newData.operation) delete newData.operation;
     table_data.value.push(newData);
     key_length++;
     edit((key_length - 1).toString());
@@ -328,10 +377,10 @@
       newlyadded: true,
     } as any;
     props.table_object.columns.forEach((item: any) => {
-      newData[item.dataIndex] = '';
+      if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
       if (select.value.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
     });
-    if (newData.operation) delete newData.operation;
+
     // 如果存在children字段
     if (record.children && record.children != undefined && record.children.length != 0) {
       // 用-进行分割，对最后一位数字进行加1处理

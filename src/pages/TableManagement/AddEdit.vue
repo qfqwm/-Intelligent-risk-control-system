@@ -218,7 +218,7 @@
     show.PersonnelGender = false;
   };
 </script>
-<style lang="less">
+<style lang="less" scoped>
   // 蒙版
   .mask {
     position: absolute;
