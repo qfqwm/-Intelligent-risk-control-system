@@ -75,7 +75,6 @@
   import AddEdit from '@/pages/TableManagement/AddEdit.vue';
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
-  import { log } from 'console';
   interface DataItem {
     key: string;
     codeId: string;
@@ -102,7 +101,7 @@
   ];
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
-      if (res.data.msg !== '获取成功') return (dataSource.value = []);
+      if (res.data.code !== 100200) return (dataSource.value = []);
       dataSource.value = res.data.data;
       dataSource.value.forEach((item: any) => {
         if (item.codeType == 0) {

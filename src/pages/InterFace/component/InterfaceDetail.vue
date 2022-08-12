@@ -1,29 +1,42 @@
+<!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <a-form :model="formState" :style="{ padding: '0 0 24px 0' }" @finish="handleFinish" @finishFailed="handleFinishFailed">
-    <a-typography-text type="secondary" :style="{ fontSize: '20px' }">接口名称：</a-typography-text>
+    <a-typography-text type="secondary" :style="{ fontSize: '20px' }"
+      >接口名称：<a-typography-text>{{ interfaceMsgs.interMsgName }}</a-typography-text></a-typography-text
+    >
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8">接口分类：</a-col>
-      <a-col :span="8">请求协议：</a-col>
-      <a-col :span="8">请求方式：</a-col>
+      <a-col :span="8"
+        >接口分类：<a-typography-text>{{ interfaceMsgs.interMsgApiType }}</a-typography-text>
+      </a-col>
+      <a-col :span="8"
+        >请求协议：<a-typography-text>{{ interfaceMsgs.interMsgApiProtocol }}</a-typography-text>
+      </a-col>
+      <a-col :span="8"
+        >请求方式：<a-typography-text>{{ interfaceMsgs.interMsgRequest }}</a-typography-text>
+      </a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8">支持格式：</a-col>
-      <a-col :span="8">IP端口：</a-col>
+      <a-col :span="8">支持格式：<a-typography-text>JSON</a-typography-text> </a-col>
+      <a-col :span="8"
+        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}:{{ interfaceMsgs.interMsgIp }}</a-typography-text>
+      </a-col>
       <a-col :span="8"></a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8">Path：</a-col>
+      <a-col :span="8">Path：<a-typography-text></a-typography-text> </a-col>
       <a-col :span="8"></a-col>
       <a-col :span="8"></a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8">接口描述：</a-col>
+      <a-col :span="8"
+        >接口描述：<a-typography-text>{{ interfaceMsgs.interMsgDescribe }}</a-typography-text>
+      </a-col>
       <a-col :span="8"></a-col>
       <a-col :span="8"></a-col>
     </a-row>
   </a-form>
   <div :style="{ background: '#f0f2f5', margin: '0 -24px', minHeight: '20px' }"></div>
-  <a-tabs v-model:activeKey="activeKey" size="large">
+  <a-tabs v-model:activeKey="activeKey2" size="large">
     <a-tab-pane key="1" tab="请求参数">
       <a-table :columns="columns" :data-source="data" :pagination="false"> </a-table>
     </a-tab-pane>
@@ -64,30 +77,65 @@
     </a-tab-pane>
   </a-tabs>
   <div :style="{ background: '#f0f2f5', margin: '0 -24px', minHeight: '20px' }"></div>
-  <!-- <a-affix :offset-bottom="1">
-    <div :style="{ width: '100%', height: '40px', backgroundColor: '#ccc', padding: '0 100px' }">
-      <a-button type="primary">返回上一页</a-button>
+  <a-affix :offset-bottom="1" :style="{ display: 'flex', justifyContent: 'end', marginTop: '20px' }">
+    <div class="affix">
+      <a-button type="primary" @click="back">返回上一页</a-button>
     </div>
-  </a-affix> -->
+  </a-affix>
 </template>
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
-  //接口名称
-  interface FormState {
-    user: string;
-    password: string;
+  import { ref } from 'vue';
+  import emitter from '@/utils/bus';
+  import { InterfaceDetailSelect } from '@/api/test/index';
+  //处理路由通过query传的参数
+  const route = useRoute();
+  let interMsgId;
+  if (typeof route.query.interMsgId === 'string') {
+    interMsgId = String(parseInt(route.query.interMsgId));
   }
-  const formState = reactive({
-    user: '',
-    password: '',
-  });
-  const handleFinish = (values: FormState) => {
+  // console.log(typeof interMsgId);
+  interface formState {
+    interfaceConfigs: string;
+    interfaceMsgs: interfaceMsgs;
+  }
+  interface interfaceMsgs {
+    interDirId: number;
+    interMsgApiProtocol: string; //请求协议
+    interMsgApiType: string; //接口分类
+    interMsgApiUrl: string; //Path
+    interMsgCreateTime: string;
+    interMsgDescribe: string; //接口描述
+    interMsgId: number;
+    interMsgIp: string; //IP端口
+    interMsgName: string;
+    interMsgOvertime: number;
+    interMsgRequest: string; //请求协议
+    interMsgSource: string;
+    interMsgUpdateTime: string;
+    isDelete: number;
+  }
+  const formState = ref<formState>({} as any);
+  const interfaceMsgs = ref<interfaceMsgs>({} as any);
+  async function InterfaceDetailSelect_way() {
+    await InterfaceDetailSelect(interMsgId).then(res => {
+      console.log(res.data.data);
+      formState.value = res.data.data;
+      interfaceMsgs.value = res.data.data.interfaceMsgs;
+      if (interfaceMsgs.value.interMsgApiType == '0') interfaceMsgs.value.interMsgApiType = '未发布';
+      if (interfaceMsgs.value.interMsgApiType == '1') interfaceMsgs.value.interMsgApiType = '已发布';
+      if (interfaceMsgs.value.interMsgApiType == '2') interfaceMsgs.value.interMsgApiType = '已停用';
+    });
+  }
+  InterfaceDetailSelect_way();
+
+  const handleFinish = values => {
     console.log(values, formState);
   };
   const handleFinishFailed = () => {
     console.log(11);
   };
   //请求参数，请求body
+  const activeKey2 = ref('1');
   const activeKey = ref('1');
   const columns = [
     {
@@ -205,7 +253,27 @@
     },
   ];
   const data4 = [];
+  emitter.on('interfaceTest', (t: any) => {
+    console.log(111, t);
+    // visible.value = t;
+    // showDrawer();
+  });
+  //返回上一页
+  const router = useRouter();
+  const back = () => {
+    router.push({
+      path: '/InterFace',
+    });
+  };
   //返回上一页固钉
-  const bottom = ref<number>(10);
 </script>
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  .affix {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    background-color: #fff;
+  }
+</style>
