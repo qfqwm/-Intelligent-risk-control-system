@@ -2,32 +2,28 @@
 <template>
   <a-form :model="formState" :style="{ padding: '0 0 24px 0' }" @finish="handleFinish" @finishFailed="handleFinishFailed">
     <a-typography-text type="secondary" :style="{ fontSize: '20px' }"
-      >接口名称：<a-typography-text>{{ interfaceMsgs.interDirId }}</a-typography-text></a-typography-text
+      >接口名称：<a-typography-text>{{ interfaceMsgs.interMsgName }}</a-typography-text></a-typography-text
     >
     <a-row :style="{ height: '32px', color: '#999' }">
       <a-col :span="8"
         >接口分类：<a-typography-text>{{ interfaceMsgs.interMsgApiType }}</a-typography-text>
       </a-col>
       <a-col :span="8"
-        >请求协议：<a-typography-text>{{ interfaceMsgs.interMsgRequest }}</a-typography-text>
+        >请求协议：<a-typography-text>{{ interfaceMsgs.interMsgApiProtocol }}</a-typography-text>
       </a-col>
       <a-col :span="8"
-        >请求方式：<a-typography-text>{{ interfaceMsgs.interDirId }}</a-typography-text>
+        >请求方式：<a-typography-text>{{ interfaceMsgs.interMsgRequest }}</a-typography-text>
       </a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
+      <a-col :span="8">支持格式：<a-typography-text>JSON</a-typography-text> </a-col>
       <a-col :span="8"
-        >支持格式：<a-typography-text>{{ interfaceMsgs.interMsgApiProtocol }}</a-typography-text>
-      </a-col>
-      <a-col :span="8"
-        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgIp }}</a-typography-text>
+        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}:{{ interfaceMsgs.interMsgIp }}</a-typography-text>
       </a-col>
       <a-col :span="8"></a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8"
-        >Path：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}</a-typography-text>
-      </a-col>
+      <a-col :span="8">Path：<a-typography-text></a-typography-text> </a-col>
       <a-col :span="8"></a-col>
       <a-col :span="8"></a-col>
     </a-row>
@@ -40,7 +36,7 @@
     </a-row>
   </a-form>
   <div :style="{ background: '#f0f2f5', margin: '0 -24px', minHeight: '20px' }"></div>
-  <a-tabs v-model:activeKey="activeKey" size="large">
+  <a-tabs v-model:activeKey="activeKey2" size="large">
     <a-tab-pane key="1" tab="请求参数">
       <a-table :columns="columns" :data-source="data" :pagination="false"> </a-table>
     </a-tab-pane>
@@ -97,38 +93,23 @@
   if (typeof route.query.interMsgId === 'string') {
     interMsgId = String(parseInt(route.query.interMsgId));
   }
-  console.log(typeof interMsgId);
+  // console.log(typeof interMsgId);
   interface formState {
     interfaceConfigs: string;
-    interfaceMsgs: {
-      interDirId: number;
-      interMsgApiProtocol: string;
-      interMsgApiType: string;
-      interMsgApiUrl: string;
-      interMsgCreateTime: string;
-      interMsgDescribe: string;
-      interMsgId: number;
-      interMsgIp: string;
-      interMsgName: string;
-      interMsgOvertime: number;
-      interMsgRequest: string;
-      interMsgSource: string;
-      interMsgUpdateTime: string;
-      isDelete: number;
-    };
+    interfaceMsgs: interfaceMsgs;
   }
   interface interfaceMsgs {
     interDirId: number;
-    interMsgApiProtocol: string;
-    interMsgApiType: string;
-    interMsgApiUrl: string;
+    interMsgApiProtocol: string; //请求协议
+    interMsgApiType: string; //接口分类
+    interMsgApiUrl: string; //Path
     interMsgCreateTime: string;
-    interMsgDescribe: string;
+    interMsgDescribe: string; //接口描述
     interMsgId: number;
-    interMsgIp: string;
+    interMsgIp: string; //IP端口
     interMsgName: string;
     interMsgOvertime: number;
-    interMsgRequest: string;
+    interMsgRequest: string; //请求协议
     interMsgSource: string;
     interMsgUpdateTime: string;
     isDelete: number;
@@ -136,17 +117,17 @@
   const formState = ref<formState>({} as any);
   const interfaceMsgs = ref<interfaceMsgs>({} as any);
   async function InterfaceDetailSelect_way() {
-    await InterfaceDetailSelect('1').then(res => {
+    await InterfaceDetailSelect(interMsgId).then(res => {
       console.log(res.data.data);
       formState.value = res.data.data;
       interfaceMsgs.value = res.data.data.interfaceMsgs;
+      if (interfaceMsgs.value.interMsgApiType == '0') interfaceMsgs.value.interMsgApiType = '未发布';
+      if (interfaceMsgs.value.interMsgApiType == '1') interfaceMsgs.value.interMsgApiType = '已发布';
+      if (interfaceMsgs.value.interMsgApiType == '2') interfaceMsgs.value.interMsgApiType = '已停用';
     });
   }
   InterfaceDetailSelect_way();
-  // interface FormState {
-  //   user: string;
-  //   password: string;
-  // }
+
   const handleFinish = values => {
     console.log(values, formState);
   };
@@ -154,6 +135,7 @@
     console.log(11);
   };
   //请求参数，请求body
+  const activeKey2 = ref('1');
   const activeKey = ref('1');
   const columns = [
     {

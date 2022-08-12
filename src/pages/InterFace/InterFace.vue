@@ -45,8 +45,7 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'interMsgName'">
-            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.assetId)">{{ record.interMsgName }}</router-link>
-            <a href="#" @click.prevent="showcode(record.interMsgName)">{{ record.interMsgName }}</a>
+            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.interMsgId)">{{ record.interMsgName }}</router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -273,13 +272,13 @@
       size: 7,
     };
     let object1 = { ...object, ...formState };
-    console.log(object1);
+    // console.log(object1);
     queryIntfc(object1).then(function (res: any) {
-      console.log(res);
+      console.log(res.data.data);
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data.interfaceMsgList;
-      console.log(dataSource.value);
+      // console.log(dataSource.value);
       dataSource.value.forEach((item: any) => {
         if (item.interMsgApiType == 0) {
           item.interMsgApiType = '未发布';
@@ -350,7 +349,7 @@
         personnelcodetable.value.CodeConfigure = res.data.data;
       }
     });
-    console.log(codeId);
+    // console.log(codeId);
 
     router.push({
       path: '/InterfaceDetail',
@@ -437,8 +436,8 @@
   };
   //接口测试抽屉
   const showTestDrawer = (record: any) => {
-    console.log(333, record);
-    // emitter.emit('interfaceTest', record);
+    // console.log(333, record);
+    emitter.emit('interfaceTest', record);
   };
   // 人工注册跳转
   const router_link = () => {

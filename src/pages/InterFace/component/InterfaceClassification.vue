@@ -14,13 +14,13 @@
         @expand="handleExpand"
         @select="handleSelect"
       >
-        <template #title="{ name }">
-          <span v-if="name.indexOf(search) > -1">
-            {{ name.substr(0, name.indexOf(search)) }}
+        <template #title="{ interDirName }">
+          <span v-if="interDirName.indexOf(search) > -1">
+            {{ interDirName.substr(0, interDirName.indexOf(search)) }}
             <span style="color: #1890ff">{{ search }}</span>
-            {{ name.substr(name.indexOf(search) + search.length) }}
+            {{ interDirName.substr(interDirName.indexOf(search) + search.length) }}
           </span>
-          <span v-else>{{ name }}</span>
+          <span v-else>{{ interDirName }}</span>
           <span>
             <div id="components-a-tooltip-demo-placement">
               <div :style="{ clear: 'both', whiteSpace: 'nowrap' }">
@@ -55,7 +55,11 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkStairAdd"
     >
-      <p class="tk"><span>*</span>目录名称：<input v-model="addStair" type="text" /></p>
+      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="目录名称">
+          <a-input v-model:value="addStair" />
+        </a-form-item>
+      </a-form>
     </a-modal>
     <!-- 数据资产表目录新增下级目录弹框 -->
     <a-modal
@@ -68,7 +72,11 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkAdd"
     >
-      <p class="tk"><span>*</span>目录名称：<input v-model="addSecond" type="text" /></p>
+      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="目录名称">
+          <a-input v-model:value="addSecond" />
+        </a-form-item>
+      </a-form>
     </a-modal>
     <!-- 数据资产表目录编辑目录弹框 -->
     <a-modal
@@ -81,7 +89,11 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkEdit"
     >
-      <p class="tk"><span>*</span>目录名称：<input v-model="editSecond" type="text" /></p>
+      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="目录名称">
+          <a-input v-model:value="editSecond" />
+        </a-form-item>
+      </a-form>
     </a-modal>
   </div>
 </template>
@@ -135,7 +147,7 @@
   const intfc = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
     console.log(keys, selected, 'fff');
-    editSecond.value = node.name;
+    editSecond.value = node.interDirName;
     intfc.value = keys[0];
     emitter.emit('sendf', intfc.value);
   };
@@ -241,6 +253,13 @@
       }
     });
     showInterfaceClassification();
+  };
+  //接口管理增删改查验证规则
+  const rules = {
+    addStair: [
+      { required: true, message: '新增目录不能为空', trigger: 'blur' },
+      { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+    ],
   };
 </script>
 <style scoped lang="less">

@@ -198,9 +198,11 @@
   // 调用接口加载表格
   const selectCodeTable_way = () => {
     SelectDataAsset(Search).then(function (res: any) {
-      console.log(res);
-      if (res.data.msg !== '返回成功') return (dataSource.value = []);
-      dataSource.value = res.data.data;
+      // console.log(res);
+      if (res.data.code !== 100200) return (dataSource.value = []);
+      dataSource.value = res.data.data.list;
+      // console.log(dataSource.value);
+
       dataSource.value.forEach((item: any) => {
         if (item.assetType == 0) {
           item.assetType = '未发布';
@@ -239,7 +241,10 @@
   const onDelete = codeId => {
     deleteAsset(codeId).then(function (res: any) {
       console.log(res);
-      dataSource.value = dataSource.value.filter((item: any) => item.assetId !== codeId);
+      if (res.data.code == 100200) {
+        dataSource.value = dataSource.value.filter((item: any) => item.assetId !== codeId);
+        return message.success('删除成功');
+      } else return message.error('删除失败');
     });
   };
 
@@ -249,7 +254,7 @@
     checkStrictly: false,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
-      console.log(selectedRows);
+      // console.log(selectedRows);
     },
   });
   // 批量操作
@@ -285,8 +290,8 @@
     };
     if (change_array.length == 0) return message.error('请选择码表进行操作!');
     OnChange1(change_array).then(function (res: any) {
-      console.log(res);
-      console.log(change_array);
+      // console.log(res);
+      // console.log(change_array);
 
       if (res.data.code == 100200) {
         message.success('更新成功!');
@@ -305,7 +310,7 @@
       assetList: [assetId],
     };
     OnChange1(object_array).then(function (res: any) {
-      console.log(res, 'czc');
+      // console.log(res, 'czc');
 
       if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求

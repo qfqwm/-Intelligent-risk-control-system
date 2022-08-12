@@ -114,7 +114,7 @@
     show.add_edit_incode = false;
   };
 </script>
-<style lang="less">
+<style lang="less" scoped>
   .PopupMask {
     position: absolute;
     top: 0;
