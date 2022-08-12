@@ -67,7 +67,7 @@
         </div>
         <!-- 底部区域 -->
         <a-form-item>
-          <div style=" margin-top: 55%; width: 79vh; height: 5vh;background-color: white">
+          <div style="margin-top: 55%; width: 79vh; height: 5vh; background-color: white">
             <a-space style="margin-left: 80%; line-height: 5vh">
               <a-button @click="onClose">取消</a-button>
               <a-button type="primary" html-type="submit">确定</a-button>
@@ -208,7 +208,7 @@
   };
 
   const removeSight = (item: Sights) => {
-    console.log(item);
+    // console.log(item);
     let index = dynamicValidateForm.value.sights.indexOf(item);
     if (index !== -1) {
       dynamicValidateForm.value.sights.splice(index, 1);
@@ -222,7 +222,7 @@
   const handleAdd1 = () => {
     StandardMapping().then(function (res) {
       length.value = res.data.data.length;
-      Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].dataRange }));
+      Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standardName }));
     });
     const newData = {
       key1: `${count1.value}`,
@@ -247,12 +247,12 @@
   const adddata = () => {
     dynamicValidateForm.value.directoryId = [];
     for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
-      console.log(dynamicValidateForm.value.chineseName, 'cz');
+      // console.log(dynamicValidateForm.value.chineseName, 'cz');
       dynamicValidateForm.value.directoryId.push({
         directoryId: dynamicValidateForm.value.chineseName[i],
       });
     }
-    console.log(dynamicValidateForm.value);
+    // console.log(dynamicValidateForm.value);
   };
 
   interface Sights4 {
@@ -291,10 +291,10 @@
     if (type == 'edit') {
       const directoryIddata = ref([]);
       for (let i = 0; i < dynamicValidateForm.value.directoryId.length; i++) {
-        console.log(dynamicValidateForm.value.directoryId[i].directoryId, 'ddd');
+        // console.log(dynamicValidateForm.value.directoryId[i].directoryId, 'ddd');
         directoryIddata.value.push(dynamicValidateForm.value.directoryId[i].directoryId);
       }
-      console.log(directoryIddata.value, 'kk');
+      // console.log(directoryIddata.value, 'kk');
       Object.keys(datas1).forEach(function (key) {
         datas1[key] = datas[key];
       });
@@ -414,6 +414,8 @@
       add1.value = { chineseName: record.chineseName };
       visible.value = true;
       QueryBasic(add1.value).then(function (res) {
+        console.log(res);
+
         Object.keys(datas).forEach(function (key) {
           datas[key] = res.data.data[key];
         });

@@ -14,13 +14,13 @@
         @expand="handleExpand"
         @select="handleSelect"
       >
-        <template #title="{ name }">
-          <span v-if="name.indexOf(search) > -1">
-            {{ name.substr(0, name.indexOf(search)) }}
+        <template #title="{ interDirName }">
+          <span v-if="interDirName.indexOf(search) > -1">
+            {{ interDirName.substr(0, interDirName.indexOf(search)) }}
             <span style="color: #1890ff">{{ search }}</span>
-            {{ name.substr(name.indexOf(search) + search.length) }}
+            {{ interDirName.substr(interDirName.indexOf(search) + search.length) }}
           </span>
-          <span v-else>{{ name }}</span>
+          <span v-else>{{ interDirName }}</span>
           <span>
             <div id="components-a-tooltip-demo-placement">
               <div :style="{ clear: 'both', whiteSpace: 'nowrap' }">
@@ -111,7 +111,7 @@
   const treeData = ref<any[]>([]);
   const showInterfaceClassification = () => {
     InterfaceSelectDirectory().then(res => {
-      // console.log(res.data.data);
+      console.log(res.data.data);
       treeData.value = res.data.data;
     });
   };
@@ -147,7 +147,7 @@
   const intfc = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
     console.log(keys, selected, 'fff');
-    editSecond.value = node.name;
+    editSecond.value = node.interDirName;
     intfc.value = keys[0];
     emitter.emit('sendf', intfc.value);
   };
