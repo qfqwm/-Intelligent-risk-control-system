@@ -369,9 +369,8 @@
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     checkStrictly: false,
-    onChange: (selectedRows: any) => {
+    onChange: (selectedRows: any, record) => {
       Selectall_invert.value = selectedRows;
-      console.log(Selectall_invert.value);
     },
   });
   // 批量操作
