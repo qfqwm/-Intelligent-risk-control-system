@@ -47,9 +47,11 @@
         <template v-if="column.dataIndex === 'operation'">
           <div class="editable-row-operations">
             <span v-if="editableData[record.key]">
-              <a @click="save(record.key)">保存</a>
+              <a @click="save(record)">保存</a>
               <a @click="cancel(record.key)">取消</a>
-              <a v-if="record.leixing == 'Int' || record.leixing == 'String'">码值定义</a>
+              <a v-if="record.leixing == 'Int' || record.leixing == 'String'" @click="showcode(record)">码值定义</a>
+              <a v-if="record.leixing == 'Object' || record.leixing == 'Array'" @click="add_subordinate(record)">添加下级</a>
+              <Definition />
             </span>
             <span v-else>
               <a @click="edit(record.key)">编辑</a>
@@ -57,28 +59,40 @@
                 <a>删除</a>
               </a-popconfirm>
             </span>
-            <span>
-              <a v-if="record.leixing == 'Object' || record.leixing == 'Array'" @click="add_subordinate(record)">添加下级</a>
-            </span>
           </div>
         </template>
       </template>
-    </a-table></div
-  >
+    </a-table>
+  </div>
 </template>
 <script lang="ts" setup>
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
   import { message } from 'ant-design-vue';
   import { cloneDeep } from 'lodash-es';
+  import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
+
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
     table_object: any;
   };
   const props = defineProps<Props>();
+  const filterOption = (input: string, option: any) => {
+    return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  };
+  const add_data_id = (val, front: string) => {
+    return val.forEach((item, index) => {
+      item.key = front + index;
+      const i = index + '-';
+      if (item.children) {
+        add_data_id(item.children, i);
+      }
+    });
+  };
   const table_data = ref(props.table_object.dataSource);
+  add_data_id(table_data.value, '');
   // 查找input框/select框/必填参数
   const input = ref<any>([]);
   const select = ref<any>([]);
@@ -127,15 +141,24 @@
       };
   };
 
+  // 将多维数组拉平方法
+  const steamroller = arr => {
+    let newArr = [] as any;
+    arr.forEach((element: any) => {
+      newArr.push(element);
+      if (element.children) {
+        newArr.push.apply(newArr, steamroller(element.children));
+      }
+    });
+    return newArr;
+  };
   // 验证提示
   const Verificationprompt = [] as any;
   const handleChange = (value, key, column_dataIndex) => {
-    console.log(Verificationprompt, 'dasdsadas');
-
     // 判断是否是验证字段，如不是，直接return退出
     if (Required.value.indexOf(column_dataIndex) == -1) return;
     const newData = table_data.value;
-    const target = steamroller(newData).filter(item => item.key === key)[0];
+    const target = steamroller(newData).filter((item: any) => item.key === key)[0];
     if (target) {
       const { errorMsg, validateStatus } = validatePrime(value);
       let flag = true;
@@ -166,29 +189,12 @@
     }
   };
 
-  const filterOption = (input: string, option: any) => {
-    return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-  };
-  // 将多维数组拉平方法
-  const steamroller = arr => {
-    let newArr = [] as any;
-    arr.forEach((element: any) => {
-      newArr.push(element);
-      if (element.children) {
-        newArr.push.apply(newArr, steamroller(element.children));
-      } else {
-      }
-    });
-    return newArr;
-  };
-
-  const editableData: UnwrapRef<Record<string, any>> = reactive({});
-
   // /递归删除指定对象
   const recursivefilter = (arr, value) => {
     return arr.filter(item => {
       if (item.key === value) {
-        return false;
+        if (!item.children || item.children.length == 0) return false;
+        else message.error('存在子集，无法删除');
       }
       if (item.children && item.children.length > 0) {
         item.children = recursivefilter(item.children, value);
@@ -196,31 +202,94 @@
       return true;
     });
   };
+  // 递归点击取消，删除新增列表
+  const cancel_delete = (val, key) => {
+    return val.forEach((item, index) => {
+      if (item.key == key) {
+        return (val[index].children = []);
+      } else {
+        if (item.children && item.children.length !== 0) {
+          cancel_edit(item.children, key);
+        }
+      }
+    });
+  };
+  // 递归检查是否含有空的children字段
+  const check_null = val => {
+    return val.forEach(item => {
+      if (item.children && item.children.length == 0) {
+        delete item.children;
+      } else {
+        if (item.children && item.children.length !== 0) {
+          check_null(item.children);
+        }
+      }
+    });
+  };
   // 删除
   const onDelete = (key: string) => {
-    recursivefilter(table_data.value, key);
+    if (table_data.value.findIndex(item => item.key == key) == -1) {
+      recursivefilter(table_data.value, key);
+      check_null(table_data.value);
+    } else {
+      if (table_data.value[table_data.value.findIndex(item => item.key == key)].children && table_data.value[table_data.value.findIndex(item => item.key == key)].children.length !== 0)
+        return message.error('存在子集，无法删除');
+      else table_data.value = table_data.value.filter(item => item.key !== key);
+    }
   };
   //   编辑
+  const editableData: UnwrapRef<Record<string, any>> = reactive({});
   const edit = (key: string) => {
     editableData[key] = cloneDeep(steamroller(table_data.value).filter(item => key === item.key)[0]);
   };
-  //   取消
+
+  // 取消递归方法
+  const cancel_edit = (val, key) => {
+    return val.forEach((item, index) => {
+      if (item.key == key) {
+        return (val[index] = editableData[key]);
+      } else {
+        if (item.children && item.children.length !== 0) {
+          cancel_edit(item.children, key);
+        }
+      }
+    });
+  };
+  // 取消按钮
   const cancel = (key: string) => {
+    if (
+      steamroller(table_data.value)[steamroller(table_data.value).findIndex(item => item.key == key)].newlyadded &&
+      steamroller(table_data.value)[steamroller(table_data.value).findIndex(item => item.key == key)].newlyadded == true
+    ) {
+      let string_length = key.length;
+      let string_arr = [] as any;
+      steamroller(table_data.value).forEach(item => {
+        if (key == item.key.substr(0, string_length)) {
+          string_arr.push(item.key);
+        }
+      });
+      cancel_delete(table_data.value, key);
+      onDelete(key);
+      string_arr.forEach(item => {
+        if (editableData[item]) delete editableData[item];
+      });
+    }
+    cancel_edit(table_data.value, key);
     delete editableData[key];
   };
 
   //   保存
-  const save = (key: string) => {
+  const save = (record: any) => {
     // 记录下标
-    let object = steamroller(table_data.value).filter(item => key === item.key)[0];
+    let object = steamroller(table_data.value).filter(item => record.key === item.key)[0];
     for (let i = 0; i < Required.value.length; i++) {
-      handleChange(object[Required.value[i]], key, Required.value[i]);
+      handleChange(object[Required.value[i]], record.key, Required.value[i]);
       // 改变值，触发监听事件，渲染出错误提示
       let dataSource_change: any = object[Required.value[i]];
       object[Required.value[i]] = null;
       object[Required.value[i]] = dataSource_change;
     }
-    let Verificationprompt_index = Verificationprompt.findIndex(item => item.key === key);
+    let Verificationprompt_index = Verificationprompt.findIndex(item => item.key === record.key);
     let array_Verificationprompt = [...Object.values(Verificationprompt[Verificationprompt_index])] as any;
     let flag = true;
     for (let i = 0; i < array_Verificationprompt.length; i++) {
@@ -229,9 +298,10 @@
         return message.error('请填写完整的信息！');
       }
     }
+    if (record.newlyadded) record.newlyadded = false;
     // 判断本行数据书否存在提示错误，如不存在直接保存
     if (flag) {
-      delete editableData[key];
+      delete editableData[record.key];
     }
   };
   // 添加表格区域
@@ -240,6 +310,7 @@
   const handleAdd = () => {
     const newData = {
       key: key_length.toString(),
+      newlyadded: true,
     } as any;
     props.table_object.columns.forEach((item: any) => {
       newData[item.dataIndex] = '';
@@ -254,6 +325,7 @@
   const add_subordinate = (record: any) => {
     const newData = {
       key: '',
+      newlyadded: true,
     } as any;
     props.table_object.columns.forEach((item: any) => {
       newData[item.dataIndex] = '';
@@ -280,6 +352,20 @@
   // Josn导入
   const Josn_to = () => {
     emitter.emit('Josn');
+  };
+  // 保存并退出
+  emitter.on('keep', () => {
+    emitter.emit('data_' + props.table_object.title, table_data.value);
+  });
+
+  const visible = ref<boolean>(false);
+  //码值定义模态框开关
+  const showcode = (record: any) => {
+    const sddsq = reactive({
+      record: record,
+      visible: visible,
+    });
+    emitter.emit('Sendchildsq', sddsq);
   };
 </script>
 <style lang="less" scoped>

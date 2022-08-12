@@ -4,68 +4,68 @@ import api from '@/utils/axios';
 enum Api {
   // 码表管理
   // 码表模糊查询
-  Code_Table_Fuzzy_Query = '/selectCodeTable',
+  Code_Table_Fuzzy_Query = '/code/selectCodeTable',
   // 新增码表
-  Add_Code_Table = '/addCodeTable',
+  Add_Code_Table = '/code/addCodeTable',
   // 改变码表状态
-  On_Change = '/updateType',
+  On_Change = '/code/updateType',
   // 删除码表
-  Delete_Code = '/deleteById',
+  Delete_Code = '/code/deleteById',
   // 码表配置查询
-  Select_Code_Configure = '/selectCodeConfigure',
+  Select_Code_Configure = '/code/selectCodeConfigure',
   // 编辑码表
-  Update_Code = '/updateCode',
+  Update_Code = '/code/updateCode',
   //下载模板
-  Down_execel = '/downExportExcel',
+  Down_execel = '/code/downExportExcel',
   //模板导入
-  Import_execel = '/importExcel',
+  Import_execel = '/code/importExcel',
 
   //数据资产管理
   //数据资产目录表新增一级目录
-  Add_Directory = '/addDirectory',
+  Add_Directory = '/asset/addDirectory',
   //数据资产目录表新增子目录
-  Insert_Directory = '/insertDirectory',
+  Insert_Directory = '/asset/insertDirectory',
   //数据资产表目录按表名称或目录名称查询目录
-  Select_Directory = '/selectDirectory',
+  Select_Directory = '/asset/selectDirectory',
   //查询新增中的标准映射
-  Standard_mapping = '/selectStandardMapping',
+  Standard_mapping = '/standard/selectStandardMapping',
   //查询数据资产管理信息
-  Select_DataAsset = '/selectDataAsset',
+  Select_DataAsset = '/asset/selectDataAsset',
   //新增数据资产表
-  New_data_asset_sheet = '/addAsset',
+  New_data_asset_sheet = '/asset/addAsset',
   //编辑数据资产管理
-  Edit_data_asset_management = '/updateAllAsset',
+  Edit_data_asset_management = '/asset/updateAllAsset',
   //查询编辑页面需要的字段
-  Query_the_basic = '/selectDataAssetAll',
+  Query_the_basic = '/asset/selectDataAssetAll',
   //数据资产表目录删除目录
-  Delete_Directory = 'deleteDirectory',
+  Delete_Directory = '/asset/deleteDirectory',
   //数据资产表目录编辑目录
-  Update_Directory_Name = 'updateDirectoryName',
+  Update_Directory_Name = '/asset/updateDirectoryName',
   //改变状态
-  On_Change1 = '/updateAsset',
+  On_Change1 = '/asset/updateAsset',
   //删除资产表
-  Delete_balShet = '/deleteAsset',
+  Delete_balShet = '/asset/deleteAsset',
   //查询企业信息基本表
-  Base_balShet = '/selectDataAssetAll',
+  Base_balShet = '/asset/selectDataAssetAll',
 
   //数据标准管理
   //数据标准目录页面查询
-  Data_standard_catalog_Query = '/selectStandard',
+  Data_standard_catalog_Query = '/standard/selectStandard',
   // 新增数据标准
-  Add_Standard = '/addStandard',
+  Add_Standard = '/standard/addStandard',
   // 编辑数据标准
-  Update_Standard = '/updateStandard',
+  Update_Standard = '/standard/updateStandard',
   //编号查询
-  Number_lookup = '/selectInfoById',
+  Number_lookup = '/standard/selectInfoById',
 
   // 删除
-  Delete_Standard = '/deleteStandard',
-  update_StandardType = '/updateStandardType',
+  Delete_Standard = '/standard/deleteStandard',
+  update_StandardType = '/standard/updateStandardType',
 
   // 枚举查询
-  GetEnum_List = '/getEnumList',
+  GetEnum_List = '/standard/getEnumList',
   // 枚举范围详情
-  Select_ConfigureInfoById = '/selectConfigureInfoById',
+  Select_ConfigureInfoById = '/standard/selectConfigureInfoById',
 
   //接口管理
   //目录查询
@@ -91,17 +91,17 @@ enum Api {
 
   //数据库管理
   //查询数据库管理
-  Query_database_administration = '/SelectDatabaseTables',
+  Query_database_administration = '/database/SelectDatabaseTables',
   //修改数据库状态
-  Modify_the_database_state = '/updateDatabaseState',
+  Modify_the_database_state = '/database/updateDatabaseState',
   //连通测试
-  Connectivity_test = '/ConnectJDBC',
+  Connectivity_test = '/database/ConnectJDBC',
   //新增数据源
-  Add_new_data_source = '/InsertDatabaseTables',
+  Add_new_data_source = '/database/InsertDatabaseTables',
   //编辑数据库信息
-  Edit_the_database_information = '/updateDatabaseInfo',
+  Edit_the_database_information = '/database/updateDatabaseInfo',
   //删除数据库
-  Delete_database = '/deleteDatabase/',
+  Delete_database = '/database/deleteDatabase/',
 }
 
 //码表管理
@@ -182,7 +182,7 @@ export const Lookup = (standardId: string) =>
 
 //接口管理
 //目录查询
-export const InterfaceSelectDirectory = () => api.get(Api.Interface_Select_Directory);
+export const InterfaceSelectDirectory = () => api.post(Api.Interface_Select_Directory);
 //目录增加
 export const InterfaceAddContents = (object: object) => api.post(Api.Interface_Add_Contents, object);
 //目录删除
