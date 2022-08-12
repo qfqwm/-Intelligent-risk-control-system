@@ -25,6 +25,7 @@
         <a-button type="dark" :disabled="batch" @click="ALLonChangecode(1)"> 批量发布 </a-button>
         <a-button type="dark" :disabled="batch" style="margin-left: 15px" @click="ALLonChangecode(2)"> 批量停用 </a-button>
         <a-button type="dark" :disabled="batch" style="margin-left: 15px" @click="batchClassification"> 批量分类 </a-button>
+        <BatchClassificationVue />
         <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
       <!-- 表格区域 -->
@@ -133,6 +134,7 @@
   import InterfaceTest from '@/pages/InterFace/component/InterfaceTest.vue';
   import InterfaceClassification from './component/InterfaceClassification.vue';
   import type { FormInstance } from 'ant-design-vue';
+  import BatchClassificationVue from './component/BatchClassification.vue';
   import { ref, reactive } from 'vue';
   import { message } from 'ant-design-vue';
   import type { Ref } from 'vue';
@@ -370,10 +372,12 @@
 
   // 全选/反选
   const Selectall_invert = ref([]);
+  const batchData = ref();
   const rowSelection = ref({
     checkStrictly: false,
-    onChange: (selectedRows: any) => {
+    onChange: (selectedRows: any, record: any) => {
       Selectall_invert.value = selectedRows;
+      batchData.value = record;
       //多选进行批量操作
       if (Selectall_invert.value != ('' as any)) {
         batch.value = false;
@@ -383,6 +387,7 @@
       }
     },
   });
+
   // 批量操作
   const ALLonChangecode = (state: number) => {
     if (state === 1) {
@@ -451,8 +456,13 @@
     emitter.emit('interfaceTest', record);
   };
   //批量分类
+  const visible2 = ref<boolean>(false);
   const batchClassification = () => {
-    console.log();
+    const data = reactive({
+      visible: visible2.value,
+      batchData: batchData.value,
+    });
+    emitter.emit('batchclass', data);
   };
   // 人工注册跳转
   const router_link = () => {

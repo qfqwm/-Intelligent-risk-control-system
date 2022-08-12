@@ -6,7 +6,7 @@
     >
     <a-row :style="{ height: '32px', color: '#999' }">
       <a-col :span="8"
-        >接口分类：<a-typography-text>{{ interfaceMsgs.interMsgApiType }}</a-typography-text>
+        >接口分类：<a-typography-text>{{ formState.interDirName }}</a-typography-text>
       </a-col>
       <a-col :span="8"
         >请求协议：<a-typography-text>{{ interfaceMsgs.interMsgApiProtocol }}</a-typography-text>
@@ -18,12 +18,14 @@
     <a-row :style="{ height: '32px', color: '#999' }">
       <a-col :span="8">支持格式：<a-typography-text>JSON</a-typography-text> </a-col>
       <a-col :span="8"
-        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}:{{ interfaceMsgs.interMsgIp }}</a-typography-text>
+        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgIp }}</a-typography-text>
       </a-col>
       <a-col :span="8"></a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8">Path：<a-typography-text></a-typography-text> </a-col>
+      <a-col :span="8"
+        >Path：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}</a-typography-text>
+      </a-col>
       <a-col :span="8"></a-col>
       <a-col :span="8"></a-col>
     </a-row>
@@ -97,6 +99,7 @@
   interface formState {
     interfaceConfigs: string;
     interfaceMsgs: interfaceMsgs;
+    interDirName: string | undefined;
   }
   interface interfaceMsgs {
     interDirId: number;

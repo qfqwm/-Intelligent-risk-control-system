@@ -86,6 +86,8 @@ enum Api {
   Delete_Intfc = '/api/deleteInterfaceMsg',
   //接口测试
   Interface_Test = '/api/test',
+  //批量分类
+  Interface_BatchClassify = '/api/batchClassify',
 
   //数据库管理
   //查询数据库管理
@@ -197,6 +199,8 @@ export const postDeactivation = (object: object) => api.post(Api.Intfc_Rlse_Disa
 export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' + interMsgId);
 //接口测试
 export const InterfaceTestc = (testData: object) => api.post(Api.Interface_Test, testData);
+//批量分类
+export const InterfaceBatchClassify = (batchData: object) => api.post(Api.Interface_BatchClassify, batchData);
 
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);

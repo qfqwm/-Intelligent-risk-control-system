@@ -43,7 +43,7 @@
       <a-col :span="10">
         <a-tabs v-model:activeKey="activeKey" size="large">
           <a-tab-pane key="1" tab="返回结果（JSON）">
-            <a-card class="box">222</a-card>
+            <a-card v-model="resultData" class="box"></a-card>
           </a-tab-pane>
         </a-tabs>
       </a-col>
@@ -101,7 +101,7 @@
   emitter.on('interfaceTest', (record: any) => {
     // console.log(111, record);
     interfaceMsgs.value = record;
-    requestUrl.value = record.interMsgApiProtocol + '://' + record.interMsgApiUrl + ':' + record.interMsgIp;
+    requestUrl.value = record.interMsgApiProtocol.toLowerCase() + '://' + record.interMsgIp + record.interMsgApiUrl;
     showDrawer();
   });
 
@@ -179,6 +179,8 @@
     for (let i in data.value) {
       obj[data.value[i].paramName] = data.value[i].testValue;
     }
+    console.log(JSON.stringify(obj));
+
     testData.value.inputParam = JSON.stringify(obj);
   };
 
@@ -191,7 +193,12 @@
   }
   const testData = ref<TestData>({} as any);
   watch(interfaceMsgs, () => {
-    testData.value.requestURL = requestUrl.value;
+    if (interfaceMsgs.value.interMsgRequest == 'POST') {
+      testData.value.requestURL = requestUrl.value;
+    }
+    if (interfaceMsgs.value.interMsgRequest == 'GET') {
+      testData.value.requestURL = requestUrl.value;
+    }
     testData.value.requestMethod = interfaceMsgs.value.interMsgRequest;
     // testData.value.inputParam = obj;
     // testData.value.requestBody = {};
@@ -199,8 +206,12 @@
   async function faceTest() {
     await InterfaceTestc(testData.value).then(res => {
       console.log(res.data);
+      resultData.value = res.data;
     });
   }
+
+  //返回结果
+  const resultData = ref();
   //验证规则
   const rules = {
     testValue: [{ required: true, message: '新增目录不能为空', trigger: 'blur' }],
