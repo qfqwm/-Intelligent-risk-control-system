@@ -81,39 +81,57 @@
         <a-button class="editable-add-btn" style="margin-top: -30px; margin-bottom: 8px; margin-left: 82%" @click="handleAdd1">添加字段 </a-button>
         <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 98%" :scroll="{ x: 800, y: 140 }" :pagination="false">
           <template #bodyCell="{ column, text, record }">
-            <a-form ref="formRef" :model="editableData1" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
-              <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
-                <a-form-item v-if="editableData1[record.key1]" has-feedback :name="column.dataIndex" :rules="[{ required: true, message: '此项为必填项' }]">
-                  <a-input v-model:value="editableData1[record.key1][column.dataIndex]" style="margin: -5px 0; width: 100%" placeholder="请输入" />
-                </a-form-item>
-                <template v-else>
-                  {{ text }}
-                </template>
+            <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
+              <a-form-item
+                v-if="editableData1[record.key1]"
+                :validate-status="getFildStatus(record.key1, column.dataIndex).validateStatus"
+                :help="getFildStatus(record.key1, column.dataIndex).errorMsg"
+              >
+                <a-input
+                  v-model:value="record[column.dataIndex]"
+                  style="margin: -5px 0; width: 100%"
+                  placeholder="请输入"
+                  @change="handleChange(record[column.dataIndex], record.key1, column.dataIndex)"
+                />
+              </a-form-item>
+              <template v-else>
+                {{ text }}
               </template>
+            </template>
 
-              <template v-else-if="['address1'].includes(column.dataIndex)">
-                <a-form-item v-if="editableData1[record.key1]" name="address1" :rules="[{ required: true, message: '此项为必填项' }]">
-                  <a-select v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 100%" show-search :options="Mapping"></a-select>
+            <template v-else-if="['address1'].includes(column.dataIndex)">
+              <a-form-item
+                v-if="editableData1[record.key1]"
+                name="address1"
+                :validate-status="getFildStatus(record.key1, column.dataIndex).validateStatus"
+                :help="getFildStatus(record.key1, column.dataIndex).errorMsg"
+              >
+                <a-select
+                  v-model:value="record[column.dataIndex]"
+                  style="width: 100%"
+                  show-search
+                  :options="Mapping"
+                  @change="handleChange(record[column.dataIndex], record.key1, column.dataIndex)"
+                ></a-select>
+              </a-form-item>
+              <template v-else>
+                {{ text }}
+              </template>
+            </template>
+            <template v-if="column.dataIndex === 'operation'">
+              <div class="editable-row-operations">
+                <a-form-item>
+                  <span v-if="editableData1[record.key1]">
+                    <a-typography-link @click="save1(record)">保存</a-typography-link>
+                    <a-typography-link style="margin-left: 10px" @click="cancel1(record.key1)">取消 </a-typography-link>
+                  </span>
+                  <span v-else>
+                    <a @click="edit1(record.key1)">编辑</a>
+                    <a style="margin-left: 10px" @click="onDelete1(record.key1)">删除</a>
+                  </span>
                 </a-form-item>
-                <template v-else>
-                  {{ text }}
-                </template>
-              </template>
-              <template v-if="column.dataIndex === 'operation'">
-                <div class="editable-row-operations">
-                  <a-form-item>
-                    <span v-if="editableData1[record.key1]">
-                      <a-typography-link @click="save1(record.key1)">保存</a-typography-link>
-                      <a-typography-link style="margin-left: 10px" @click="cancel1(record.key1)">取消 </a-typography-link>
-                    </span>
-                    <span v-else>
-                      <a @click="edit1(record.key1)">编辑</a>
-                      <a style="margin-left: 10px" @click="onDelete1(record.key1)">删除</a>
-                    </span>
-                  </a-form-item>
-                </div>
-              </template>
-            </a-form>
+              </div>
+            </template>
           </template>
         </a-table>
       </div>
@@ -128,6 +146,7 @@
   import { FormInstance, message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
   import { cloneDeep } from 'lodash';
+  import { log } from 'console';
 
   //定义表单验证规则
   const rules = ref({
@@ -371,20 +390,44 @@
     editableData1[key1] = cloneDeep(dataSource1.value.filter(item => key1 === item.key1)[0]);
   };
 
-  const save1 = (key1: string) => {
-    Object.assign(dataSource1.value.filter(item => key1 === item.key1)[0], editableData1[key1]);
-    delete editableData1[key1];
-    dataSource2.value = [];
-    for (let i = 0; i < dataSource1.value.length; i++) {
-      let a = dataSource1.value[i].address1.split('  ');
-      dataSource2.value.push({
-        chineseName: dataSource1.value[i].age,
-        englishName: dataSource1.value[i].name,
-        standardId: a[0],
-        fieldExplain: dataSource1.value[i].address,
-      });
+  const save1 = (record: any) => {
+    columns1.forEach(item => {
+      if (item.dataIndex !== 'operation') {
+        handleChange(record[item.dataIndex], record.key1, item.dataIndex);
+        let dataSource_change: any = record[item.dataIndex];
+        record[item.dataIndex] = null;
+        record[item.dataIndex] = dataSource_change;
+      }
+    });
+    let Verificationprompt_index = Verificationprompt.findIndex(item => item.key === record.key1);
+    console.log(Verificationprompt_index, 'hhhh');
+    console.log(Verificationprompt);
+
+    let array_Verificationprompt = [...Object.values(Verificationprompt[Verificationprompt_index])] as any;
+    let flag = true;
+    for (let i = 0; i < array_Verificationprompt.length; i++) {
+      if (array_Verificationprompt[i].validateStatus && array_Verificationprompt[i].validateStatus == 'error') {
+        flag = !flag;
+        return message.error('请填写完整的信息！');
+      }
+    }
+
+    // 判断本行数据书否存在提示错误，如不存在直接保存
+    if (flag) {
+      delete editableData1[record.key1];
     }
   };
+  // Object.assign(dataSource1.value.filter(item => key1 === item.key1)[0], editableData1[key1]);
+  // dataSource2.value = [];
+  // for (let i = 0; i < dataSource1.value.length; i++) {
+  //   let a = dataSource1.value[i].address1.split('  ');
+  //   dataSource2.value.push({
+  //     chineseName: dataSource1.value[i].age,
+  //     englishName: dataSource1.value[i].name,
+  //     standardId: a[0],
+  //     fieldExplain: dataSource1.value[i].address,
+  //   });
+  // }
 
   const formRef = ref<FormInstance>();
 
@@ -450,6 +493,77 @@
       };
       dataSource1.value = [];
     }
+  };
+
+  // 表单验证
+  const getFildStatus = (key: any, dataIndex: string) => {
+    const data = Verificationprompt.filter(item => {
+      return item.key == key;
+    })[0];
+    console.log(Verificationprompt);
+
+    if (data) {
+      return data[dataIndex];
+    } else {
+      return {
+        errorMsg: '',
+        validateStatus: '',
+      };
+    }
+  };
+  const validatePrime = content => {
+    if (content == '' || content == undefined || content == null) {
+      return {
+        validateStatus: 'error',
+        errorMsg: '不能为空',
+      };
+    } else
+      return {
+        validateStatus: '',
+        errorMsg: '',
+      };
+  };
+  // 验证提示
+  const Verificationprompt = [] as any;
+  const handleChange = (value, key, column_dataIndex) => {
+    const target = dataSource1.value.filter((item: any) => item.key1 === key)[0];
+    if (target) {
+      const { errorMsg, validateStatus } = validatePrime(value);
+      let flag = true;
+      console.log(Verificationprompt, 'ws1');
+
+      Verificationprompt.forEach((val: any) => {
+        // 如果验证列已存在，更改验证列的字段验证信息
+        console.log(val.key, key);
+        if (val.key == key) {
+          flag = false;
+          let object = {
+            errorMsg: errorMsg,
+            validateStatus: validateStatus,
+          };
+          val[column_dataIndex] = { ...object };
+        }
+      });
+      // 如果不存在,插入新的验证列和字段验证信息
+      if (flag) {
+        let object = {} as any;
+        object.key = key;
+        columns1.forEach(item => {
+          if (item.dataIndex !== 'operation') {
+            object[item.dataIndex] = {
+              errorMsg: '',
+              validateStatus: '',
+            };
+          }
+        });
+        object[column_dataIndex].errorMsg = errorMsg;
+        object[column_dataIndex].validateStatus = validateStatus;
+        Verificationprompt.push({
+          ...object,
+        });
+      }
+    }
+    console.log(Verificationprompt);
   };
 </script>
 
