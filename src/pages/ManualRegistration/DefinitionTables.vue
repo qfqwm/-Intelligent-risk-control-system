@@ -1,6 +1,5 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  {{ editableData }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
@@ -20,7 +19,7 @@
             :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus"
             :help="getFildStatus(record.key, column.dataIndex).errorMsg"
           >
-            <a-input v-model:value="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" @change="handleChange(record[column.dataIndex], record.key, column.dataIndex, record)" />
+            <a-input v-model:value.trim="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" @change="handleChange(record[column.dataIndex], record.key, column.dataIndex, record)" />
           </a-form-item>
           <template v-else>
             {{ text }}
@@ -129,17 +128,23 @@
     }
   };
 
-  const validatePrime = content => {
+  const validatePrime = (content, column_dataIndex) => {
     if (content == '' || content == undefined || content == null) {
       return {
         validateStatus: 'error',
-        errorMsg: '不能为空',
+        errorMsg: '此项为必填项',
       };
-    } else
+    }
+    if (column_dataIndex == 'name') {
       return {
-        validateStatus: '',
-        errorMsg: '',
+        validateStatus: 'error',
+        errorMsg: '参数名称重复',
       };
+    }
+    return {
+      validateStatus: 'success',
+      errorMsg: '',
+    };
   };
 
   // 将多维数组拉平方法
@@ -197,7 +202,7 @@
     const newData = table_data.value;
     const target = steamroller(newData).filter((item: any) => item.key === key)[0];
     if (target) {
-      const { errorMsg, validateStatus } = validatePrime(value);
+      const { errorMsg, validateStatus } = validatePrime(value, column_dataIndex);
       let flag = true;
       Verificationprompt.forEach((val: any) => {
         // 如果验证列已存在，更改验证列的字段验证信息
