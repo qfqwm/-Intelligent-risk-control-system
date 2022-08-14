@@ -5,7 +5,7 @@
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
-      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
+      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', Width: '100%' }">
         <a-form-item label="标准状态" name="standardType">
           <a-select v-model:value.trim="Search.assetType" :options="standardType_areas" :style="{ minWidth: '100px' }" />
         </a-form-item>
@@ -169,29 +169,35 @@
       title: '数据资产表中文名称',
       dataIndex: 'chineseName',
       width: '13%',
+      ellipsis: true,
     },
     {
       title: '数据资产表英文名称',
       dataIndex: 'englishName',
       width: '13%',
+      ellipsis: true,
     },
     {
       title: '数据资产表描述',
       dataIndex: 'assetExplain',
-      width: '30%',
+      width: '20%',
+      ellipsis: true,
     },
     {
       title: '发布状态',
       dataIndex: 'assetType',
+      ellipsis: true,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
+      ellipsis: true,
     },
     {
       title: '操作',
       dataIndex: 'operation',
-      width: '17%',
+      width: '20%',
+      ellipsis: true,
     },
   ];
   const dataSource: Ref<DataItem[]> = ref([]);
@@ -238,7 +244,7 @@
   };
 
   //删除按钮  √
-  const onDelete = codeId => {
+  const onDelete = (codeId: any) => {
     deleteAsset(codeId).then(function (res: any) {
       console.log(res);
       if (res.data.code == 100200) {

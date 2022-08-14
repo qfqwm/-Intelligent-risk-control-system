@@ -115,34 +115,5 @@
   };
 </script>
 <style lang="less" scoped>
-  .PopupMask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 3;
-    width: 100%;
-    height: 100%;
-    opacity: 1;
-
-    .codediv {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 410px;
-      height: 300px;
-      background: #797979;
-      transform: translate(-50%, -50%);
-
-      h4 {
-        padding: 5px 0;
-        font-weight: 700;
-        text-align: center;
-        color: #108ee9;
-      }
-
-      .content {
-        padding: 5px;
-      }
-    }
-  }
+  @import './css/CodingConfiguration.less';
 </style>

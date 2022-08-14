@@ -282,6 +282,8 @@
     if (type == 'add') {
       datas.assetDirectory = dynamicValidateForm.value.directoryId;
       datas.dataAssetField = dataSource2.value;
+      console.log(datas, 'jjj');
+
       AssetSheet(datas).then(function (res) {
         if (res.data.code == 100200) {
           emitter.emit('send');
@@ -302,7 +304,7 @@
       datas1.assetDirectory = dynamicValidateForm.value.directoryId;
       datas1.dataAssetField = [];
       for (let i = 0; i < dataSource1.value.length; i++) {
-        let a = dataSource1.value[i].address1.split('  ');
+        let a = dataSource1.value[i].address1.split('-');
         datas1.dataAssetField.push({
           chineseName: dataSource1.value[i].age,
           englishName: dataSource1.value[i].name,
@@ -310,7 +312,11 @@
           fieldExplain: dataSource1.value[i].address,
         });
       }
+      console.log(datas1, 'kjk');
+
       EditData1(datas1).then(function (res) {
+        console.log(res);
+
         if (res.data.code == 100200) {
           emitter.emit('send');
         } else return message.error(res.data.msg);
@@ -376,7 +382,7 @@
     delete editableData1[key1];
     dataSource2.value = [];
     for (let i = 0; i < dataSource1.value.length; i++) {
-      let a = dataSource1.value[i].address1.split('  ');
+      let a = dataSource1.value[i].address1.split('-');
       dataSource2.value.push({
         chineseName: dataSource1.value[i].age,
         englishName: dataSource1.value[i].name,
@@ -417,12 +423,12 @@
         console.log(res);
 
         Object.keys(datas).forEach(function (key) {
-          datas[key] = res.data.data[key];
+          datas[key] = res.data.data.dataAsset[key];
         });
-        assetId.value = res.data.data.assetId;
+        assetId.value = res.data.data.dataAsset.assetId;
         dynamicValidateForm.value.chineseName.shift();
-        for (let i = 0; i < res.data.data.directoryNames.length; i++) {
-          let aa = res.data.data.directoryNames[i].split('/').slice(-1).toString();
+        for (let i = 0; i < res.data.data.directoryIds.length; i++) {
+          let aa = res.data.data.directoryIds[i].split('/').slice(-1).toString();
           dynamicValidateForm.value.sights.push({
             id: 'i' + Date.now(),
           });
@@ -432,13 +438,13 @@
           });
         }
 
-        for (let i = 0; i < res.data.data.dataAssetField.length; i++) {
+        for (let i = 0; i < res.data.data.assetFieldList.length; i++) {
           dataSource1.value.push({
-            name: res.data.data.dataAssetField[i].englishName,
-            age: res.data.data.dataAssetField[i].chineseName,
-            address1: res.data.data.dataAssetField[i].standardId,
-            key1: res.data.data.dataAssetField[i].fieldId,
-            address: res.data.data.dataAssetField[i].fieldExplain,
+            name: res.data.data.assetFieldList[i].englishName,
+            age: res.data.data.assetFieldList[i].chineseName,
+            address1: res.data.data.assetFieldList[i].dataStandardNames,
+            key1: res.data.data.assetFieldList[i].fieldId,
+            address: res.data.data.assetFieldList[i].fieldExplain,
           });
         }
       });
