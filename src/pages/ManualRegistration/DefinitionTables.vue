@@ -15,6 +15,7 @@
         <template v-if="input.includes(column.dataIndex)">
           <a-form-item
             v-if="editableData[record.key]"
+            has-feedback
             :name="column.dataIndex"
             :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus"
             :help="getFildStatus(record.key, column.dataIndex).errorMsg"
@@ -27,7 +28,12 @@
         </template>
         <!-- select框 -->
         <template v-if="select.includes(column.dataIndex)">
-          <a-form-item v-if="editableData[record.key]" :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus" :help="getFildStatus(record.key, column.dataIndex).errorMsg">
+          <a-form-item
+            v-if="editableData[record.key]"
+            has-feedback
+            :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus"
+            :help="getFildStatus(record.key, column.dataIndex).errorMsg"
+          >
             <a-select
               v-model:value="record[column.dataIndex]"
               :options="props.table_object.options[column.dataIndex]"
@@ -123,7 +129,7 @@
     } else {
       return {
         errorMsg: '',
-        validateStatus: 'success',
+        validateStatus: '',
       };
     }
   };
@@ -504,5 +510,16 @@
 
   .editable-cell:hover .editable-cell-icon {
     display: inline-block;
+  }
+
+  .ant-table-wrapper > div > div > div > div > div > table > tbody > tr > td > div {
+    height: 32px;
+  }
+  // 表格头部小红星
+  ::v-deep(th.form-table-heard:before) {
+    left: 5px;
+    font-size: 20px;
+    color: red !important;
+    content: '*' !important;
   }
 </style>
