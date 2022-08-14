@@ -147,6 +147,8 @@
   const confirmtable = () => {
     // change_add_edit.value=ture 表示新增
     if (change_add_edit.value) {
+      console.log(code_add_edit_table.value, 'kkad');
+      // debugger;
       AddCodeTable(code_add_edit_table.value).then(function (res: any) {
         if (res.data.msg == '有重复值，请检查后重新输入') return message.error('码表名字重复');
         if (res.data.msg == '新增码表成功') {
