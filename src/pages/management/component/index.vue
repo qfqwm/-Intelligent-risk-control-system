@@ -81,7 +81,7 @@
         <a-button class="editable-add-btn" style="margin-top: -30px; margin-bottom: 8px; margin-left: 82%" @click="handleAdd1">添加字段 </a-button>
         <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 98%" :scroll="{ x: 800, y: 140 }" :pagination="false">
           <template #bodyCell="{ column, text, record }">
-            <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
+            <template v-if="['name', 'age'].includes(column.dataIndex)">
               <a-form-item
                 v-if="editableData1[record.key1]"
                 :validate-status="getFildStatus(record.key1, column.dataIndex).validateStatus"
@@ -93,6 +93,14 @@
                   placeholder="请输入"
                   @change="handleChange(record[column.dataIndex], record.key1, column.dataIndex)"
                 />
+              </a-form-item>
+              <template v-else>
+                {{ text }}
+              </template>
+            </template>
+            <template v-if="['address'].includes(column.dataIndex)">
+              <a-form-item v-if="editableData1[record.key1]">
+                <a-input v-model:value="record[column.dataIndex]" style="margin: -5px 0; width: 100%" placeholder="请输入" />
               </a-form-item>
               <template v-else>
                 {{ text }}
@@ -146,7 +154,6 @@
   import { FormInstance, message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
   import { cloneDeep } from 'lodash';
-  import { log } from 'console';
 
   //定义表单验证规则
   const rules = ref({
@@ -223,11 +230,13 @@
   });
 
   const onClose = () => {
+    Object.keys(editableData1).map(key => {
+      delete editableData1[key];
+    });
     visible.value = false;
   };
 
   const removeSight = (item: Sights) => {
-    // console.log(item);
     let index = dynamicValidateForm.value.sights.indexOf(item);
     if (index !== -1) {
       dynamicValidateForm.value.sights.splice(index, 1);
@@ -239,6 +248,9 @@
   const length = ref('');
   // const standard_id = ref('');
   const handleAdd1 = () => {
+    if (JSON.stringify(editableData1) !== '{}') {
+      return message.warning('不能同时编辑多行，请保存前一行');
+    }
     StandardMapping().then(function (res) {
       length.value = res.data.data.length;
       Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standardName }));
@@ -266,12 +278,10 @@
   const adddata = () => {
     dynamicValidateForm.value.directoryId = [];
     for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
-      // console.log(dynamicValidateForm.value.chineseName, 'cz');
       dynamicValidateForm.value.directoryId.push({
         directoryId: dynamicValidateForm.value.chineseName[i],
       });
     }
-    // console.log(dynamicValidateForm.value);
   };
 
   interface Sights4 {
@@ -393,12 +403,15 @@
   const editableData1: UnwrapRef<Record<string, DataItem1>> = reactive({});
 
   const edit1 = (key1: string) => {
+    if (JSON.stringify(editableData1) !== '{}') {
+      return;
+    }
     editableData1[key1] = cloneDeep(dataSource1.value.filter(item => key1 === item.key1)[0]);
   };
 
   const save1 = (record: any) => {
     columns1.forEach(item => {
-      if (item.dataIndex !== 'operation') {
+      if (item.dataIndex !== 'operation' && item.dataIndex !== 'address') {
         handleChange(record[item.dataIndex], record.key1, item.dataIndex);
         let dataSource_change: any = record[item.dataIndex];
         record[item.dataIndex] = null;
@@ -406,8 +419,6 @@
       }
     });
     let Verificationprompt_index = Verificationprompt.findIndex(item => item.key === record.key1);
-    console.log(Verificationprompt_index, 'hhhh');
-    console.log(Verificationprompt);
 
     let array_Verificationprompt = [...Object.values(Verificationprompt[Verificationprompt_index])] as any;
     let flag = true;
