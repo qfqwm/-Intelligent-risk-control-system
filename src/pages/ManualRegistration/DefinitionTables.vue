@@ -128,7 +128,7 @@
     }
   };
 
-  const validatePrime = (content, column_dataIndex) => {
+  const validatePrime = (content, column_dataIndex, key) => {
     if (content == '' || content == undefined || content == null) {
       return {
         validateStatus: 'error',
@@ -136,10 +136,17 @@
       };
     }
     if (column_dataIndex == 'name') {
-      return {
-        validateStatus: 'error',
-        errorMsg: '参数名称重复',
-      };
+      let char_length = key.lastIndexOf('-');
+      const father_str = key.substring(0, char_length);
+      const Is_it_the_same_name = steamroller(table_data.value).findIndex(item => {
+        return ((item.key.substring(0, item.key.lastIndexOf('-')) === father_str) as boolean) && ((item.key !== key) as boolean) && ((item[column_dataIndex] === content) as boolean);
+      });
+      if (Is_it_the_same_name !== -1) {
+        return {
+          validateStatus: 'error',
+          errorMsg: '参数名称重复',
+        };
+      }
     }
     return {
       validateStatus: 'success',
@@ -202,7 +209,7 @@
     const newData = table_data.value;
     const target = steamroller(newData).filter((item: any) => item.key === key)[0];
     if (target) {
-      const { errorMsg, validateStatus } = validatePrime(value, column_dataIndex);
+      const { errorMsg, validateStatus } = validatePrime(value, column_dataIndex, key);
       let flag = true;
       Verificationprompt.forEach((val: any) => {
         // 如果验证列已存在，更改验证列的字段验证信息
