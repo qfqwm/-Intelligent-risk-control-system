@@ -5,7 +5,7 @@
     <!-- 右边数据展示区域 -->
     <div class="right">
       <!-- 搜索区域 -->
-      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', Width: '100%' }">
+      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-around', Width: '100%' }">
         <a-form-item label="标准状态" name="standardType">
           <a-select v-model:value.trim="Search.assetType" :options="standardType_areas" :style="{ minWidth: '100px' }" />
         </a-form-item>
@@ -23,8 +23,8 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
-          <a-button type="primary" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
+          <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
+          <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
@@ -34,20 +34,7 @@
       </div>
 
       <!-- 表格区域 -->
-      <a-table
-        :data-source="dataSource"
-        :columns="columns"
-        :row-selection="rowSelection"
-        :row-key="(dataSource: any) => { return dataSource.assetId }"
-        :pagination="{
-          pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
-          showSizeChanger: true,
-          defaultPageSize: 20,
-          buildOptionText: (size: any) => {
-            return Number(size.value) + ' 项' + '/' + '页'
-          }
-        }"
-      >
+      <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :row-key="(dataSource: any) => { return dataSource.assetId }" :pagination="paginationOpt">
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
             <a href="#" @click.prevent="showcode(record)">{{ record.chineseName }}</a>
@@ -98,7 +85,6 @@
   import DataAssetCatalog from './component/DataAssetCatalog.vue';
   import AssetDetails from './component/assetDetails.vue';
   import emitter from '@/utils/bus';
-  // import check from './component/assetDetails.vue';
 
   // 搜索区域
   interface Search {
@@ -106,12 +92,16 @@
     englishName: string;
     assetType: string;
     directoryId: string;
+    pageNum: string;
+    pageSize: string;
   }
   const Search = reactive<Search>({
     chineseName: '',
     englishName: '',
     assetType: '',
     directoryId: '',
+    pageNum: '',
+    pageSize: '',
   });
   const standardType_areas = [
     { label: '未发布', value: '0' },
@@ -136,7 +126,7 @@
   }
 
   const visible = ref<boolean>(false);
-
+  //点击事件，用事件总线将数据传给子组件，打开抽屉
   const showDrawer = (type: string, record: any) => {
     const sdd = reactive({
       type: type,
@@ -146,20 +136,20 @@
     });
     emitter.emit('sendchild', sdd);
   };
-
+  //查看详情，传数据给子组件
   const showcode = (record: any) => {
     const sdds = reactive({
       record: record,
     });
     emitter.emit('sendchilds', sdds);
   };
-
+  //新增编辑页面调用主页面的方法
   emitter.on('send', () => {
     selectCodeTable_way();
   });
-
+  //点击资产目录表目录进行页面数据查询
   emitter.on('sendf', val => {
-    Search.directoryId = val;
+    Search.directoryId = val as any;
     selectCodeTable_way();
   });
 
@@ -192,6 +182,13 @@
       title: '更新时间',
       dataIndex: 'updateTime',
       ellipsis: true,
+      key: 'updateTime',
+      //排序方法
+      sorter: (a, b) => {
+        let aTime = new Date(a.updateTime).getTime();
+        let bTime = new Date(b.updateTime).getTime();
+        return aTime - bTime;
+      },
     },
     {
       title: '操作',
@@ -200,15 +197,15 @@
       ellipsis: true,
     },
   ];
+
   const dataSource: Ref<DataItem[]> = ref([]);
   // 调用接口加载表格
   const selectCodeTable_way = () => {
+    Search.pageNum = paginationOpt.defaultCurrent as any;
+    Search.pageSize = paginationOpt.defaultPageSize as any;
     SelectDataAsset(Search).then(function (res: any) {
-      // console.log(res);
       if (res.data.code !== 100200) return (dataSource.value = []);
       dataSource.value = res.data.data.list;
-      // console.log(dataSource.value);
-
       dataSource.value.forEach((item: any) => {
         if (item.assetType == 0) {
           item.assetType = '未发布';
@@ -220,18 +217,44 @@
           item.assetType = '已停用';
         }
       });
-      total.value = dataSource.value.length;
+      paginationOpt.total = res.data.data.total;
     });
   };
 
+  // 分页
+  const paginationOpt = reactive({
+    defaultCurrent: 1, // 默认当前页数
+    defaultPageSize: 20, // 默认当前页显示数据的大小
+    total: 0, // 总数，必须先有
+    showSizeChanger: true,
+    showQuickJumper: true,
+    pageSizeOptions: ['5', '10', '15', '20'],
+    showTotal: (total: any) => `共 ${total} 条`, // 显示总数
+    onShowSizeChange: (current: any, pageSize: number) => {
+      paginationOpt.defaultCurrent = current;
+      paginationOpt.defaultPageSize = pageSize;
+      Search.pageNum = current;
+      Search.pageSize = pageSize as any;
+      selectCodeTable_way(); //显示列表的接口名称
+    },
+    // 改变每页数量时更新显示
+    onChange: (current: any, size: any) => {
+      paginationOpt.defaultCurrent = current;
+      paginationOpt.defaultPageSize = size;
+      Search.pageNum = current;
+      Search.pageSize = size;
+      selectCodeTable_way();
+    },
+  });
+
   selectCodeTable_way();
   // 重置
-
   const Reset = () => {
     Search.chineseName = '';
     Search.englishName = '';
     Search.assetType = '';
     Search.directoryId = '';
+    //点击重置，将资产目录表的高亮显示取消（事件总线传值）
     const sdsd = ref({
       keys: [],
     });
@@ -246,7 +269,7 @@
   //删除按钮  √
   const onDelete = (codeId: any) => {
     deleteAsset(codeId).then(function (res: any) {
-      console.log(res);
+      // console.log(res);
       if (res.data.code == 100200) {
         dataSource.value = dataSource.value.filter((item: any) => item.assetId !== codeId);
         return message.success('删除成功');
@@ -261,6 +284,13 @@
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
       // console.log(selectedRows);
+      //多选进行批量操作
+      if (Selectall_invert.value != ('' as any)) {
+        batch.value = false;
+      }
+      if (Selectall_invert.value == ('' as any)) {
+        batch.value = true;
+      }
     },
   });
   // 批量操作
@@ -296,18 +326,12 @@
     };
     if (change_array.length == 0) return message.error('请选择码表进行操作!');
     OnChange1(change_array).then(function (res: any) {
-      // console.log(res);
-      // console.log(change_array);
-
       if (res.data.code == 100200) {
         message.success('更新成功!');
         selectCodeTable_way();
       } else return message.error('更新失败！');
     });
   };
-  // 分页
-  // const pageSizeRef = ref(20);
-  const total = ref(dataSource.value.length);
 
   // 改变编码状态 √
   const onChangecode = (assetId: number, state: number) => {
@@ -316,8 +340,6 @@
       assetList: [assetId],
     };
     OnChange1(object_array).then(function (res: any) {
-      // console.log(res, 'czc');
-
       if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
@@ -325,6 +347,9 @@
       }
     });
   };
+
+  //批量按钮操作
+  const batch = ref<boolean>(true);
 </script>
 
 <style lang="less" scoped>

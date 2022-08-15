@@ -126,11 +126,9 @@
   };
 
   const fg = ref('');
-
+  //接受主页面传过来的值
   emitter.on('reset', (t: any) => {
-    console.log(t.keys);
     fg.value = t.keys;
-    console.log(fg.value, 'ojk');
   });
 
   //数据资产表目录按表名称或目录名称查询

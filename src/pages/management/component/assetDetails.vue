@@ -121,7 +121,7 @@
     };
 
     rebaseTbl(object).then(function (res: any) {
-      console.log(res);
+      console.log(res, 'kashd');
 
       if (res.data.code == 100200) {
         personnelcodetable.value = res.data.data.dataAsset;

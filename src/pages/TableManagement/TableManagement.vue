@@ -1,6 +1,6 @@
 <template>
   <!-- 搜索区域 -->
-  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'center' }">
+  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-around', width: '100%' }">
     <a-form-item label="码表状态" name="codeType" :style="{ marginRight: '20px' }">
       <a-select v-model:value.trim="Search.codeType" :options="codeType_areas" :style="{ minWidth: '130px' }" />
     </a-form-item>
@@ -15,8 +15,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
-      <a-button type="primary" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
+      <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
+      <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
@@ -101,6 +101,8 @@
   ];
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
+      console.log(res);
+
       if (res.data.code !== 100200) return (dataSource.value = []);
       dataSource.value = res.data.data;
       dataSource.value.forEach((item: any) => {
@@ -169,6 +171,13 @@
       title: '更新时间',
       dataIndex: 'codeUpdatetime',
       ellipsis: true,
+      key: 'codeUpdatetime',
+      //排序方法
+      sorter: (a, b) => {
+        let aTime = new Date(a.codeUpdatetime).getTime();
+        let bTime = new Date(b.codeUpdatetime).getTime();
+        return aTime - bTime;
+      },
     },
     {
       title: '操作',
@@ -195,12 +204,22 @@
       }
     });
   };
+
+  //批量按钮操作
+  const batch = ref<boolean>(true);
+
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     selectedRowKeys: Selectall_invert,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
+      if (Selectall_invert.value != ('' as any)) {
+        batch.value = false;
+      }
+      if (Selectall_invert.value == ('' as any)) {
+        batch.value = true;
+      }
     },
   });
   // 改变编码状态
@@ -252,11 +271,7 @@
     if (change_array.length == 0) return message.error('请选择码表进行操作!');
     OnChange(change_array).then(function (res: any) {
       if (res.data.msg == '更新成功') {
-        console.log(11111);
-        console.log(Selectall_invert.value);
-
         Selectall_invert.value = [];
-        console.log(Selectall_invert.value);
         message.success('更新成功!');
         select_CodeTable();
       } else return message.error('更新失败！');
@@ -296,7 +311,6 @@
     }
     let forms = new FormData();
     //下面的file是后端要求的key
-
     importExcel(forms).then(function (res: any) {
       console.log(res);
     });
@@ -307,10 +321,6 @@
 
     let oBtn = uploadInput.value as HTMLInputElement;
     oBtn.click();
-
-    // importExcel(uploadInput.value).then(function (res: any) {
-    //   console.log(res);
-    // });
   };
 </script>
 <style lang="less" scoped>
