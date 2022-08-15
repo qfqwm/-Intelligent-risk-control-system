@@ -71,11 +71,11 @@ enum Api {
   //目录查询
   Interface_Select_Directory = '/api/selectApiDirectory',
   //新增分类目录
-  Interface_Add_Contents = '/api/addContents',
+  Interface_Add_Contents = '/api/addDirectory',
   //删除目录
   Interface_Delete_Contents = '/api/deleteContents',
   //编辑分类目录
-  Interface_Rename_Contents = '/api/renameContents',
+  Interface_Rename_Contents = '/api/renameDirectory',
   //查询接口详情
   Interface_Detail_Select = '/api/selectApiConfig',
   // 接口管理查询
@@ -186,7 +186,7 @@ export const InterfaceSelectDirectory = () => api.post(Api.Interface_Select_Dire
 //目录增加
 export const InterfaceAddContents = (object: object) => api.post(Api.Interface_Add_Contents, object);
 //目录删除
-export const InterfaceDeleteContents = (directoryId: string) => api.delete(Api.Interface_Delete_Contents, { params: { directoryId: directoryId } });
+export const InterfaceDeleteContents = (interDirId: string) => api.delete(Api.Interface_Delete_Contents, { params: { interDirId: interDirId } });
 //目录分类编辑
 export const InterfaceRenameContents = (object: object) => api.post(Api.Interface_Rename_Contents, object);
 //查询接口详情

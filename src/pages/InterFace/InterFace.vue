@@ -452,12 +452,20 @@
   };
   //接口测试抽屉
   const showTestDrawer = (record: any) => {
-    // console.log(333, record);
     emitter.emit('interfaceTest', record);
   };
   //批量分类
   const visible2 = ref<boolean>(false);
   const batchClassification = () => {
+    for (let p in batchData.value) {
+      if (batchData.value[p].interMsgApiType != '未发布') {
+        message.error('只有未发布的接口才能进行批量分类');
+        visible2.value = false;
+        break;
+      } else {
+        visible2.value = true;
+      }
+    }
     const data = reactive({
       visible: visible2.value,
       batchData: batchData.value,

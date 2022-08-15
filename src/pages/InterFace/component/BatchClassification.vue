@@ -13,15 +13,15 @@
         <a-col :span="4"><a-typography-text>接口分类：</a-typography-text></a-col>
         <a-col :span="20">
           <a-input-search v-model:value="search" placeholder="Search" enter-button @search="onSearch"> </a-input-search>
-          <a-card style=" margin-top: 10px;width: 392px">
+          <a-card style="margin-top: 10px; width: 392px">
             <a-tree v-model:selectedKeys="selectedKeys" :expanded-keys="expandedKeys" :field-names="fieldNames" :tree-data="treeData" @expand="handleExpand" @select="handleSelect">
-              <template #title="{ name }">
-                <span v-if="name.indexOf(search) > -1">
-                  {{ name.substr(0, name.indexOf(search)) }}
+              <template #title="{ interDirName }">
+                <span v-if="interDirName.indexOf(search) > -1">
+                  {{ interDirName.substr(0, interDirName.indexOf(search)) }}
                   <span style="color: #1890ff">{{ search }}</span>
-                  {{ name.substr(name.indexOf(search) + search.length) }}
+                  {{ interDirName.substr(interDirName.indexOf(search) + search.length) }}
                 </span>
-                <span v-else>{{ name }}</span>
+                <span v-else>{{ interDirName }}</span>
               </template>
             </a-tree>
           </a-card>
@@ -39,14 +39,9 @@
   const visible = ref();
   const classData = ref();
   emitter.on('batchclass', (data: any) => {
-    console.log(data);
     visible.value = data.visible;
     classData.value = data.batchData;
-    showModel();
   });
-  const showModel = () => {
-    visible.value = true;
-  };
   //批量分类接口调用
   interface BatchData {
     interDirId: number;
@@ -61,7 +56,7 @@
     });
     batchData.value.interfaceMsgIdList = ff.value as any;
     console.log(batchData.value);
-    InterfaceBatchClassify(batchData).then(res => {
+    InterfaceBatchClassify(batchData.value).then(res => {
       console.log();
     });
   };
@@ -79,7 +74,7 @@
   showDataAssetCatalog();
   const fieldNames = {
     children: 'children',
-    title: 'name',
+    title: 'interDirName',
     key: 'interDirId',
     value: 'interDirId',
   };
@@ -136,7 +131,7 @@
     let a = tree.length;
     for (let i = 0; i < a; i++) {
       const node = tree[i];
-      if (node.name.indexOf(value) > -1) {
+      if (node.interDirName.indexOf(value) > -1) {
         keyList.push(node.interDirId);
       }
       if (node.children) {

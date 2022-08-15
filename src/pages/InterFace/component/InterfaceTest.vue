@@ -43,7 +43,7 @@
       <a-col :span="10">
         <a-tabs v-model:activeKey="activeKey" size="large">
           <a-tab-pane key="1" tab="返回结果（JSON）">
-            <a-card v-model="resultData" class="box"></a-card>
+            <a-card class="box">{{ resultData }}</a-card>
           </a-tab-pane>
         </a-tabs>
       </a-col>
@@ -62,7 +62,7 @@
       }"
     >
       <a-button style="margin-right: 8px" :disabled="interfaceTest" @click="faceTest">接口测试</a-button>
-      <a-button style="margin-right: 8px" disabled @click="onClose">复制返回结果</a-button>
+      <a-button style="margin-right: 8px" :disabled="copyRuselt" @click="copy">复制返回结果</a-button>
       <a-button @click="onClose">关闭</a-button>
     </div>
   </a-drawer>
@@ -70,7 +70,8 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import emitter from '@/utils/bus';
-  import { InterfaceTestc } from '@/api/test/index';
+  import { InterfaceDetailSelect, InterfaceTestc } from '@/api/test/index';
+  import { message } from 'ant-design-vue';
 
   const visible = ref<boolean>(false);
   const showDrawer = () => {
@@ -86,7 +87,7 @@
     interMsgApiUrl: string; //Path
     interMsgCreateTime: string;
     interMsgDescribe: string; //接口描述
-    interMsgId: number;
+    interMsgId: string;
     interMsgIp: string; //IP端口
     interMsgName: string;
     interMsgOvertime: number;
@@ -98,10 +99,28 @@
   //显示接口信息的接口名称、Request URL、请求方式
   const requestUrl = ref<string>();
   const interfaceMsgs = ref<interfaceMsgs>({} as any);
+  const interMsgId = ref();
+  const data = ref([] as any); //输入参数
   emitter.on('interfaceTest', (record: any) => {
-    // console.log(111, record);
+    console.log(record);
     interfaceMsgs.value = record;
+    interMsgId.value = record.interMsgId;
     requestUrl.value = record.interMsgApiProtocol.toLowerCase() + '://' + record.interMsgIp + record.interMsgApiUrl;
+    async function InterfaceDetailSelect_way() {
+      await InterfaceDetailSelect(interMsgId.value).then(res => {
+        res.data.data.interfaceConfigs.forEach(p => {
+          if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
+          if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
+          if (p.interConfigDataType == '0') p.interConfigDataType = 'Obj';
+          if (p.interConfigDataType == '1') p.interConfigDataType = 'Array';
+          if (p.interConfigDataType == '2') p.interConfigDataType = 'String';
+          if (p.interConfigDataType == '3') p.interConfigDataType = 'Int';
+          if (p.interConfigDataType == '4') p.interConfigDataType = 'Float';
+          if (p.interConfigDistinguish == '0') data.value.push(p);
+        });
+      });
+    }
+    InterfaceDetailSelect_way();
     showDrawer();
   });
 
@@ -109,26 +128,26 @@
   const columns = [
     {
       title: '参数名称',
-      dataIndex: 'paramName',
-      key: 'paramName',
+      dataIndex: 'interConfigName',
+      key: 'interConfigName',
       width: '16%',
     },
     {
       title: '参数位置',
-      dataIndex: 'paramPosition',
-      key: 'paramPosition',
+      dataIndex: 'interConfigPlace',
+      key: 'interConfigPlace',
       width: '16%',
     },
     {
       title: '数据类型',
-      dataIndex: 'DataType',
-      key: 'DataType',
+      dataIndex: 'interConfigDataType',
+      key: 'interConfigDataType',
       width: '16%',
     },
     {
       title: '是否必填',
-      dataIndex: 'requireed',
-      key: 'requireed',
+      dataIndex: 'interConfigIsNull',
+      key: 'interConfigIsNull',
       width: '18%',
     },
     {
@@ -138,23 +157,6 @@
       width: '34%',
     },
   ];
-
-  const data = ref([
-    {
-      paramName: 'name',
-      paramPosition: 'query',
-      DataType: 'String',
-      requireed: '否',
-      testValue: '',
-    },
-    {
-      paramName: 'num',
-      paramPosition: 'query',
-      DataType: 'String',
-      requireed: '是',
-      testValue: '',
-    },
-  ]);
   //判断请求方式出现请求body文本域
   const textArea = ref<string>('');
   const bodyText = () => {
@@ -166,6 +168,7 @@
   //   console.log(1111, testValue.value);
   // });
   const interfaceTest = ref<boolean>(true);
+  const copyRuselt = ref<boolean>(true);
   const dataTest = () => {
     data.value.forEach(p => {
       if (p.testValue == '') {
@@ -177,11 +180,10 @@
     });
     let obj = {};
     for (let i in data.value) {
-      obj[data.value[i].paramName] = data.value[i].testValue;
+      obj[data.value[i].interConfigName] = data.value[i].testValue;
     }
-    console.log(JSON.stringify(obj));
-
-    testData.value.inputParam = JSON.stringify(obj);
+    testData.value.inputParam = obj;
+    console.log(testData.value);
   };
 
   //接口测试调用接口
@@ -195,6 +197,7 @@
   watch(interfaceMsgs, () => {
     if (interfaceMsgs.value.interMsgRequest == 'POST') {
       testData.value.requestURL = requestUrl.value;
+      testData.value.requestBody = null as any;
     }
     if (interfaceMsgs.value.interMsgRequest == 'GET') {
       testData.value.requestURL = requestUrl.value;
@@ -207,11 +210,16 @@
     await InterfaceTestc(testData.value).then(res => {
       console.log(res.data);
       resultData.value = res.data;
+      copyRuselt.value = false;
     });
   }
 
   //返回结果
   const resultData = ref();
+  //复制结果
+  const copy = () => {
+    message.success('复制成功');
+  };
   //验证规则
   const rules = {
     testValue: [{ required: true, message: '新增目录不能为空', trigger: 'blur' }],
