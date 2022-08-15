@@ -6,7 +6,7 @@
     >
     <a-row :style="{ height: '32px', color: '#999' }">
       <a-col :span="8"
-        >接口分类：<a-typography-text>{{ interfaceMsgs.interMsgApiType }}</a-typography-text>
+        >接口分类：<a-typography-text>{{ formState.interDirName }}</a-typography-text>
       </a-col>
       <a-col :span="8"
         >请求协议：<a-typography-text>{{ interfaceMsgs.interMsgApiProtocol }}</a-typography-text>
@@ -18,12 +18,14 @@
     <a-row :style="{ height: '32px', color: '#999' }">
       <a-col :span="8">支持格式：<a-typography-text>JSON</a-typography-text> </a-col>
       <a-col :span="8"
-        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}:{{ interfaceMsgs.interMsgIp }}</a-typography-text>
+        >IP端口：<a-typography-text>{{ interfaceMsgs.interMsgIp }}</a-typography-text>
       </a-col>
       <a-col :span="8"></a-col>
     </a-row>
     <a-row :style="{ height: '32px', color: '#999' }">
-      <a-col :span="8">Path：<a-typography-text></a-typography-text> </a-col>
+      <a-col :span="8"
+        >Path：<a-typography-text>{{ interfaceMsgs.interMsgApiUrl }}</a-typography-text>
+      </a-col>
       <a-col :span="8"></a-col>
       <a-col :span="8"></a-col>
     </a-row>
@@ -85,7 +87,6 @@
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import emitter from '@/utils/bus';
   import { InterfaceDetailSelect } from '@/api/test/index';
   //处理路由通过query传的参数
   const route = useRoute();
@@ -93,10 +94,10 @@
   if (typeof route.query.interMsgId === 'string') {
     interMsgId = String(parseInt(route.query.interMsgId));
   }
-  // console.log(typeof interMsgId);
   interface formState {
-    interfaceConfigs: string;
+    interfaceConfigs: InterfaceConfigs;
     interfaceMsgs: interfaceMsgs;
+    interDirName: string | undefined;
   }
   interface interfaceMsgs {
     interDirId: number;
@@ -114,8 +115,25 @@
     interMsgUpdateTime: string;
     isDelete: number;
   }
+  interface InterfaceConfigs {
+    configureId: number;
+    interConfigDataType: string;
+    interConfigDefault: string;
+    interConfigDescribe: string;
+    interConfigDistinguish: number;
+    interConfigId: number;
+    interConfigIsNull: string;
+    interConfigName: string;
+    interConfigPlace: null;
+    interMsgId: number;
+    parentId: number;
+  }
   const formState = ref<formState>({} as any);
   const interfaceMsgs = ref<interfaceMsgs>({} as any);
+  const interfaceConfigs = ref<InterfaceConfigs>({} as any);
+  const data = ref([] as any);
+  const data1 = ref([] as any);
+  const data2 = ref([] as any);
   async function InterfaceDetailSelect_way() {
     await InterfaceDetailSelect(interMsgId).then(res => {
       console.log(res.data.data);
@@ -124,6 +142,19 @@
       if (interfaceMsgs.value.interMsgApiType == '0') interfaceMsgs.value.interMsgApiType = '未发布';
       if (interfaceMsgs.value.interMsgApiType == '1') interfaceMsgs.value.interMsgApiType = '已发布';
       if (interfaceMsgs.value.interMsgApiType == '2') interfaceMsgs.value.interMsgApiType = '已停用';
+      res.data.data.interfaceConfigs.forEach(p => {
+        if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
+        if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
+        if (p.interConfigDataType == '0') p.interConfigDataType = 'Obj';
+        if (p.interConfigDataType == '1') p.interConfigDataType = 'Array';
+        if (p.interConfigDataType == '2') p.interConfigDataType = 'String';
+        if (p.interConfigDataType == '3') p.interConfigDataType = 'Int';
+        if (p.interConfigDataType == '4') p.interConfigDataType = 'Float';
+        if (p.interConfigDistinguish == '0') data.value.push(p);
+        if (p.interConfigDistinguish == '1') data1.value.push(p);
+        if (p.interConfigDistinguish == '2') data2.value.push(p);
+      });
+      interfaceConfigs.value = res.data.data.interfaceConfigs;
     });
   }
   InterfaceDetailSelect_way();
@@ -140,75 +171,62 @@
   const columns = [
     {
       title: '参数名称',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'interConfigName',
+      key: 'interConfigName',
       width: '16%',
     },
     {
       title: '参数位置',
-      dataIndex: 'aa',
-      key: 'aa',
+      dataIndex: 'interConfigPlace',
+      key: 'interConfigPlace',
       width: '16%',
     },
     {
       title: '数据类型',
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'interConfigDataType',
+      key: 'interConfigDataType',
       width: '16%',
     },
     {
       title: '是否必填',
-      dataIndex: 'bb',
-      key: 'bb',
+      dataIndex: 'interConfigIsNull',
+      key: 'interConfigIsNull',
       width: '18%',
     },
     {
       title: '默认值',
-      dataIndex: 'cc',
-      key: 'cc',
+      dataIndex: 'interConfigDefault',
+      key: 'interConfigDefault',
       width: '16%',
     },
     {
       title: '说明',
-      dataIndex: 'dd',
-      key: 'dd',
+      dataIndex: 'interConfigDescribe',
+      key: 'interConfigDescribe',
       width: '18%',
     },
   ];
-
-  const data = [
-    {
-      name: '1',
-      aa: 'query',
-      type: 'String',
-      bb: '是',
-      cc: '_',
-      dd: '111',
-    },
-  ];
-  const data1 = [];
   //接口返回参数
   const columns2 = [
     {
       title: '参数名称',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'interConfigName',
+      key: 'interConfigName',
       width: '16%',
     },
     {
       title: '数据类型',
-      dataIndex: 'aa',
-      key: 'aa',
+      dataIndex: 'interConfigDataType',
+      key: 'interConfigDataType',
       width: '16%',
     },
     {
       title: '参数说明',
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'interConfigDescribe',
+      key: 'interConfigDescribe',
       width: '16%',
     },
   ];
-  const data2 = [];
   //返回码表配置信息
   const columns3 = [
     {
@@ -253,11 +271,6 @@
     },
   ];
   const data4 = [];
-  emitter.on('interfaceTest', (t: any) => {
-    console.log(111, t);
-    // visible.value = t;
-    // showDrawer();
-  });
   //返回上一页
   const router = useRouter();
   const back = () => {
