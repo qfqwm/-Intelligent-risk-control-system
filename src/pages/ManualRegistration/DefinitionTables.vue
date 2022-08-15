@@ -5,7 +5,14 @@
     <div class="border_title"
       ><span class="span">{{ props.table_object.title }}</span>
       <div>
-        <a-button v-if="props.table_object.title !== '输入参数'" class="editable-add-btn" :style="{ marginBottom: '8px', marginRight: '18px' }" size="big" @click="Josn_to">Json导入</a-button>
+        <a-button
+          v-if="props.table_object.title !== '输入参数'"
+          class="editable-add-btn"
+          :style="{ marginBottom: '8px', marginRight: '18px' }"
+          size="big"
+          @click="Josn_to(props.table_object.title, table_data)"
+          >Json导入</a-button
+        >
         <a-button class="editable-add-btn" style="margin-bottom: 8px" type="primary" size="big" @click="handleAdd">新增参数</a-button></div
       >
     </div>
@@ -75,7 +82,7 @@
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
   import { message } from 'ant-design-vue';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, last } from 'lodash-es';
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
 
@@ -417,9 +424,36 @@
   };
 
   // Josn导入
-  const Josn_to = () => {
-    emitter.emit('Josn');
+  const Josn_to = (name: string, data: any) => {
+    let same_name: string[] = [];
+    data.forEach(item => same_name.push(item.name as string));
+    let Josn_to_object = {
+      Josn_to_same_name: same_name,
+      Josn_to_name: name,
+    };
+    emitter.emit('Josn', Josn_to_object);
   };
+  // 接收json数据
+  // 递归为childre添加key值
+  const add_children_key = arr => {
+    arr.forEach(item => {
+      if (item.children) {
+        item.children.forEach((children_item, index) => {
+          children_item.key = item.key + '-' + index;
+        });
+        add_children_key(item.children);
+      }
+    });
+  };
+  emitter.on(props.table_object.title, (e: any) => {
+    // 为传过来的json参数，添加key值
+    let last_key = parseInt(table_data.value[table_data.value.length - 1].key) + 1;
+    e.forEach((item, index) => {
+      item.key = (last_key + index).toString();
+    });
+    add_children_key(e);
+    table_data.value.push(...e);
+  });
   // 保存并退出
   emitter.on('keep', () => {
     emitter.emit('data_' + props.table_object.title, table_data.value);

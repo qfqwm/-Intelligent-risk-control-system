@@ -49,12 +49,14 @@
         </a-form-item>
       </div>
       <!-- 底部按钮 -->
-      <div class="edit_drawer_bottom">
-        <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
-          <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
-          <a-button type="primary" size="big" html-type="submit">确定</a-button>
-        </a-form-item>
-      </div>
+      <template #footer>
+        <div class="edit_drawer_bottom">
+          <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
+            <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
+            <a-button type="primary" size="big" html-type="submit">确定</a-button>
+          </a-form-item>
+        </div>
+      </template>
     </a-form>
   </a-drawer>
 </template>
