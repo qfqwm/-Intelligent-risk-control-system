@@ -7,7 +7,6 @@
         <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
       </a-form-item>
       <!-- 遍历select框 -->
-
       <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-select v-model:value="add_edit_object[item.value]" placeholder="Please select a country" style="width: 100%" :options="all_select[item.options]" :filter-option="filterOption"></a-select>
       </a-form-item>
