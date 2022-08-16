@@ -27,10 +27,11 @@
           <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
           <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
           <a-button type="primary" :disabled="batch" size="small" @click="batchClassification"> 批量分类 </a-button>
+          <BatchClassificationVue />
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
-          <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
+          <a-button type="primary" style="margin-left: 15px" @click="router_link('zc')"> 人工注册 </a-button>
         </div>
       </div>
       <!-- 表格区域 -->
@@ -60,7 +61,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
+              <a-button type="primary" size="small" @click="router_link(record.interDirId)">编辑</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.interMsgId)">
                 <a-button type="primary" size="small">删除</a-button>
               </a-popconfirm>
@@ -78,7 +79,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
+              <a-button type="primary" size="small" @click="router_link(record.interDirId)">编辑</a-button>
             </div>
           </template>
         </template>
@@ -139,6 +140,7 @@
   import InterfaceTest from '@/pages/InterFace/component/InterfaceTest.vue';
   import InterfaceClassification from './component/InterfaceClassification.vue';
   import type { FormInstance } from 'ant-design-vue';
+  import BatchClassificationVue from './component/BatchClassification.vue';
   import { ref, reactive } from 'vue';
   import { message } from 'ant-design-vue';
   import type { Ref } from 'vue';
@@ -193,20 +195,20 @@
     allCodeTable: object;
   }
 
-  const visible = ref<boolean>(false);
+  // const visible = ref<boolean>(false);
 
-  const showDrawer = (type: string, record: any) => {
-    const sdd = reactive({
-      type: type,
-      record: record,
-      visible: visible,
-      treeData: treeData,
-    });
-    // console.log(11111222, sdd.record);
+  // const showDrawer = (type: string, record: any) => {
+  //   const sdd = reactive({
+  //     type: type,
+  //     record: record,
+  //     visible: visible,
+  //     treeData: treeData,
+  //   });
+  //   // console.log(11111222, sdd.record);
 
-    // Add();
-    emitter.emit('sendchild', sdd);
-  };
+  //   // Add();
+  //   emitter.emit('sendchild', sdd);
+  // };
 
   // 搜索功能
   const interMsgSource = ref<string>('');
@@ -331,9 +333,9 @@
   //删除
   const onDelete = (code: string) => {
     delIntfc(code).then(function (res: any) {
-      if (res.data.msg == '删除成功') {
-        dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
-      }
+      // if (res.data.msg == '删除成功') {
+      dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
+      // }
     });
   };
   // 判断弹框显示隐藏
@@ -376,10 +378,12 @@
 
   // 全选/反选
   const Selectall_invert = ref([]);
+  const batchData = ref();
   const rowSelection = ref({
     checkStrictly: false,
-    onChange: (selectedRows: any) => {
+    onChange: (selectedRows: any, record: any) => {
       Selectall_invert.value = selectedRows;
+      batchData.value = record;
       //多选进行批量操作
       if (Selectall_invert.value != ('' as any)) {
         batch.value = false;
@@ -389,6 +393,7 @@
       }
     },
   });
+
   // 批量操作
   const ALLonChangecode = (state: number) => {
     if (state === 1) {
@@ -453,16 +458,29 @@
   };
   //接口测试抽屉
   const showTestDrawer = (record: any) => {
-    // console.log(333, record);
     emitter.emit('interfaceTest', record);
   };
   //批量分类
+  const visible2 = ref<boolean>(false);
   const batchClassification = () => {
-    console.log();
+    for (let p in batchData.value) {
+      if (batchData.value[p].interMsgApiType != '未发布') {
+        message.error('只有未发布的接口才能进行批量分类');
+        visible2.value = false;
+        break;
+      } else {
+        visible2.value = true;
+      }
+    }
+    const data = reactive({
+      visible: visible2.value,
+      batchData: batchData.value,
+    });
+    emitter.emit('batchclass', data);
   };
   // 人工注册跳转
-  const router_link = () => {
-    router.push({ name: 'manualregistration' });
+  const router_link = (id?: any) => {
+    router.push({ name: 'manualregistration', query: { mode: id } });
   };
 </script>
 
