@@ -3,30 +3,32 @@
     <!-- 基本信息 -->
     <div class="Messageheader">基本信息：</div>
     <a-form-item label="接口分类" name="classification" :rules="rules.classification">
-      <a-select v-model:value="Information.classification" show-search style="width: 45%" :options="select_all.Interface_classification" :filter-option="filterOption" placeholder="请选择"> </a-select>
+      <a-select v-model:value.trim="Information.classification" show-search style="width: 45%" :options="select_all.Interface_classification" :filter-option="filterOption" placeholder="请选择">
+      </a-select>
     </a-form-item>
     <a-form-item label="接口名称" name="Interface_name" :rules="rules.Interface_name">
-      <a-input v-model:value.number="Information.Interface_name" placeholder="请输入" style="width: 45%" />
+      <a-input v-model:value.trim="Information.Interface_name" placeholder="请输入" style="width: 45%" />
     </a-form-item>
     <a-form-item label="接口来源" name="Interface_source" :rules="rules.Interface_source">
-      <a-select v-model:value="Information.Interface_source" placeholder="请选择" show-search style="width: 45%" :options="select_all.Interface_source" :filter-option="filterOption"> </a-select>
+      <a-select v-model:value.trim="Information.Interface_source" placeholder="请选择" show-search style="width: 45%" :options="select_all.Interface_source" :filter-option="filterOption"> </a-select>
     </a-form-item>
     <a-form-item label="接口描述" name="Interface_describe">
-      <a-textarea v-model:value="Information.Interface_describe" style="width: 45%" placeholder="请输入" />
+      <a-textarea v-model:value.trim="Information.Interface_describe" style="width: 45%" placeholder="请输入" />
     </a-form-item>
     <!-- API参数 -->
     <div class="Messageheader">API参数:</div>
     <a-form-item label="接口协议" name="Interface_agreement" :rules="rules.Interface_agreement">
-      <a-select v-model:value="Information.Interface_agreement" placeholder="请选择" show-search style="width: 45%" :options="select_all.Interface_agreement" :filter-option="filterOption"> </a-select>
+      <a-select v-model:value.trim="Information.Interface_agreement" placeholder="请选择" show-search style="width: 45%" :options="select_all.Interface_agreement" :filter-option="filterOption">
+      </a-select>
     </a-form-item>
     <a-form-item label="IP端口" name="Interface_port" :rules="rules.Interface_port">
-      <a-input v-model:value.number="Information.Interface_port" placeholder="请输入" style="width: 45%" />
+      <a-input v-model:value.trim="Information.Interface_port" placeholder="请输入" style="width: 45%" />
     </a-form-item>
     <a-form-item label="Path" name="Interface_path" :rules="rules.Interface_path">
-      <a-input v-model:value.number="Information.Interface_path" placeholder="请输入" style="width: 45%" />
+      <a-input v-model:value.trim="Information.Interface_path" placeholder="请输入" style="width: 45%" />
     </a-form-item>
     <a-form-item label="请求方式" name="Interface_request" :rules="rules.Interface_request">
-      <a-select v-model:value="Information.Interface_request" placeholder="请选择" show-search style="width: 45%" :options="select_all.Request_mode" :filter-option="filterOption"> </a-select>
+      <a-select v-model:value.trim="Information.Interface_request" placeholder="请选择" show-search style="width: 45%" :options="select_all.Request_mode" :filter-option="filterOption"> </a-select>
     </a-form-item>
     <a-form-item label="超时时间" name="Timeout" :rules="rules.Timeout">
       <a-input v-model:value.number="Information.Timeout" placeholder="请输入" style="width: 45%" />
@@ -87,10 +89,20 @@
     Interface_name: [{ required: true, message: '请输入接口名称' }],
     Interface_source: [{ required: true, message: '请选择接口来源' }],
     Interface_agreement: [{ required: true, message: '请选择接口协议' }],
-    Interface_port: [{ required: true, message: '请输入IP端口' }],
+    Interface_port: [
+      { required: true, message: '请输入IP端口' },
+      {
+        pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+        message: '端口号不符合规定',
+        trigger: 'blur',
+      },
+    ],
     Interface_path: [{ required: true, message: '请输入Path路径' }],
     Interface_request: [{ required: true, message: '请选择请求方式' }],
-    Timeout: [{ required: true, message: '请输入超时时间' }],
+    Timeout: [
+      { required: true, message: '请输入超时时间' },
+      { pattern: /[1-9]\d*$/, message: '超时时间不符合规定', trigger: 'blur' },
+    ],
   });
   //传递信息，表单通过验证，通过改变数量，向组件传递已通过验证的信息
   const commit_form_num = ref<number>(0);

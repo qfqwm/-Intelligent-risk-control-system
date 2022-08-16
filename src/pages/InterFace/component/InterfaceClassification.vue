@@ -127,15 +127,15 @@
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
   watch(expandedKeys, () => {
-    console.log('expandedKeys', expandedKeys.value);
+    // console.log('expandedKeys', expandedKeys.value);
   });
   const aa = ref();
   watch(selectedKeys, () => {
-    console.log('selectedKeys', selectedKeys.value);
+    // console.log('selectedKeys', selectedKeys.value);
     aa.value = selectedKeys.value;
   });
   const handleExpand = (keys: string[], { expanded, node }) => {
-    console.log(keys, expanded, node);
+    // console.log(keys, expanded, node);
     const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
     if (expanded) {
       expandedKeys.value = _.difference(keys, tempKeys).concat(node.interDirId);

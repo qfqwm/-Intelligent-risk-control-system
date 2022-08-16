@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <!-- 搜索区域 -->
-  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
+  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-around', minWidth: '100%' }">
     <a-form-item label="来源机构" name="sourceAgencies">
       <a-select v-model:value.trim="Search.sourceAgencies" :options="standardType_sourceAgencies" :style="{ minWidth: '130px' }" placeholder="请选择" />
     </a-form-item>
@@ -25,8 +25,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
-      <a-button type="primary" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
+      <a-button type="primary" :disabled="batch" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
+      <a-button type="primary" :disabled="batch" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
@@ -35,7 +35,7 @@
     </div>
   </div>
   <!-- 表格区域 -->
-  <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :style="{ width: '100%', minWidth: '1290px' }" :pagination="pagination" :row-key="Record_selection">
+  <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :style="{ width: '100%' }" :pagination="pagination" :row-key="Record_selection">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'codeId'">
         <a href="#" @click.prevent="showModal(record.standardId)">{{ record.standardId }}</a>
@@ -156,6 +156,8 @@
   const dataSource: Ref<DataItem[]> = ref([]);
   const Getdata = function () {
     Catalog(Search).then(function (res) {
+      console.log(res);
+
       dataSource.value = res.data.data;
 
       dataSource.value.forEach((item: any) => {
@@ -232,6 +234,13 @@
       dataIndex: 'updateTime',
       width: '12%',
       ellipsis: true,
+      key: 'updateTime',
+      //排序方法
+      sorter: (a: { updateTime: string | number | Date }, b: { updateTime: string | number | Date }) => {
+        let aTime = new Date(a.updateTime).getTime();
+        let bTime = new Date(b.updateTime).getTime();
+        return aTime - bTime;
+      },
     },
     {
       title: '操作',
@@ -263,12 +272,22 @@
       query();
     });
   };
+
+  //批量按钮操作
+  const batch = ref<boolean>(true);
   // 批量操作
   const Selectall_invert = ref([]);
   const rowSelection = ref({
     selectedRowKeys: Selectall_invert,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
+      //多选进行批量操作
+      if (Selectall_invert.value != ('' as any)) {
+        batch.value = false;
+      }
+      if (Selectall_invert.value == ('' as any)) {
+        batch.value = true;
+      }
     },
   });
   // 更新状态

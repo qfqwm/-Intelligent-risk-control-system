@@ -121,8 +121,10 @@
     };
 
     rebaseTbl(object).then(function (res: any) {
-      if (res.data.msg == '返回成功') {
-        personnelcodetable.value = res.data.data;
+      console.log(res, 'kashd');
+
+      if (res.data.code == 100200) {
+        personnelcodetable.value = res.data.data.dataAsset;
       }
     });
     show.outmask = true;
@@ -142,7 +144,7 @@
       englishName: code2,
     };
     rebaseTbl(object).then(function (res: any) {
-      if (res.data.msg == '返回成功') {
+      if (res.data.code == 100200) {
         personnelcodetable.value = res.data.data;
       }
     });

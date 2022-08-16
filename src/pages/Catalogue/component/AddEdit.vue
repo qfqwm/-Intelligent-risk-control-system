@@ -7,7 +7,6 @@
         <a-input v-model:value.trim="add_edit_object[item.value]" :placeholder="item.placeholder" />
       </a-form-item>
       <!-- 遍历select框 -->
-
       <a-form-item v-for="(item, index) in a_select" :key="index" :label="item.name" :name="item.value" :rules="form_rules[item.value]">
         <a-select v-model:value="add_edit_object[item.value]" placeholder="Please select a country" style="width: 100%" :options="all_select[item.options]" :filter-option="filterOption"></a-select>
       </a-form-item>
@@ -49,12 +48,14 @@
         </a-form-item>
       </div>
       <!-- 底部按钮 -->
-      <div class="edit_drawer_bottom">
-        <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
-          <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
-          <a-button type="primary" size="big" html-type="submit">确定</a-button>
-        </a-form-item>
-      </div>
+      <template #footer>
+        <div class="edit_drawer_bottom">
+          <a-form-item :wrapper-col="{ span: 20, offset: 15 }">
+            <a-button size="big" html-type="cancel" :style="{ marginRight: '20px' }" @click="add_edit_false">取消</a-button>
+            <a-button type="primary" size="big" html-type="submit">确定</a-button>
+          </a-form-item>
+        </div>
+      </template>
     </a-form>
   </a-drawer>
 </template>
