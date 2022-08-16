@@ -7,8 +7,8 @@
         <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
         <h2>企业基本信息表</h2>
         <h3>基本信息</h3><br />
-        <span class="label"> 中文名称：</span> {{ personnelcodetable.chineseName }} <br />
-        <span class="label"> 英文名称：</span>{{ personnelcodetable.englishName }} <br />
+        <span class="label"> 中文名称：</span> {{ personnelcodetable.dataAsset.chineseName }} <br />
+        <span class="label"> 英文名称：</span>{{ personnelcodetable.dataAsset.englishName }} <br />
         <h4>数据资产表描述：</h4>
         <span class="label"> 所属目录：</span>
         <a-button>{{ personnelcodetable.directoryNames[0] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[1] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[2] }}</a-button>
@@ -31,29 +31,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in personnelcodetable.dataAssetField" :key="index">
+          <tr v-for="(item, index) in personnelcodetable.assetFieldList" :key="index">
             <td>{{ item.englishName }}</td>
             <td>{{ item.chineseName }}</td>
             <td>{{ item.fieldExplain }}</td>
             <td>{{ item.standardId }}</td>
+            <!-- <template v-for="(a, index) in item.dataStandard" :key="index">
+            <td>{{a.dataType}}</td>
+            <td>{{a.dataLength}}</td>
+            <td>{{a.dataPrecision}}</td>
+            <td>{{a.dataDefault}}</td>
             <td>{{}}</td>
+            <td>{{a.enumRange}}</td>
+            </template> -->
+            <td>{{ item.dataStandard.dataType }}</td>
+            <td>{{ item.dataStandard.dataLength }}</td>
+            <td>{{ item.dataStandard.dataPrecision }}</td>
+            <td>{{ item.dataStandard.dataDefault }}</td>
             <td>{{}}</td>
-            <td>{{}}</td>
-            <td>{{}}</td>
-            <td>{{}}</td>
-            <td>{{}}</td>
-          </tr>
-          <tr v-for="(item1, index) in personnelcodetable.dataStandards" :key="index">
-            <td>{{ item1.englishName }}</td>
-            <td>{{ item1.chineseName }}</td>
-            <td>{{ item1.standardExplain }}</td>
-            <td>{{ item1.standardId }}</td>
-            <td>{{ item1.dataType }}</td>
-            <td>{{ item1.dataLength }}</td>
-            <td>{{}}</td>
-            <td>{{ item1.dataDefault }}</td>
-            <td>{{}}</td>
-            <td>{{ item1.enumRange }}</td>
+            <td>{{ item.dataStandard.enumRange }}</td>
           </tr>
         </tbody>
       </table>
@@ -78,30 +74,36 @@
 
   // 人员性别编码弹框
   const personnelcodetable = ref({
-    chineseName: '',
-    englishName: '',
+    dataAsset: [
+      {
+        chineseName: '',
+        englishName: '',
+        updateTime: '',
+      },
+    ],
+
     directoryNames: '',
-    dataAssetField: [
+    assetFieldList: [
       {
         englishName: '',
         chineseName: '',
         fieldExplain: '',
         standardId: '',
-      },
-    ],
-    dataStandards: [
-      {
-        englishName: '',
-        chineseName: '',
-        standardExplain: '',
-        dataType: '',
-        dataLength: '',
-        dataPrecision: '',
-        standardId: '',
-        dataDefault: '',
-        dataMin: '',
-        dataMax: '',
-        enumRange: '',
+        dataStandard: [
+          {
+            englishName: '',
+            chineseName: '',
+            standardExplain: '',
+            dataType: '',
+            dataLength: '',
+            dataPrecision: '',
+            standardId: '',
+            dataDefault: '',
+            dataMin: '',
+            dataMax: '',
+            enumRange: '',
+          },
+        ],
       },
     ],
   });
@@ -109,11 +111,9 @@
   //中文
   const showcode1 = (code1: string) => {
     personnelcodetable.value = {
-      chineseName: code1,
-      englishName: '',
+      dataAsset: [] as any[],
       directoryNames: '',
-      dataAssetField: [],
-      dataStandards: [],
+      assetFieldList: [] as any[],
     };
 
     const object = {
@@ -121,8 +121,9 @@
     };
 
     rebaseTbl(object).then(function (res: any) {
-      if (res.data.msg == '返回成功') {
+      if (res.data.msg == '查询成功') {
         personnelcodetable.value = res.data.data;
+        console.log(personnelcodetable.value);
       }
     });
     show.outmask = true;
@@ -131,17 +132,16 @@
   //英文
   const showcode2 = (code2: any) => {
     personnelcodetable.value = {
-      chineseName: '',
-      englishName: code2,
+      dataAsset: [],
       directoryNames: '',
-      dataAssetField: [],
-      dataStandards: [],
+      assetFieldList: [],
     };
 
     const object = {
       englishName: code2,
     };
     rebaseTbl(object).then(function (res: any) {
+      console.log(res);
       if (res.data.msg == '返回成功') {
         personnelcodetable.value = res.data.data;
       }
