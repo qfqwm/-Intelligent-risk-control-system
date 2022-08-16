@@ -88,6 +88,8 @@ enum Api {
   Interface_Test = '/api/test',
   //批量分类
   Interface_BatchClassify = '/api/batchClassify',
+  // 查询接口信息
+  selectApiConfig = '/api/selectApiConfig',
 
   //数据库管理
   //查询数据库管理

@@ -19,10 +19,12 @@
 <script lang="ts" setup>
   import EssentialInformation from './EssentialInformation.vue';
   import ParameterConfiguration from './ParameterConfiguration.vue';
+  import { InterfaceDetailSelect } from '@/api/test/index';
   import emitter from '@/utils/bus';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import { log } from 'console';
   import { forEach } from 'lodash';
+  import { string } from 'vue-types';
   const router = useRouter();
   const hend_titile = ref([
     {
@@ -87,6 +89,30 @@
     change_data(e);
     return_parameter_data.value = e;
   });
+
+  // 基本信息内容
+  const Basic_information = reactive({
+    interDirId: '',
+    interMsgName: '',
+    interMsgSource: undefined,
+    interMsgDescribe: '',
+    interMsgApiProtocol: undefined,
+    interMsgIp: '',
+    interMsgApiUrl: '',
+    interMsgRequest: undefined,
+    interMsgOvertime: '',
+  });
+  // 接收路由传参
+  const Route = useRoute();
+  if (Route.query.mode !== 'zc') {
+    InterfaceDetailSelect(Route.query.mode as any).then(function (res) {
+      console.log(res);
+      Object.keys(Basic_information).forEach(item => {
+        Basic_information[item] = res.data.data.interfaceMsgs[item];
+      });
+      console.log(Basic_information);
+    });
+  }
 </script>
 <style lang="less" scoped>
   .head {

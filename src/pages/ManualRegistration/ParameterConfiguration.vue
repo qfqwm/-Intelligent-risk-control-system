@@ -7,9 +7,11 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import type { Ref } from 'vue';
+
   import emitter from '@/utils/bus';
   import DefinitionTables from './DefinitionTables.vue';
   import JosnTo from './JosnTo.vue';
+  import { useRoute } from 'vue-router';
   interface input_parameter_DataItem {
     name: string;
     weizhi: string;
@@ -257,5 +259,8 @@
     dataSource: return_parameter_data,
     options: return_parameter_options,
   });
+  // 接收路由传参
+  const Route = useRoute();
+  console.log(Route.query.mode);
 </script>
 <style lang="less" scoped></style>
