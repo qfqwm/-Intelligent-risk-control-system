@@ -333,9 +333,9 @@
   //删除
   const onDelete = (code: string) => {
     delIntfc(code).then(function (res: any) {
-      if (res.data.msg == '删除成功') {
-        dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
-      }
+      // if (res.data.msg == '删除成功') {
+      dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
+      // }
     });
   };
   // 判断弹框显示隐藏

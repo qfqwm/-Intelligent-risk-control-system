@@ -259,8 +259,5 @@
     dataSource: return_parameter_data,
     options: return_parameter_options,
   });
-  // 接收路由传参
-  const Route = useRoute();
-  console.log(Route.query.mode);
 </script>
 <style lang="less" scoped></style>
