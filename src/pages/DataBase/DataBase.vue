@@ -3,7 +3,7 @@
   <div class="all">
     <div class="search">
       <!-- 搜索区域 -->
-      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
+      <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-around', Width: '100%' }">
         <a-form-item label="标准状态" name="databaseState">
           <a-select v-model:value.trim="Search.databaseState" :options="standardType_areas" :style="{ minWidth: '100px' }" />
         </a-form-item>
@@ -24,18 +24,7 @@
   </div>
 
   <!-- 表格区域 -->
-  <a-table
-    :data-source="dataSource"
-    :columns="columns"
-    :pagination="{
-    pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
-    showSizeChanger: true,
-    defaultPageSize: 20,
-    buildOptionText: (size: any) => {
-      return Number(size.value) + ' 项' + '/' + '页'
-    }
-  }"
-  >
+  <a-table :data-source="dataSource" :columns="columns" :pagination="paginationOpt">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
         <!-- 未发布显示按钮 -->
@@ -83,10 +72,14 @@
   interface Search {
     sourceName: string;
     databaseState: string;
+    pageNum: string;
+    pageSize: string;
   }
   const Search = reactive<Search>({
     databaseState: '',
     sourceName: '',
+    pageNum: '',
+    pageSize: '',
   });
   const standardType_areas = [
     // 未发布查询出全部数据
@@ -111,6 +104,8 @@
   //页面数据展示
   const dataSource: Ref<DataItem[]> = ref([]);
   const show = function () {
+    Search.pageNum = paginationOpt.defaultCurrent as any;
+    Search.pageSize = paginationOpt.defaultPageSize as any;
     QueryAdministration(Search).then(function (res) {
       console.log(res.data.data, 'dsad');
       dataSource.value = res.data.data.records;
@@ -125,8 +120,35 @@
           item.databaseState = '已停用';
         }
       });
+      paginationOpt.total = res.data.data.total;
     });
   };
+
+  // 分页
+  const paginationOpt = reactive({
+    defaultCurrent: 1, // 默认当前页数
+    defaultPageSize: 20, // 默认当前页显示数据的大小
+    total: 0, // 总数，必须先有
+    showSizeChanger: true,
+    showQuickJumper: true,
+    pageSizeOptions: ['5', '10', '15', '20'],
+    showTotal: (total: any) => `共 ${total} 条`, // 显示总数
+    onShowSizeChange: (current: any, pageSize: number) => {
+      paginationOpt.defaultCurrent = current;
+      paginationOpt.defaultPageSize = pageSize;
+      Search.pageNum = current;
+      Search.pageSize = pageSize as any;
+      show(); //显示列表的接口名称
+    },
+    // 改变每页数量时更新显示
+    onChange: (current: any, size: any) => {
+      paginationOpt.defaultCurrent = current;
+      paginationOpt.defaultPageSize = size;
+      Search.pageNum = current;
+      Search.pageSize = size;
+      show();
+    },
+  });
 
   const columns = [
     {
@@ -158,10 +180,12 @@
       title: '更新时间',
       dataIndex: 'updateTime',
       width: '15%',
-
-      sorter: {
-        compare: (a: any, b: any) => a.updateTime - b.updateTime,
-        multiple: 1,
+      key: 'updateTime',
+      //排序方法
+      sorter: (a, b) => {
+        let aTime = new Date(a.updateTime).getTime();
+        let bTime = new Date(b.updateTime).getTime();
+        return aTime - bTime;
       },
     },
     {
@@ -171,6 +195,7 @@
     },
   ];
 
+  //抽屉开关
   const visible = ref<boolean>(false);
 
   //事件总线（数据传给子组件）
@@ -226,14 +251,6 @@
     }
   };
 
-  //连通测试传递的数据
-  // databaseType: 'quis',
-  //   sourceName: '测试',
-  //   sourceDescription: '二狗的',
-  //   connectMessage: 'jdbc:mysql://10.255.70.21:3306/group3dev1',
-  //   driverName: 'com.mysql.cj.jdbc.Driver',
-  //   username: 'root',
-  //   password: '123456',
   const datas = reactive({
     databaseType: '',
     sourceName: '',
@@ -246,7 +263,7 @@
 
   //连通测试
   const Connectivity = (record: any) => {
-    console.log(record);
+    // console.log(record);
     Object.keys(datas).forEach(function (key) {
       datas[key] = record[key];
     });

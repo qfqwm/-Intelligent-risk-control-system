@@ -71,11 +71,11 @@ enum Api {
   //目录查询
   Interface_Select_Directory = '/api/selectApiDirectory',
   //新增分类目录
-  Interface_Add_Contents = '/api/addContents',
+  Interface_Add_Contents = '/api/addDirectory',
   //删除目录
   Interface_Delete_Contents = '/api/deleteContents',
   //编辑分类目录
-  Interface_Rename_Contents = '/api/renameContents',
+  Interface_Rename_Contents = '/api/renameDirectory',
   //查询接口详情
   Interface_Detail_Select = '/api/selectApiConfig',
   // 接口管理查询
@@ -86,6 +86,10 @@ enum Api {
   Delete_Intfc = '/api/deleteInterfaceMsg',
   //接口测试
   Interface_Test = '/api/test',
+  //批量分类
+  Interface_BatchClassify = '/api/batchClassify',
+  // 查询接口信息
+  selectApiConfig = '/api/selectApiConfig',
 
   //数据库管理
   //查询数据库管理
@@ -184,7 +188,7 @@ export const InterfaceSelectDirectory = () => api.post(Api.Interface_Select_Dire
 //目录增加
 export const InterfaceAddContents = (object: object) => api.post(Api.Interface_Add_Contents, object);
 //目录删除
-export const InterfaceDeleteContents = (directoryId: string) => api.delete(Api.Interface_Delete_Contents, { params: { directoryId: directoryId } });
+export const InterfaceDeleteContents = (interDirId: string) => api.delete(Api.Interface_Delete_Contents, { params: { interDirId: interDirId } });
 //目录分类编辑
 export const InterfaceRenameContents = (object: object) => api.post(Api.Interface_Rename_Contents, object);
 //查询接口详情
@@ -197,6 +201,8 @@ export const postDeactivation = (object: object) => api.post(Api.Intfc_Rlse_Disa
 export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' + interMsgId);
 //接口测试
 export const InterfaceTestc = (testData: object) => api.post(Api.Interface_Test, testData);
+//批量分类
+export const InterfaceBatchClassify = (batchData: object) => api.post(Api.Interface_BatchClassify, batchData);
 
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);

@@ -127,18 +127,18 @@
   const expandedKeys = ref<string[]>([]);
   const selectedKeys = ref<string[]>([]);
   watch(expandedKeys, () => {
-    console.log('expandedKeys', expandedKeys.value);
+    // console.log('expandedKeys', expandedKeys.value);
   });
   const aa = ref();
   watch(selectedKeys, () => {
-    console.log('selectedKeys', selectedKeys.value);
+    // console.log('selectedKeys', selectedKeys.value);
     aa.value = selectedKeys.value;
   });
   const handleExpand = (keys: string[], { expanded, node }) => {
-    console.log(keys, expanded, node);
+    // console.log(keys, expanded, node);
     const tempKeys = ((node.children ? node.children : treeData) || []).map(({ key }) => key);
     if (expanded) {
-      expandedKeys.value = _.difference(keys, tempKeys).concat(node.directoryId);
+      expandedKeys.value = _.difference(keys, tempKeys).concat(node.interDirId);
     } else {
       expandedKeys.value = [];
     }
@@ -154,12 +154,12 @@
 
   //数据资产表目录新增目录
   interface AddData {
-    directoryName: string;
-    parentId: string;
+    interDirName: string;
+    parentId: number;
   }
   const AddData = ref({
     parentId: '',
-    directoryName: '',
+    interDirName: '',
   });
   const stair_add = ref<boolean>(false);
   const addStair = ref<string>('');
@@ -169,8 +169,10 @@
   };
   const handleOkStairAdd = () => {
     stair_add.value = false;
-    AddData.value.parentId = '0';
-    AddData.value.directoryName = addStair.value;
+    AddData.value.parentId = null as any;
+    AddData.value.interDirName = addStair.value;
+    console.log(AddData.value);
+
     InterfaceAddContents(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功添加资产表目录');
@@ -194,7 +196,7 @@
   const handleOkAdd = () => {
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
-    AddData.value.directoryName = addSecond.value;
+    AddData.value.interDirName = addSecond.value;
     InterfaceAddContents(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功新增资产表目录');
@@ -232,8 +234,8 @@
 
   //数据资产表目录编辑
   const EditData = ref({
-    directoryId: '',
-    directoryName: '',
+    interDirId: '',
+    interDirName: '',
   });
   const visible_edit = ref<boolean>(false);
   const editSecond = ref();
@@ -242,8 +244,8 @@
   };
   const handleOkEdit = () => {
     visible_edit.value = false;
-    EditData.value.directoryId = aa.value[0];
-    EditData.value.directoryName = editSecond.value;
+    EditData.value.interDirId = aa.value[0];
+    EditData.value.interDirName = editSecond.value;
     InterfaceRenameContents(EditData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功修改资产表目录');

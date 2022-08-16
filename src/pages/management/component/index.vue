@@ -1,38 +1,40 @@
+<!-- eslint-disable vue/no-lone-template -->
 <!-- eslint-disable vue/no-template-shadow -->
 <template>
   <div>
-    <a-drawer title="数据资产表基础信息" :width="800" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
-      <a-form :model="datas" layout="vertical" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure">
+    <a-form id="hhh" :model="datas" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure">
+      <a-drawer title="数据资产表基础信息" :width="800" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right', marginLeft: '77%' }" @close="onClose">
+        <!-- <a-form :model="datas" layout="vertical" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure"> -->
         <!-- 数据资产表基础信息区域 -->
-        <div style="margin-top: -15px; height: 54%; background-color: white">
+        <div style="background-color: white">
           <span style="margin-left: 10px; font-size: 18px; line-height: 40px">数据资产表基础信息</span>
           <hr />
-          <div style="padding-left: 30px">
+          <div style="margin-left: -13%">
             <a-row :gutter="16">
-              <a-col :span="24">
+              <a-col :span="20">
                 <a-form-item label="中文名称：" name="chineseName" :rules="rules.chineseName">
                   <a-input v-model:value="datas.chineseName" placeholder="请输入数据资产表名称" />
                 </a-form-item>
               </a-col>
             </a-row>
             <a-row :gutter="16">
-              <a-col :span="24">
+              <a-col :span="20">
                 <a-form-item label="英文名称：" name="englishName" :rules="rules.englishName">
                   <a-input v-model:value="datas.englishName" placeholder="请输入数据资产表名称" />
                 </a-form-item>
               </a-col>
             </a-row>
             <a-row :gutter="16">
-              <a-col :span="24">
+              <a-col :span="20">
                 <a-form-item label="资产表描述：" name="资产表描述：">
                   <a-textarea v-model:value="datas.assetExplain" :rows="2" placeholder="请输入资产表描述" />
                 </a-form-item>
               </a-col>
             </a-row>
             <a-row :gutter="16">
-              <a-col :span="24">
+              <a-col :span="20">
                 <a-form-item label="所属目录：" name="dynamicValidateForm" :model="dynamicValidateForm" :rules="[{ required: true, validator: checkPrice }]">
-                  <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 80px">
+                  <div style="overflow-y: scroll; border: 1px solid #eee; padding: 5px; width: 470px; min-height: 50px; max-height: 190px">
                     <a-space v-for="(sight, i) in dynamicValidateForm.sights" :key="sight.id" style="display: flex; margin-bottom: 8px" align="baseline">
                       <a-form-item-rest>
                         <a-tree-select
@@ -57,7 +59,7 @@
                     </a-space>
                   </div>
                 </a-form-item>
-                <a-button type="dashed" block style="border: 1px solid blue; border-style: dashed; width: 470px; color: blue" @click="addSight">
+                <a-button type="dashed" block style=" margin-left: 33.5%;border: 1px solid blue; border-style: dashed; width: 470px; color: blue" @click="addSight">
                   <PlusOutlined />
                   添加一行
                 </a-button>
@@ -65,26 +67,33 @@
             </a-row>
           </div>
         </div>
-        <!-- 底部区域 -->
-        <a-form-item>
-          <div style="margin-top: 55%; width: 79vh; height: 5vh; background-color: white">
-            <a-space style="margin-left: 80%; line-height: 5vh">
-              <a-button @click="onClose">取消</a-button>
-              <a-button type="primary" html-type="submit">确定</a-button>
-            </a-space>
-          </div>
-        </a-form-item>
-      </a-form>
-      <!-- 字段配置区域 -->
-      <div style="display: flex; margin-top: -45%; width: 100%; background-color: white; flex-direction: row; flex-wrap: wrap">
-        <div style="width: 100px; font-size: 20px">字段配置:</div>
-        <a-button class="editable-add-btn" style="margin-top: -30px; margin-bottom: 8px; margin-left: 82%" @click="handleAdd1">添加字段 </a-button>
-        <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 98%" :scroll="{ x: 800, y: 140 }" :pagination="false">
-          <template #bodyCell="{ column, text, record }">
-            <a-form ref="formRef" :model="editableData1" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
-              <template v-if="['name', 'age', 'address'].includes(column.dataIndex)">
-                <a-form-item v-if="editableData1[record.key1]" has-feedback :name="column.dataIndex" :rules="[{ required: true, message: '此项为必填项' }]">
-                  <a-input v-model:value="editableData1[record.key1][column.dataIndex]" style="margin: -5px 0; width: 100%" placeholder="请输入" />
+        <!-- 字段配置区域 -->
+        <div style="display: flex; margin-top: 20px; width: 100%; background-color: white; flex-direction: row; flex-wrap: wrap">
+          <div style=" margin-left: 10px;width: 100px; font-size: 20px">字段配置:</div>
+          <a-button class="editable-add-btn" style="margin-top: -3%; margin-bottom: 8px; margin-left: 87%" @click="handleAdd1">添加字段 </a-button>
+          <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 98%" :scroll="{ x: 800, y: 140 }" :pagination="false">
+            <template #bodyCell="{ column, text, record }">
+              <template v-if="['name', 'age'].includes(column.dataIndex)">
+                <a-form-item
+                  v-if="editableData1[record.key1]"
+                  has-feedback
+                  :validate-status="getFildStatus(record.key1, column.dataIndex).validateStatus"
+                  :help="getFildStatus(record.key1, column.dataIndex).errorMsg"
+                >
+                  <a-input
+                    v-model:value="record[column.dataIndex]"
+                    style="margin: -5px 0; width: 100%"
+                    placeholder="请输入"
+                    @change="handleChange(record[column.dataIndex], record.key1, column.dataIndex)"
+                  />
+                </a-form-item>
+                <template v-else>
+                  {{ text }}
+                </template>
+              </template>
+              <template v-if="['address'].includes(column.dataIndex)">
+                <a-form-item v-if="editableData1[record.key1]" has-feedback>
+                  <a-input v-model:value="record[column.dataIndex]" style="margin: -5px 0; width: 100%" placeholder="请输入" />
                 </a-form-item>
                 <template v-else>
                   {{ text }}
@@ -92,8 +101,20 @@
               </template>
 
               <template v-else-if="['address1'].includes(column.dataIndex)">
-                <a-form-item v-if="editableData1[record.key1]" name="address1" :rules="[{ required: true, message: '此项为必填项' }]">
-                  <a-select v-model:value="editableData1[record.key1][column.dataIndex]" style="width: 100%" show-search :options="Mapping"></a-select>
+                <a-form-item
+                  v-if="editableData1[record.key1]"
+                  has-feedback
+                  name="address1"
+                  :validate-status="getFildStatus(record.key1, column.dataIndex).validateStatus"
+                  :help="getFildStatus(record.key1, column.dataIndex).errorMsg"
+                >
+                  <a-select
+                    v-model:value="record[column.dataIndex]"
+                    style="width: 100%"
+                    show-search
+                    :options="Mapping"
+                    @change="handleChange(record[column.dataIndex], record.key1, column.dataIndex)"
+                  ></a-select>
                 </a-form-item>
                 <template v-else>
                   {{ text }}
@@ -103,7 +124,7 @@
                 <div class="editable-row-operations">
                   <a-form-item>
                     <span v-if="editableData1[record.key1]">
-                      <a-typography-link @click="save1(record.key1)">保存</a-typography-link>
+                      <a-typography-link @click="save1(record)">保存</a-typography-link>
                       <a-typography-link style="margin-left: 10px" @click="cancel1(record.key1)">取消 </a-typography-link>
                     </span>
                     <span v-else>
@@ -113,11 +134,20 @@
                   </a-form-item>
                 </div>
               </template>
-            </a-form>
-          </template>
-        </a-table>
-      </div>
-    </a-drawer>
+            </template>
+          </a-table>
+        </div>
+        <!-- 底部区域 -->
+        <template #footer>
+          <a-form-item>
+            <a-space>
+              <a-button @click="onClose">取消</a-button>
+              <a-button type="primary" html-type="submit" form="hhh">确定</a-button>
+            </a-space>
+          </a-form-item>
+        </template>
+      </a-drawer>
+    </a-form>
   </div>
 </template>
 
@@ -125,7 +155,7 @@
   import { reactive, Ref, ref, UnwrapRef } from 'vue';
   import { AssetSheet, QueryBasic, StandardMapping, EditData1 } from '@/api/test/index';
   import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
-  import { FormInstance, message } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
   import { cloneDeep } from 'lodash';
 
@@ -204,11 +234,13 @@
   });
 
   const onClose = () => {
+    Object.keys(editableData1).map(key => {
+      delete editableData1[key];
+    });
     visible.value = false;
   };
 
   const removeSight = (item: Sights) => {
-    // console.log(item);
     let index = dynamicValidateForm.value.sights.indexOf(item);
     if (index !== -1) {
       dynamicValidateForm.value.sights.splice(index, 1);
@@ -218,11 +250,13 @@
   //字段添加
   const Mapping = ref([]);
   const length = ref('');
-  // const standard_id = ref('');
   const handleAdd1 = () => {
+    if (JSON.stringify(editableData1) !== '{}') {
+      return message.warning('不能同时编辑多行，请保存前一行');
+    }
     StandardMapping().then(function (res) {
       length.value = res.data.data.length;
-      Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standardName }));
+      Mapping.value = [...Array(length.value)].map((_, i) => ({ value: res.data.data[i].standardName })) as any;
     });
     const newData = {
       key1: `${count1.value}`,
@@ -247,12 +281,10 @@
   const adddata = () => {
     dynamicValidateForm.value.directoryId = [];
     for (let i = 0; i < dynamicValidateForm.value.sights.length; i++) {
-      // console.log(dynamicValidateForm.value.chineseName, 'cz');
       dynamicValidateForm.value.directoryId.push({
         directoryId: dynamicValidateForm.value.chineseName[i],
       });
     }
-    // console.log(dynamicValidateForm.value);
   };
 
   interface Sights4 {
@@ -289,12 +321,6 @@
       });
     }
     if (type == 'edit') {
-      const directoryIddata = ref([]);
-      for (let i = 0; i < dynamicValidateForm.value.directoryId.length; i++) {
-        // console.log(dynamicValidateForm.value.directoryId[i].directoryId, 'ddd');
-        directoryIddata.value.push(dynamicValidateForm.value.directoryId[i].directoryId);
-      }
-      // console.log(directoryIddata.value, 'kk');
       Object.keys(datas1).forEach(function (key) {
         datas1[key] = datas[key];
       });
@@ -302,7 +328,7 @@
       datas1.assetDirectory = dynamicValidateForm.value.directoryId;
       datas1.dataAssetField = [];
       for (let i = 0; i < dataSource1.value.length; i++) {
-        let a = dataSource1.value[i].address1.split('  ');
+        let a = dataSource1.value[i].address1.split('-');
         datas1.dataAssetField.push({
           chineseName: dataSource1.value[i].age,
           englishName: dataSource1.value[i].name,
@@ -318,7 +344,6 @@
     }
   };
 
-  // 判断正则表达以编码名是否重复
   const columns1 = [
     {
       title: '字段英文名称',
@@ -371,9 +396,29 @@
     editableData1[key1] = cloneDeep(dataSource1.value.filter(item => key1 === item.key1)[0]);
   };
 
-  const save1 = (key1: string) => {
-    Object.assign(dataSource1.value.filter(item => key1 === item.key1)[0], editableData1[key1]);
-    delete editableData1[key1];
+  const save1 = (record: any) => {
+    columns1.forEach(item => {
+      if (item.dataIndex !== 'operation' && item.dataIndex !== 'address') {
+        handleChange(record[item.dataIndex], record.key1, item.dataIndex);
+        let dataSource_change: any = record[item.dataIndex];
+        record[item.dataIndex] = null;
+        record[item.dataIndex] = dataSource_change;
+      }
+    });
+    let Verificationprompt_index = Verificationprompt.findIndex(item => item.key === record.key1);
+    let array_Verificationprompt = [...Object.values(Verificationprompt[Verificationprompt_index])] as any;
+    let flag = true;
+    for (let i = 0; i < array_Verificationprompt.length; i++) {
+      if (array_Verificationprompt[i].validateStatus && array_Verificationprompt[i].validateStatus == 'error') {
+        flag = !flag;
+        return message.error('请填写完整的信息！');
+      }
+    }
+    // 判断本行数据书否存在提示错误，如不存在直接保存
+    if (flag) {
+      delete editableData1[record.key1];
+    }
+    Object.assign(dataSource1.value.filter(item => record.key1 === item.key1)[0], editableData1[record.key1]);
     dataSource2.value = [];
     for (let i = 0; i < dataSource1.value.length; i++) {
       let a = dataSource1.value[i].address1.split('  ');
@@ -385,17 +430,16 @@
       });
     }
   };
-
-  const formRef = ref<FormInstance>();
-
+  //字段配置删除
   const onDelete1 = (key1: string) => {
     dataSource1.value = dataSource1.value.filter(item => item.key1 !== key1);
   };
+  //字段配置取消
   const cancel1 = (key1: string) => {
     delete editableData1[key1];
     onDelete1(key1);
   };
-
+  //抽屉开关
   const add1 = ref();
   const showDrawer = (type: string, record: any) => {
     if (type == 'add') {
@@ -414,15 +458,13 @@
       add1.value = { chineseName: record.chineseName };
       visible.value = true;
       QueryBasic(add1.value).then(function (res) {
-        console.log(res);
-
         Object.keys(datas).forEach(function (key) {
-          datas[key] = res.data.data[key];
+          datas[key] = res.data.data.dataAsset[key];
         });
-        assetId.value = res.data.data.assetId;
+        assetId.value = res.data.data.dataAsset.assetId;
         dynamicValidateForm.value.chineseName.shift();
-        for (let i = 0; i < res.data.data.directoryNames.length; i++) {
-          let aa = res.data.data.directoryNames[i].split('/').slice(-1).toString();
+        for (let i = 0; i < res.data.data.directoryIds.length; i++) {
+          let aa = res.data.data.directoryIds[i].split('/').slice(-1).toString();
           dynamicValidateForm.value.sights.push({
             id: 'i' + Date.now(),
           });
@@ -431,18 +473,20 @@
             directoryId: aa,
           });
         }
-
-        for (let i = 0; i < res.data.data.dataAssetField.length; i++) {
+        for (let i = 0; i < res.data.data.assetFieldList.length; i++) {
           dataSource1.value.push({
-            name: res.data.data.dataAssetField[i].englishName,
-            age: res.data.data.dataAssetField[i].chineseName,
-            address1: res.data.data.dataAssetField[i].standardId,
-            key1: res.data.data.dataAssetField[i].fieldId,
-            address: res.data.data.dataAssetField[i].fieldExplain,
+            name: res.data.data.assetFieldList[i].englishName,
+            age: res.data.data.assetFieldList[i].chineseName,
+            address1: res.data.data.assetFieldList[i].dataStandardNames,
+            key1: res.data.data.assetFieldList[i].fieldId,
+            address: res.data.data.assetFieldList[i].fieldExplain,
           });
         }
       });
       handleAdd1();
+      Object.keys(editableData1).map(key => {
+        delete editableData1[key];
+      });
       dynamicValidateForm.value = {
         sights: [],
         chineseName: [''],
@@ -451,8 +495,72 @@
       dataSource1.value = [];
     }
   };
-</script>
 
+  // 表单验证
+  const getFildStatus = (key: any, dataIndex: string) => {
+    const data = Verificationprompt.filter(item => {
+      return item.key == key;
+    })[0];
+    if (data) {
+      return data[dataIndex];
+    } else {
+      return {
+        errorMsg: '',
+        validateStatus: '',
+      };
+    }
+  };
+  const validatePrime = content => {
+    if (content == '' || content == undefined || content == null) {
+      return {
+        validateStatus: 'error',
+        errorMsg: '不能为空',
+      };
+    } else
+      return {
+        validateStatus: 'success',
+        errorMsg: '',
+      };
+  };
+  // 验证提示
+  const Verificationprompt = [] as any;
+  const handleChange = (value, key, column_dataIndex) => {
+    const target = dataSource1.value.filter((item: any) => item.key1 === key)[0];
+    if (target) {
+      const { errorMsg, validateStatus } = validatePrime(value);
+      let flag = true;
+      Verificationprompt.forEach((val: any) => {
+        // 如果验证列已存在，更改验证列的字段验证信息
+        if (val.key == key) {
+          flag = false;
+          let object = {
+            errorMsg: errorMsg,
+            validateStatus: validateStatus,
+          };
+          val[column_dataIndex] = { ...object };
+        }
+      });
+      // 如果不存在,插入新的验证列和字段验证信息
+      if (flag) {
+        let object = {} as any;
+        object.key = key;
+        columns1.forEach(item => {
+          if (item.dataIndex !== 'operation') {
+            object[item.dataIndex] = {
+              errorMsg: '',
+              validateStatus: '',
+            };
+          }
+        });
+        object[column_dataIndex].errorMsg = errorMsg;
+        object[column_dataIndex].validateStatus = validateStatus;
+        Verificationprompt.push({
+          ...object,
+        });
+      }
+    }
+  };
+</script>
 <style lang="less" scoped>
   @import '../style.less';
 </style>

@@ -109,6 +109,7 @@
     sourceDescription: '',
   });
 
+  //表单验证规则
   const rules: Record<string, Rule[]> = {
     databaseType: [{ required: true, message: '请输入' }],
     sourceName: [{ required: true, message: '请输入' }],
@@ -140,11 +141,10 @@
         form_edit[key] = form[key];
       });
       form_edit.databaseId = databaseId.value;
-      console.log(form_edit, 'ksjd');
+      // console.log(form_edit, 'ksjd');
       EditDatabase(form_edit).then(function (res) {
         if (res.data.msg == '修改成功') {
-          console.log(res);
-
+          // console.log(res);
           emitter.emit('send');
         } else {
           alert(res.data.msg);

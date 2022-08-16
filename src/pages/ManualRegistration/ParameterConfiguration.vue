@@ -7,9 +7,11 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import type { Ref } from 'vue';
+
   import emitter from '@/utils/bus';
   import DefinitionTables from './DefinitionTables.vue';
   import JosnTo from './JosnTo.vue';
+  import { useRoute } from 'vue-router';
   interface input_parameter_DataItem {
     name: string;
     weizhi: string;
@@ -43,6 +45,7 @@
       dataIndex: 'name',
       width: '180px',
       type: 'input',
+      className: 'form-table-heard',
       quired: true,
     },
     {
@@ -50,6 +53,7 @@
       dataIndex: 'weizhi',
       width: '180px',
       type: 'select',
+      className: 'form-table-heard',
       quired: true,
     },
     {
@@ -57,6 +61,7 @@
       dataIndex: 'leixing',
       type: 'select',
       width: '180px',
+      className: 'form-table-heard',
       quired: true,
     },
     {
@@ -64,6 +69,7 @@
       dataIndex: 'bitian',
       type: 'select',
       width: '120px',
+      className: 'form-table-heard',
       quired: true,
     },
     {
@@ -127,6 +133,7 @@
       width: '16%',
       quired: true,
       type: 'input',
+      className: 'form-table-heard',
     },
     {
       title: '数据类型',
@@ -134,6 +141,7 @@
       width: '16%',
       type: 'select',
       quired: true,
+      className: 'form-table-heard',
     },
     {
       title: '是否必填',
@@ -141,6 +149,7 @@
       width: '12%',
       type: 'select',
       quired: true,
+      className: 'form-table-heard',
     },
     {
       title: '默认值',
@@ -197,6 +206,7 @@
       width: '25%',
       type: 'input',
       quired: true,
+      className: 'form-table-heard',
     },
     {
       title: '数据类型',
@@ -204,6 +214,7 @@
       width: '25%',
       type: 'select',
       quired: true,
+      className: 'form-table-heard',
     },
     {
       title: '参数说明',

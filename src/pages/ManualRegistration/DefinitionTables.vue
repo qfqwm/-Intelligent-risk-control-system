@@ -1,12 +1,18 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  {{ editableData }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
       ><span class="span">{{ props.table_object.title }}</span>
       <div>
-        <a-button v-if="props.table_object.title !== '输入参数'" class="editable-add-btn" :style="{ marginBottom: '8px', marginRight: '18px' }" size="big" @click="Josn_to">Json导入</a-button>
+        <a-button
+          v-if="props.table_object.title !== '输入参数'"
+          class="editable-add-btn"
+          :style="{ marginBottom: '8px', marginRight: '18px' }"
+          size="big"
+          @click="Josn_to(props.table_object.title, table_data)"
+          >Json导入</a-button
+        >
         <a-button class="editable-add-btn" style="margin-bottom: 8px" type="primary" size="big" @click="handleAdd">新增参数</a-button></div
       >
     </div>
@@ -16,11 +22,12 @@
         <template v-if="input.includes(column.dataIndex)">
           <a-form-item
             v-if="editableData[record.key]"
+            has-feedback
             :name="column.dataIndex"
             :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus"
             :help="getFildStatus(record.key, column.dataIndex).errorMsg"
           >
-            <a-input v-model:value="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" @change="handleChange(record[column.dataIndex], record.key, column.dataIndex, record)" />
+            <a-input v-model:value.trim="record[column.dataIndex]" style="margin: -5px 0" placeholder="请输入" @change="handleChange(record[column.dataIndex], record.key, column.dataIndex, record)" />
           </a-form-item>
           <template v-else>
             {{ text }}
@@ -28,7 +35,12 @@
         </template>
         <!-- select框 -->
         <template v-if="select.includes(column.dataIndex)">
-          <a-form-item v-if="editableData[record.key]" :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus" :help="getFildStatus(record.key, column.dataIndex).errorMsg">
+          <a-form-item
+            v-if="editableData[record.key]"
+            has-feedback
+            :validate-status="getFildStatus(record.key, column.dataIndex).validateStatus"
+            :help="getFildStatus(record.key, column.dataIndex).errorMsg"
+          >
             <a-select
               v-model:value="record[column.dataIndex]"
               :options="props.table_object.options[column.dataIndex]"
@@ -70,7 +82,7 @@
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
   import { message } from 'ant-design-vue';
-  import { cloneDeep } from 'lodash-es';
+  import { cloneDeep, last } from 'lodash-es';
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
 
@@ -124,22 +136,35 @@
     } else {
       return {
         errorMsg: '',
-        validateStatus: 'success',
+        validateStatus: '',
       };
     }
   };
 
-  const validatePrime = content => {
+  const validatePrime = (content, column_dataIndex, key) => {
     if (content == '' || content == undefined || content == null) {
       return {
         validateStatus: 'error',
-        errorMsg: '不能为空',
+        errorMsg: '此项为必填项',
       };
-    } else
-      return {
-        validateStatus: '',
-        errorMsg: '',
-      };
+    }
+    if (column_dataIndex == 'name') {
+      let char_length = key.lastIndexOf('-');
+      const father_str = key.substring(0, char_length);
+      const Is_it_the_same_name = steamroller(table_data.value).findIndex(item => {
+        return ((item.key.substring(0, item.key.lastIndexOf('-')) === father_str) as boolean) && ((item.key !== key) as boolean) && ((item[column_dataIndex] === content) as boolean);
+      });
+      if (Is_it_the_same_name !== -1) {
+        return {
+          validateStatus: 'error',
+          errorMsg: '参数名称重复',
+        };
+      }
+    }
+    return {
+      validateStatus: 'success',
+      errorMsg: '',
+    };
   };
 
   // 将多维数组拉平方法
@@ -197,7 +222,7 @@
     const newData = table_data.value;
     const target = steamroller(newData).filter((item: any) => item.key === key)[0];
     if (target) {
-      const { errorMsg, validateStatus } = validatePrime(value);
+      const { errorMsg, validateStatus } = validatePrime(value, column_dataIndex, key);
       let flag = true;
       Verificationprompt.forEach((val: any) => {
         // 如果验证列已存在，更改验证列的字段验证信息
@@ -399,9 +424,36 @@
   };
 
   // Josn导入
-  const Josn_to = () => {
-    emitter.emit('Josn');
+  const Josn_to = (name: string, data: any) => {
+    let same_name: string[] = [];
+    data.forEach(item => same_name.push(item.name as string));
+    let Josn_to_object = {
+      Josn_to_same_name: same_name,
+      Josn_to_name: name,
+    };
+    emitter.emit('Josn', Josn_to_object);
   };
+  // 接收json数据
+  // 递归为childre添加key值
+  const add_children_key = arr => {
+    arr.forEach(item => {
+      if (item.children) {
+        item.children.forEach((children_item, index) => {
+          children_item.key = item.key + '-' + index;
+        });
+        add_children_key(item.children);
+      }
+    });
+  };
+  emitter.on(props.table_object.title, (e: any) => {
+    // 为传过来的json参数，添加key值
+    let last_key = parseInt(table_data.value[table_data.value.length - 1].key) + 1;
+    e.forEach((item, index) => {
+      item.key = (last_key + index).toString();
+    });
+    add_children_key(e);
+    table_data.value.push(...e);
+  });
   // 保存并退出
   emitter.on('keep', () => {
     emitter.emit('data_' + props.table_object.title, table_data.value);
@@ -492,5 +544,16 @@
 
   .editable-cell:hover .editable-cell-icon {
     display: inline-block;
+  }
+
+  .ant-table-wrapper > div > div > div > div > div > table > tbody > tr > td > div {
+    height: 32px;
+  }
+  // 表格头部小红星
+  ::v-deep(th.form-table-heard:before) {
+    left: 5px;
+    font-size: 20px;
+    color: red !important;
+    content: '*' !important;
   }
 </style>
