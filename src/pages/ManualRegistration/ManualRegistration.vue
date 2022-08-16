@@ -19,12 +19,10 @@
 <script lang="ts" setup>
   import EssentialInformation from './EssentialInformation.vue';
   import ParameterConfiguration from './ParameterConfiguration.vue';
-  import { InterfaceDetailSelect } from '@/api/test/index';
+  import { InterfaceDetailSelect, insertInterMsg } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter, useRoute } from 'vue-router';
-  import { log } from 'console';
-  import { forEach } from 'lodash';
-  import { string } from 'vue-types';
+  import { selectMaxConfig } from '@/api/test/index';
   const router = useRouter();
   const hend_titile = ref([
     {
@@ -42,6 +40,19 @@
   };
   // 下一步按钮方法
   const step_down = () => {
+    selectMaxConfig().then(function (res) {
+      console.log(res.data.data);
+    });
+    let object = {} as any;
+    Object.keys(Basic_information).forEach(item => {
+      object[item] = Basic_information[item];
+    });
+    // 新增
+    object.interMsgApiType = '0';
+    let object_insertInterMsg = { interfaceMsg: object };
+    insertInterMsg(object_insertInterMsg).then(function (res) {
+      console.log(res.data.data);
+    });
     step_index.value++;
   };
   // 取消按钮
@@ -106,11 +117,12 @@
   const Route = useRoute();
   if (Route.query.mode !== 'zc') {
     InterfaceDetailSelect(Route.query.mode as any).then(function (res) {
-      console.log(res);
-      Object.keys(Basic_information).forEach(item => {
-        Basic_information[item] = res.data.data.interfaceMsgs[item];
-      });
-      console.log(Basic_information);
+      if (res.data.msg == '返回成功') {
+        Object.keys(Basic_information).forEach(item => {
+          Basic_information[item] = res.data.data.interfaceMsgs[item];
+        });
+        emitter.emit('Basic_information', Basic_information);
+      }
     });
   }
 </script>
