@@ -59,7 +59,7 @@
                     </a-space>
                   </div>
                 </a-form-item>
-                <a-button type="dashed" block style=" margin-left: 33.5%;border: 1px solid blue; border-style: dashed; width: 470px; color: blue" @click="addSight">
+                <a-button type="dashed" block style="margin-left: 33.5%; border: 1px solid blue; border-style: dashed; width: 470px; color: blue" @click="addSight">
                   <PlusOutlined />
                   添加一行
                 </a-button>
@@ -69,7 +69,7 @@
         </div>
         <!-- 字段配置区域 -->
         <div style="display: flex; margin-top: 20px; width: 100%; background-color: white; flex-direction: row; flex-wrap: wrap">
-          <div style=" margin-left: 10px;width: 100px; font-size: 20px">字段配置:</div>
+          <div style="margin-left: 10px; width: 100px; font-size: 20px">字段配置:</div>
           <a-button class="editable-add-btn" style="margin-top: -3%; margin-bottom: 8px; margin-left: 87%" @click="handleAdd1">添加字段 </a-button>
           <a-table bordered :data-source="dataSource1" :columns="columns1" style="margin-left: 10px; width: 98%" :scroll="{ x: 800, y: 140 }" :pagination="false">
             <template #bodyCell="{ column, text, record }">

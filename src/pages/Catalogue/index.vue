@@ -155,6 +155,8 @@
   // 请求表格标准数据
   const dataSource: Ref<DataItem[]> = ref([]);
   const Getdata = function () {
+    console.log(Search);
+
     Catalog(Search).then(function (res) {
       console.log(res);
 
@@ -251,6 +253,7 @@
 
   // 查询功能
   Getdata();
+  //重置
   const Reset = () => {
     Object.keys(Search).forEach((item: any) => {
       Search[item] = '';
