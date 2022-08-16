@@ -37,10 +37,10 @@
       <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :row-key="(dataSource: any) => { return dataSource.assetId }" :pagination="paginationOpt">
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode(record)">{{ record.chineseName }}</a>
+            <a href="#" @click.prevent="showcode('chinese', record)">{{ record.chineseName }}</a>
           </template>
           <template v-if="column.dataIndex === 'englishName'">
-            <a href="#" @click.prevent="showcode(record)">{{ record.englishName }}</a>
+            <a href="#" @click.prevent="showcode('english', record)">{{ record.englishName }}</a>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -137,8 +137,9 @@
     emitter.emit('sendchild', sdd);
   };
   //查看详情，传数据给子组件
-  const showcode = (record: any) => {
+  const showcode = (type: any, record: any) => {
     const sdds = reactive({
+      type: type,
       record: record,
     });
     emitter.emit('sendchilds', sdds);
