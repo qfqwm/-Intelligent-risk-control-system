@@ -80,7 +80,7 @@
     codeId: string;
     codeName: string;
     codeExplain: string;
-    codeType: any;
+    codeType: number;
     codeUpdatetime: string;
     codeCreattime: string;
     allCodeTable: object;
@@ -88,10 +88,14 @@
   interface Search {
     codeType: string;
     codeName: string;
+    page: number;
+    size: number;
   }
   const Search = reactive<Search>({
     codeType: '',
     codeName: '',
+    page: 1,
+    size: 20,
   });
   const dataSource: Ref<DataItem[]> = ref([]);
   const codeType_areas = [
@@ -99,22 +103,18 @@
     { label: '已发布', value: '1' },
     { label: '已停用', value: '2' },
   ];
+  enum codeType {
+    '未发布',
+    '已发布',
+    '已停用',
+  }
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
-      console.log(res);
-
+      console.log(res.data.data);
       if (res.data.code !== 100200) return (dataSource.value = []);
-      dataSource.value = res.data.data;
+      dataSource.value = res.data.data.nowTable;
       dataSource.value.forEach((item: any) => {
-        if (item.codeType == 0) {
-          item.codeType = '未发布';
-        }
-        if (item.codeType == 1) {
-          item.codeType = '已发布';
-        }
-        if (item.codeType == 2) {
-          item.codeType = '已停用';
-        }
+        item.codeType = codeType[item.codeType];
       });
     });
   };
@@ -136,7 +136,7 @@
     showSizeChanger: true,
     defaultPageSize: 20,
     buildOptionText: (size: any) => {
-      return Number(size.value) + ' 项' + '/' + '页';
+      return Number(size.value) + ' 项/页';
     },
   };
   const Record_selection = (dataSource: any) => {

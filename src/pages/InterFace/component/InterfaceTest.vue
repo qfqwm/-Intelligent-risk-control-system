@@ -68,10 +68,15 @@
   </a-drawer>
 </template>
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, defineProps } from 'vue';
   import emitter from '@/utils/bus';
   import { InterfaceDetailSelect, InterfaceTestc } from '@/api/test/index';
   import { message } from 'ant-design-vue';
+
+  // const props = defineProps({
+  //   showInterfaceTest: Object,
+  // });
+  // console.log(4444, props.showInterfaceTest);
 
   const visible = ref<boolean>(false);
   const showDrawer = () => {
@@ -98,6 +103,8 @@
   }
   //显示接口信息的接口名称、Request URL、请求方式
   const requestUrl = ref<string>();
+  // const requestUrlData = ref<string>();
+  // let requestUrlData = '';
   const interfaceMsgs = ref<interfaceMsgs>({} as any);
   const interMsgId = ref();
   const data = ref([] as any); //输入参数
@@ -108,6 +115,7 @@
     requestUrl.value = record.interMsgApiProtocol.toLowerCase() + '://' + record.interMsgIp + record.interMsgApiUrl;
     async function InterfaceDetailSelect_way() {
       await InterfaceDetailSelect(interMsgId.value).then(res => {
+        console.log(res.data.data);
         res.data.data.interfaceConfigs.forEach(p => {
           if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
           if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
@@ -163,10 +171,6 @@
     testData.value.requestBody = textArea.value;
   };
   //输入参数判断测试值是否正确输入，然后开启接口测试按钮
-  // const testValue = ref();
-  // watch(testValue, () => {
-  //   console.log(1111, testValue.value);
-  // });
   const interfaceTest = ref<boolean>(true);
   const copyRuselt = ref<boolean>(true);
   const dataTest = () => {
@@ -180,7 +184,9 @@
     });
     let obj = {};
     for (let i in data.value) {
-      obj[data.value[i].interConfigName] = data.value[i].testValue;
+      if (data.value[i].interConfigPlace != 'header') {
+        obj[data.value[i].interConfigName] = data.value[i].testValue;
+      }
     }
     testData.value.inputParam = obj;
     console.log(testData.value);
@@ -203,8 +209,6 @@
       testData.value.requestURL = requestUrl.value;
     }
     testData.value.requestMethod = interfaceMsgs.value.interMsgRequest;
-    // testData.value.inputParam = obj;
-    // testData.value.requestBody = {};
   });
   async function faceTest() {
     await InterfaceTestc(testData.value).then(res => {

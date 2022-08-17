@@ -85,6 +85,7 @@
         </template>
       </a-table>
       <!-- 接口测试抽屉 -->
+      <!-- <InterfaceTest :show-interface-test="showInterfaceTest"></InterfaceTest> -->
       <InterfaceTest></InterfaceTest>
       <!-- 蒙版区域 -->
       <div v-show="show.outmask" class="mask">
@@ -457,7 +458,9 @@
     });
   };
   //接口测试抽屉
+  // const showInterfaceTest = ref();
   const showTestDrawer = (record: any) => {
+    // showInterfaceTest.value = record;
     emitter.emit('interfaceTest', record);
   };
   //批量分类
