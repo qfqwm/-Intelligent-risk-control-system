@@ -22,16 +22,16 @@
         </a-form-item>
       </a-form>
       <div style="display: flex; justify-content: end">
-        <a-button type="dark" @click="ALLonChangecode(1)"> 批量发布 </a-button>
-        <a-button type="dark" style="margin-left: 15px" @click="ALLonChangecode(2)"> 批量停用 </a-button>
-        <a-button type="dark" style="margin-left: 15px"> 批量分类 </a-button>
+        <a-button type="primary" :disabled="!hasSelected1" @click="ALLonChangecode(0)"> 批量发布 </a-button>
+        <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="ALLonChangecode(1)"> 批量停用 </a-button>
+        <a-button type="primary" style="margin-left: 15px"> 批量分类 </a-button>
         <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
       <!-- 表格区域 -->
       <a-table
         :data-source="dataSource"
         :columns="columns1"
-        :row-selection="rowSelection"
+        :row-selection="{ onChange: onSelectChange }"
         :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
           pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
@@ -40,12 +40,12 @@
           buildOptionText: (size: any) => {
             return Number(size.value) + ' 项' + '/' + '页'
           }
-
+        
         }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'interMsgName'">
-            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.interMsgId)">{{ record.interMsgName }}</router-link>
+            <router-link to="/InterfaceDetail" @click.prevent="showcode(record.interMsgId)">{{ record.interMsgName }} </router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -79,52 +79,6 @@
       </a-table>
       <!-- 接口测试抽屉 -->
       <InterfaceTest></InterfaceTest>
-      <!-- 蒙版区域 -->
-      <div v-show="show.outmask" class="mask">
-        <!-- 企业信息基本表 -->
-        <div v-show="show.PersonnelGender" class="PersonnelGender">
-          <div class="basemess">
-            <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
-            <h2>企业基本信息表</h2>
-            <h3>基本信息</h3><br />
-            <span class="label"> 中文名称：</span> {{ personnelcodetable.codename }} <br />
-            <span class="label"> 英文名称：</span> <br />
-            <h4>数据资产表描述：</h4>
-            <span class="label"> 所属目录：</span>
-          </div>
-          <h3>字段信息</h3><br />
-          <table class="PersonnelGendertable">
-            <thead>
-              <tr>
-                <th>字段英文名称</th>
-                <th>字段中文名称</th>
-                <th>字段说明</th>
-                <th>标准映射</th>
-                <th>数据类型</th>
-                <th>数据长度</th>
-                <th>数据精度</th>
-                <th>默认值</th>
-                <th>取值范围</th>
-                <th>枚举范围</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in personnelcodetable.CodeConfigure" :key="index">
-                <td>{{ index + 1 < 10 ? '0' + (index + 1) : index }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureName }}</td>
-                <td>{{ item.configureMean }}</td>
-                <td>{{ item.configureMean }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -139,6 +93,7 @@
   import { SelectCodeConfigure, SelectDirectory, queryIntfc, postDeactivation, delIntfc } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter } from 'vue-router';
+  import { List } from 'lodash';
   const router = useRouter();
 
   //查询区域
@@ -258,19 +213,21 @@
   const dataSource: Ref<DataItem[]> = ref([]);
   //调用接口加载表格
   const selectCodeTable_way = () => {
-    let state = '';
-    if (interMsgApiType.value == '未发布') state = '0';
-    if (interMsgApiType.value == '已发布') state = '1';
-    if (interMsgApiType.value == '已停用') state = '2';
-    let Source = '';
-    if (interMsgSource.value == '数据服务') Source = '0';
-    if (interMsgSource.value == '指标管理') Source = '1';
-    if (interMsgSource.value == '决策引擎') Source = '2';
-
     let object = {
       page: 1,
       size: 7,
     };
+    enum interMsgApiType {
+      未发布,
+      已发布,
+      已停用,
+    }
+    enum interMsgApiType {
+      数据服务 = 0,
+      指标管理,
+      决策引擎,
+    }
+
     let object1 = { ...object, ...formState };
     // console.log(object1);
     queryIntfc(object1).then(function (res: any) {
@@ -278,7 +235,7 @@
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
       dataSource.value = res.data.data.interfaceMsgList;
-      // console.log(dataSource.value);
+      console.log(dataSource.value);
       dataSource.value.forEach((item: any) => {
         if (item.interMsgApiType == 0) {
           item.interMsgApiType = '未发布';
@@ -299,7 +256,7 @@
           item.interMsgSource = '决策引擎';
         }
       });
-      total.value = dataSource.value.length;
+      // total.value = dataSource.value.length;
     });
   };
   selectCodeTable_way();
@@ -315,7 +272,6 @@
     formState.interMsgApiType = '';
     formState.interMsgName = '';
     formState.interDirId = '';
-
     selectCodeTable_way();
   };
   //删除
@@ -358,56 +314,79 @@
     show.outmask = true;
     show.PersonnelGender = true;
   };
-  // 关闭人员性别编码弹框
-  const closePersonnelGender = () => {
-    show.outmask = false;
-    show.PersonnelGender = false;
+
+  //按钮禁用
+  let reslist = ref<any>([]);
+  const state = reactive<{ selectedRowKeys: [] }>({
+    selectedRowKeys: [], // Check here to configure the default column
+  });
+  const isRepeat = () => {
+    const hash = {};
+    for (let i = 0; i < reslist.value.length; i += 1) {
+      if (hash[reslist[i]]) {
+        return false;
+      }
+      // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
+      hash[reslist[i]] = true;
+    }
+    return true;
   };
+  const hasSelected1 = computed(() => {
+    let someResult1 = reslist.value.every(item => item === '未发布' || item === '已停用');
+    if (state.selectedRowKeys.length > 0 && isRepeat() && someResult1) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  const hasSelected2 = computed(() => {
+    let someResult2 = reslist.value.every(item => item === '已发布');
+    if (state.selectedRowKeys.length > 0 && someResult2) {
+      console.log(state.selectedRowKeys.length);
+      return true;
+    } else {
+      return false;
+    }
+  });
 
   // 全选/反选
   const Selectall_invert = ref([]);
-  const rowSelection = ref({
-    checkStrictly: false,
-    onChange: (selectedRows: any, record) => {
-      Selectall_invert.value = selectedRows;
-    },
-  });
-  // 批量操作
+  const onSelectChange = (selectedRowKeys: any, record) => {
+    console.log('selectedRowKeys changed: ', selectedRowKeys);
+    Selectall_invert.value = selectedRowKeys;
+    state.selectedRowKeys = selectedRowKeys;
+    console.log(record);
+    reslist.value = record.map(item => {
+      return item.interMsgApiType;
+    });
+  };
+
+  // const rowSelection = ref({
+  //   checkStrictly: false,
+  //   onChange: (selectedRows: any, record) => {
+  //     Selectall_invert.value = selectedRows;
+  //      console.log(selectedRows,'key');
+  //      console.log(record,'数据');
+  //   },
+  //   getCheckboxProps:(record)=>{
+  //     console.log(record);
+  //     prop:{
+  //          disabled: true
+
+  //     }
+  //   }
+
+  // });
+
+  // 批量操作 √
   const ALLonChangecode = (state: number) => {
-    if (state === 1) {
-      state = 0;
-      let length = Selectall_invert.value.length;
-      for (let i = 0; i < length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.interMsgId === Selectall_invert.value[i]);
-        if (temp.codeType === '已发布') {
-          return message.error('已发布状态不可在进行发布');
-        }
-      }
-    }
-    if (state === 2) {
-      state = 1;
-      for (let i = 0; i < Selectall_invert.value.length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.interMsgId === Selectall_invert.value[i]);
-        if (temp.codeType == '未发布') return message.error('停用失败，存在未发布的码表！');
-      }
-      let length = Selectall_invert.value.length;
-      for (let i = 0; i < length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.interMsgId === Selectall_invert.value[i]);
-        if (temp.codeType === '已停用') {
-          return message.error('已停用状态不可在进行停用');
-        }
-      }
-    }
     // let list = Selectall_invert.value;
-    let change_array: any = {
+    const change_array: any = {
       statusType: state,
       interfaceMsgList: Selectall_invert.value,
     };
-    if (change_array.length == 0) return message.error('请选择码表进行操作!');
-    postDeactivation(change_array).then(function (res: any) {
-      console.log(res);
-      console.log(change_array);
 
+    postDeactivation(change_array).then(function (res: any) {
       if (res.data.code == 100200) {
         message.success('更新成功!');
         selectCodeTable_way();
@@ -417,7 +396,6 @@
   // 分页
   // const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
-
   // 改变编码状态 √
   const onChangecode = (interMsgId: number, state: number) => {
     let object_array = {
@@ -425,8 +403,6 @@
       interfaceMsgList: [interMsgId],
     };
     postDeactivation(object_array).then(function (res: any) {
-      console.log(res, 'czc');
-
       if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
