@@ -11,15 +11,18 @@
   <div class="bottom">
     <!-- 底部按钮区域 -->
     <div class="button"
-      ><a-button v-if="step_index === 1" size="big">测试</a-button> <a-button v-if="step_index !== 0" size="big" @click="step_up">上一步</a-button><a-button @click="cancel">取消</a-button
-      ><a-button v-if="step_index === 0 || step_index === 1" size="big" @click="keep">保存并退出</a-button>
+      ><a-button v-if="step_index === 1" size="big" @click="showTestDrawer">测试</a-button> <a-button v-if="step_index !== 0" size="big" @click="step_up">上一步</a-button
+      ><a-button @click="cancel">取消</a-button><a-button v-if="step_index === 0 || step_index === 1" size="big" @click="keep">保存并退出</a-button>
       <a-button v-if="step_index === 0" type="primary" size="big" form="Information" html-type="submit">下一步</a-button></div
     >
   </div>
+  <!-- 接口测试抽屉 -->
+  <InterfaceTest :show-interface-test="showInterfaceTest" :show-visible="showVisible" @closeDrawer="closedrawer"></InterfaceTest>
 </template>
 <script lang="ts" setup>
   import EssentialInformation from './EssentialInformation.vue';
   import ParameterConfiguration from './ParameterConfiguration.vue';
+  import InterfaceTest from '@/pages/InterFace/component/InterfaceTest.vue';
   import { InterfaceDetailSelect, insertInterMsg, insertInterConfig } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter, useRoute } from 'vue-router';
@@ -93,9 +96,13 @@
   // 递归处理数据
   const handle_data = (data, interConfigDistinguish, number) => {
     data.forEach(item => {
-      number++;
+      if (!item.interConfigId) {
+        number++;
+        item.interConfigId = number.toString();
+      } else {
+        item.interConfigId = item.interConfigId.toString();
+      }
       item.interConfigDistinguish = interConfigDistinguish;
-      item.interConfigId = number.toString();
       item.configureId = '3';
       delete item.newlyadded;
       delete item['key'];
@@ -109,6 +116,15 @@
   };
 
   const keep = () => {
+    if (
+      (Object.values(editabledata).findIndex(item => {
+        return item == false;
+      }) ==
+        -1) ==
+      false
+    )
+      return message.error('存在编辑的未保存的信息，请先保存');
+
     emitter.emit('keep');
     let object_to_data = {
       interMsgName: Basic_information.interMsgName,
@@ -194,6 +210,17 @@
     Object.keys(editabledata).forEach(item => {
       editabledata[item] = e[item];
     });
+  };
+  //接口测试抽屉
+  const showVisible = ref<boolean>(false);
+  const showInterfaceTest = ref();
+  const showTestDrawer = () => {
+    let record = { ...Basic_information };
+    showVisible.value = true;
+    showInterfaceTest.value = record;
+  };
+  const closedrawer = () => {
+    showVisible.value = false;
   };
 </script>
 <style lang="less" scoped>

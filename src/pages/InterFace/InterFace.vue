@@ -61,7 +61,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small" @click="router_link(record.interDirId)">编辑</a-button>
+              <a-button type="primary" size="small" @click="router_link(record.interMsgId)">编辑</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.interMsgId)">
                 <a-button type="primary" size="small">删除</a-button>
               </a-popconfirm>
@@ -79,7 +79,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small" @click="router_link(record.interDirId)">编辑</a-button>
+              <a-button type="primary" size="small" @click="router_link(record.interMsgId)">编辑</a-button>
             </div>
           </template>
         </template>
@@ -461,6 +461,8 @@
   const showVisible = ref<boolean>(false);
   const showInterfaceTest = ref();
   const showTestDrawer = (record: any) => {
+    console.log(record, 'record');
+
     showVisible.value = true;
     showInterfaceTest.value = record;
   };

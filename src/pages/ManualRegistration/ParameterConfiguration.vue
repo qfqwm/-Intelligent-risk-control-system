@@ -1,6 +1,6 @@
 <template>
   <DefinitionTables :table_object="input_parameter_object" @editabledata_state="input_parameter_changeeditabledata"></DefinitionTables>
-  <DefinitionTables v-if="object_form_information.interMsgRequest === 'POST'" :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata"></DefinitionTables>
+  <div v-show="object_form_information.interMsgRequest === 'POST'"><DefinitionTables :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata"></DefinitionTables></div>
   <DefinitionTables :table_object="return_parameter_object" @editabledata_state="return_parameter_changeeditabledata"></DefinitionTables>
   <JosnTo></JosnTo>
 </template>

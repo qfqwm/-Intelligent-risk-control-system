@@ -142,9 +142,9 @@
   const add_data_id = (val, front: string) => {
     return val.forEach((item, index) => {
       item.key = front + index;
-      front = item.key + '-';
       if (item.children) {
-        add_data_id(item.children, front);
+        let children_front = item.key + '-';
+        add_data_id(item.children, children_front);
       }
     });
   };
@@ -435,7 +435,7 @@
       if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
       if (select.value.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
     });
-    console.log(newData);
+
     table_data.value.push(newData);
     key_length++;
     edit((key_length - 1).toString());
@@ -501,9 +501,6 @@
   });
   // 保存并退出,传送表格数据
   emitter.on('keep', () => {
-    if (JSON.stringify(editableData) !== '{}') {
-      return message.warning('存在未保存的正在编辑内容，请先保存');
-    }
     emitter.emit('data_' + props.table_object.title, table_data.value);
   });
 

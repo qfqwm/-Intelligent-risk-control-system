@@ -4,10 +4,10 @@ import axios from 'axios';
 // import router from '@/router';
 const api = axios.create({
   //服务器
-  baseURL: 'http://120.26.203.148:8848',
+  // baseURL: 'http://120.26.203.148:8848',
 
   //ztc测试环境
-  // baseURL: 'http://10.8.21.166:8848',
+  baseURL: 'http://10.8.21.166:8848',
 
   // baseURL:"http://172.20.10.10:8080",
   // headers:{"Content-Type":"application/json;charset=utf-8"}
