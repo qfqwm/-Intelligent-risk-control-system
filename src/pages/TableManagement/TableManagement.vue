@@ -74,7 +74,7 @@
     codeId: string;
     codeName: string;
     codeExplain: string;
-    codeType: any;
+    codeType: number;
     codeUpdatetime: string;
     codeCreattime: string;
     allCodeTable: object;
@@ -82,37 +82,39 @@
   interface Search {
     codeType: string;
     codeName: string;
+    page: number;
+    size: number;
   }
   const Search = reactive<Search>({
     codeType: '',
     codeName: '',
+    page: 1,
+    size: 20,
   });
   const dataSource: Ref<DataItem[]> = ref([]);
+  enum codeType {
+    '未发布',
+    '已发布',
+    '已停用',
+  }
+  //新增编辑页面调用主页面的方法
+  emitter.on('sendcode', () => {
+    select_CodeTable();
+  });
   const codeType_areas = [
     { label: '未发布', value: '0' },
     { label: '已发布', value: '1' },
     { label: '已停用', value: '2' },
   ];
-
-  //新增编辑页面调用主页面的方法
-  emitter.on('sendcode', () => {
-    select_CodeTable();
-  });
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
       if (res.data.code !== 100200) return (dataSource.value = []);
-      dataSource.value = res.data.data;
+      dataSource.value = res.data.data.nowTable;
       dataSource.value.forEach((item: any) => {
-        if (item.codeType == 0) {
-          item.codeType = '未发布';
-        }
-        if (item.codeType == 1) {
-          item.codeType = '已发布';
-        }
-        if (item.codeType == 2) {
-          item.codeType = '已停用';
-        }
+        item.codeType = codeType[item.codeType];
       });
+      total.value = res.data.data.total;
+      allpage.value = res.data.data.allpage;
     });
   };
   select_CodeTable();
@@ -127,15 +129,32 @@
     select_CodeTable();
   };
   // 表格分页区
-  const pagination = {
-    pageSizeOptions: ['10', '15', '18', '20'],
-    showTotal: (total: any) => `共 ${total} 条`,
+  const total = ref<number>();
+  const allpage = ref<number>();
+  const pageSize = ref<number>(20);
+  const pagination = computed(() => ({
+    total: total.value,
+    current: allpage.value,
+    pageSize: pageSize.value,
+    showTotal: (total: any) => `总共 ${total} 项`,
+    pageSizeOptions: ['5', '10', '15', '20'],
     showSizeChanger: true,
-    defaultPageSize: 20,
+    showQuickJumper: true,
     buildOptionText: (size: any) => {
-      return Number(size.value) + ' 项' + '/' + '页';
+      return Number(size.value) + ' 项/页';
     },
-  };
+    onShowSizeChange: (current: number, size: number) => {
+      pageSize.value = size;
+      Search.page = current;
+      Search.size = size;
+      select_CodeTable();
+    },
+    onChange: (current: number, size: number) => {
+      Search.page = current;
+      Search.size = size;
+      select_CodeTable();
+    },
+  }));
   const Record_selection = (dataSource: any) => {
     return dataSource.codeId;
   };

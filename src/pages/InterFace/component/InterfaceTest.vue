@@ -1,5 +1,5 @@
 <template>
-  <a-drawer title="接口测试" width="1200" :closable="false" :visible="visible" @close="onClose">
+  <a-drawer title="接口测试" width="1200" :closable="false" :visible="showVisible" :destroy-on-close="true" @close="onClose">
     <a-row>
       <a-col :span="14" :style="{ height: '88vh' }">
         <a-row :style="{ height: '40px' }">
@@ -68,18 +68,29 @@
   </a-drawer>
 </template>
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import emitter from '@/utils/bus';
+  import { ref, defineProps } from 'vue';
   import { InterfaceDetailSelect, InterfaceTestc } from '@/api/test/index';
   import { message } from 'ant-design-vue';
-
-  const visible = ref<boolean>(false);
-  const showDrawer = () => {
-    visible.value = true;
-  };
-  const onClose = () => {
-    visible.value = false;
-  };
+  const emit = defineEmits(['closeDrawer']);
+  const props = defineProps({
+    showInterfaceTest: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+    showVisible: {
+      type: Boolean,
+    },
+  });
+  const showVisible = ref<boolean>(false);
+  watch(
+    () => props.showVisible,
+    p => {
+      showVisible.value = p;
+    },
+  );
+  //显示接口信息的接口名称、Request URL、请求方式
   interface interfaceMsgs {
     interDirId: number;
     interMsgApiProtocol: string; //请求协议
@@ -96,34 +107,40 @@
     interMsgUpdateTime: string;
     isDelete: number;
   }
-  //显示接口信息的接口名称、Request URL、请求方式
+  enum interConfigIsNull {
+    '是',
+    '否',
+  }
+  enum interConfigDataType {
+    'Obj',
+    'Array',
+    'String',
+    'Int',
+    'Float',
+  }
   const requestUrl = ref<string>();
-  const interfaceMsgs = ref<interfaceMsgs>({} as any);
   const interMsgId = ref();
-  const data = ref([] as any); //输入参数
-  emitter.on('interfaceTest', (record: any) => {
-    console.log(record);
-    interfaceMsgs.value = record;
-    interMsgId.value = record.interMsgId;
-    requestUrl.value = record.interMsgApiProtocol.toLowerCase() + '://' + record.interMsgIp + record.interMsgApiUrl;
-    async function InterfaceDetailSelect_way() {
-      await InterfaceDetailSelect(interMsgId.value).then(res => {
-        res.data.data.interfaceConfigs.forEach(p => {
-          if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
-          if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
-          if (p.interConfigDataType == '0') p.interConfigDataType = 'Obj';
-          if (p.interConfigDataType == '1') p.interConfigDataType = 'Array';
-          if (p.interConfigDataType == '2') p.interConfigDataType = 'String';
-          if (p.interConfigDataType == '3') p.interConfigDataType = 'Int';
-          if (p.interConfigDataType == '4') p.interConfigDataType = 'Float';
-          if (p.interConfigDistinguish == '0') data.value.push(p);
+  const interfaceMsgs = ref<interfaceMsgs>({} as any);
+  watch(
+    () => props.showInterfaceTest,
+    p => {
+      interfaceMsgs.value = p as any;
+      requestUrl.value = p.interMsgApiProtocol.toLowerCase() + '://' + p.interMsgIp + p.interMsgApiUrl;
+      interMsgId.value = p.interMsgId;
+      async function InterfaceDetailSelect_way() {
+        await InterfaceDetailSelect(interMsgId.value).then(res => {
+          res.data.data.requestParameters.forEach(p => {
+            p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+            p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+            if (p.interConfigDistinguish == '0') data.value.push(p);
+          });
         });
-      });
-    }
-    InterfaceDetailSelect_way();
-    showDrawer();
-  });
+      }
+      InterfaceDetailSelect_way();
+    },
+  );
 
+  const data = ref([] as any); //输入参数
   const activeKey = ref('1');
   const columns = [
     {
@@ -163,10 +180,6 @@
     testData.value.requestBody = textArea.value;
   };
   //输入参数判断测试值是否正确输入，然后开启接口测试按钮
-  // const testValue = ref();
-  // watch(testValue, () => {
-  //   console.log(1111, testValue.value);
-  // });
   const interfaceTest = ref<boolean>(true);
   const copyRuselt = ref<boolean>(true);
   const dataTest = () => {
@@ -180,10 +193,34 @@
     });
     let obj = {};
     for (let i in data.value) {
-      obj[data.value[i].interConfigName] = data.value[i].testValue;
+      if (data.value[i].interConfigPlace != 'header') {
+        obj[data.value[i].interConfigName] = data.value[i].testValue;
+      }
+    }
+    if (interfaceMsgs.value.interMsgRequest == 'POST') {
+      for (let i in data.value) {
+        if (data.value[i].interConfigPlace != 'header') {
+          obj[data.value[i].interConfigName] = data.value[i].testValue;
+          testData.value.requestURL = requestUrl.value;
+        }
+        if (data.value[i].interConfigPlace == 'header') {
+          testData.value.requestURL = requestUrl.value + '/' + data.value[i].testValue;
+        }
+      }
+      testData.value.requestBody = null as any;
+    }
+    if (interfaceMsgs.value.interMsgRequest == 'GET') {
+      for (let i in data.value) {
+        if (data.value[i].interConfigPlace != 'header') {
+          obj[data.value[i].interConfigName] = data.value[i].testValue;
+          testData.value.requestURL = requestUrl.value;
+        }
+        if (data.value[i].interConfigPlace == 'header') {
+          testData.value.requestURL = requestUrl.value + '/' + data.value[i].testValue;
+        }
+      }
     }
     testData.value.inputParam = obj;
-    console.log(testData.value);
   };
 
   //接口测试调用接口
@@ -195,21 +232,11 @@
   }
   const testData = ref<TestData>({} as any);
   watch(interfaceMsgs, () => {
-    if (interfaceMsgs.value.interMsgRequest == 'POST') {
-      testData.value.requestURL = requestUrl.value;
-      testData.value.requestBody = null as any;
-    }
-    if (interfaceMsgs.value.interMsgRequest == 'GET') {
-      testData.value.requestURL = requestUrl.value;
-    }
     testData.value.requestMethod = interfaceMsgs.value.interMsgRequest;
-    // testData.value.inputParam = obj;
-    // testData.value.requestBody = {};
   });
   async function faceTest() {
     await InterfaceTestc(testData.value).then(res => {
-      console.log(res.data);
-      resultData.value = res.data;
+      resultData.value = res.data.data;
       copyRuselt.value = false;
     });
   }
@@ -223,6 +250,11 @@
   //验证规则
   const rules = {
     testValue: [{ required: true, message: '新增目录不能为空', trigger: 'blur' }],
+  };
+  //关闭抽屉
+  const onClose = () => {
+    showVisible.value = false;
+    emit('closeDrawer');
   };
 </script>
 <style scoped leng="less">
