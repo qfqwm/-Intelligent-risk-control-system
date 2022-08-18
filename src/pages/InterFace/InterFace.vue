@@ -85,8 +85,8 @@
         </template>
       </a-table>
       <!-- 接口测试抽屉 -->
-      <!-- <InterfaceTest :show-interface-test="showInterfaceTest"></InterfaceTest> -->
-      <InterfaceTest></InterfaceTest>
+      <InterfaceTest :show-interface-test="showInterfaceTest" :show-visible="showVisible" @closeDrawer="closedrawer"></InterfaceTest>
+      <!-- <InterfaceTest></InterfaceTest> -->
       <!-- 蒙版区域 -->
       <div v-show="show.outmask" class="mask">
         <!-- 企业信息基本表 -->
@@ -458,10 +458,14 @@
     });
   };
   //接口测试抽屉
-  // const showInterfaceTest = ref();
+  const showVisible = ref<boolean>(false);
+  const showInterfaceTest = ref();
   const showTestDrawer = (record: any) => {
-    // showInterfaceTest.value = record;
-    emitter.emit('interfaceTest', record);
+    showVisible.value = true;
+    showInterfaceTest.value = record;
+  };
+  const closedrawer = () => {
+    showVisible.value = false;
   };
   //批量分类
   const visible2 = ref<boolean>(false);
