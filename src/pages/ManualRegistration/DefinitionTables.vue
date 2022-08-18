@@ -52,7 +52,9 @@
             </a-select>
           </a-form-item>
           <template v-else>
-            {{ text }}
+            <template v-if="column.dataIndex == 'interConfigDataType'">{{ data_type[text] }}</template>
+            <template v-else-if="column.dataIndex == 'interConfigIsNull'">{{ is_Required[text] }}</template>
+            <template v-else> {{ text }}</template>
           </template>
         </template>
         <!-- 操作区域 -->
@@ -62,8 +64,8 @@
             <span v-if="editableData[record.key]">
               <a @click="save(record)">保存</a>
               <a @click="cancel(record.key)">取消</a>
-              <a v-if="record.leixing == 'Int' || record.leixing == 'String'" @click="showcode(record)">码值定义</a>
-              <a v-if="record.leixing == 'Object' || record.leixing == 'Array'" @click="add_subordinate(record)">添加下级</a>
+              <a v-if="record.interConfigDataType == '2' || record.interConfigDataType == '3'" @click="showcode(record)">码值定义</a>
+              <a v-if="record.interConfigDataType == '0' || record.interConfigDataType == '1'" @click="add_subordinate(record)">添加下级</a>
               <Definition />
             </span>
             <span v-else>
@@ -86,12 +88,52 @@
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
 
+  const emits = defineEmits(['editabledata_state']);
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
     table_object: any;
   };
+  enum data_type {
+    Object,
+    Array,
+    String,
+    Int,
+    Float,
+  }
+  enum is_Required {
+    否,
+    是,
+  }
   const props = defineProps<Props>();
+  watch(
+    () => props.table_object.dataSource.value,
+    () => {
+      if (
+        table_data.value.findIndex(item => {
+          return item.key;
+        }) == -1
+      ) {
+        table_data.value = props.table_object.dataSource;
+        add_data_id(table_data.value, '');
+        key_length = props.table_object.dataSource.length;
+      }
+    },
+    { deep: true },
+  );
+  //   编辑
+  const editableData: UnwrapRef<Record<string, any>> = reactive({});
+  const editableData_state = ref(true);
+  watch(
+    () => editableData,
+    () => {
+      if (JSON.stringify(editableData) !== '{}') {
+        editableData_state.value = false;
+        emits('editabledata_state', editableData_state.value);
+      }
+    },
+    { deep: true },
+  );
   const filterOption = (input: string, option: any) => {
     return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
   };
@@ -105,7 +147,6 @@
     });
   };
   const table_data = ref(props.table_object.dataSource);
-  add_data_id(table_data.value, '');
   // 查找input框/select框/必填参数
   const input = ref<any>([]);
   const select = ref<any>([]);
@@ -148,7 +189,7 @@
         errorMsg: '此项为必填项',
       };
     }
-    if (column_dataIndex == 'name') {
+    if (column_dataIndex == 'interConfigName') {
       let char_length = key.lastIndexOf('-');
       const father_str = key.substring(0, char_length);
       const Is_it_the_same_name = steamroller(table_data.value).findIndex(item => {
@@ -184,8 +225,8 @@
   const Verificationprompt = [] as any;
   const handleChange = (value, key, column_dataIndex, record) => {
     // 监听select数据类型框的变化，如果不为Object类型和Array类型，则清空子集
-    if (column_dataIndex === 'leixing') {
-      if (['Array', 'Object'].indexOf(value) === -1) {
+    if (column_dataIndex === 'interConfigDataType') {
+      if (['0', '1'].indexOf(value) === -1) {
         if (record.children) {
           let children_object_index = Object.values(children_object).findIndex((item: any) => {
             return item.key === key;
@@ -301,7 +342,9 @@
     } else {
       if (table_data.value[table_data.value.findIndex(item => item.key == key)].children && table_data.value[table_data.value.findIndex(item => item.key == key)].children.length !== 0)
         message.error('存在子集，无法删除');
-      else table_data.value = table_data.value.filter(item => item.key !== key);
+      else {
+        table_data.value = table_data.value.filter(item => item.key !== key);
+      }
     }
     let new_table_length = steamroller(table_data.value).length;
     if (old_table_length !== new_table_length) {
@@ -311,8 +354,7 @@
       });
     }
   };
-  //   编辑
-  const editableData: UnwrapRef<Record<string, any>> = reactive({});
+
   const edit = (key: string) => {
     editableData[key] = cloneDeep(steamroller(table_data.value).filter(item => key === item.key)[0]);
   };
@@ -391,6 +433,7 @@
       if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
       if (select.value.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
     });
+    console.log(newData);
     table_data.value.push(newData);
     key_length++;
     edit((key_length - 1).toString());
@@ -454,8 +497,11 @@
     add_children_key(e);
     table_data.value.push(...e);
   });
-  // 保存并退出
+  // 保存并退出,传送表格数据
   emitter.on('keep', () => {
+    if (JSON.stringify(editableData) !== '{}') {
+      return message.warning('存在未保存的正在编辑内容，请先保存');
+    }
     emitter.emit('data_' + props.table_object.title, table_data.value);
   });
 

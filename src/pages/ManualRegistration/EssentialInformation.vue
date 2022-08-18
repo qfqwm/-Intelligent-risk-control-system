@@ -13,7 +13,6 @@
           placeholder="请选择"
           :tree-data="select_all.Interface_classification"
           :field-names="fieldNames"
-          @click="convertData(select_all.Interface_classification)"
         >
         </a-tree-select>
       </a-form-item-rest>
@@ -22,7 +21,7 @@
       <a-input v-model:value.trim="Information.interMsgName" placeholder="请输入" style="width: 45%" />
     </a-form-item>
     <a-form-item label="接口来源" name="interMsgSource" :rules="rules.Interface_source">
-      <a-select v-model:value.trim="Information.interMsgSource" placeholder="请选择" show-search style="width: 45%" :options="select_all.Interface_source" :filter-option="filterOption"> </a-select>
+      <a-select v-model:value="Information.interMsgSource" placeholder="请选择" show-search style="width: 45%" :options="select_all.Interface_source" :filter-option="filterOption"> </a-select>
     </a-form-item>
     <a-form-item label="接口描述" name="interMsgDescribe">
       <a-textarea v-model:value.trim="Information.interMsgDescribe" style="width: 45%" placeholder="请输入" />
@@ -51,20 +50,10 @@
   import emitter from '@/utils/bus';
   import { InterfaceSelectDirectory } from '@/api/test/index';
   import { reactive } from 'vue';
-  interface Information {
-    interDirId: string | undefined;
-    interMsgName: string | undefined;
-    interMsgSource: string | undefined;
-    interMsgDescribe: string | undefined;
-    interMsgApiProtocol: string | undefined;
-    interMsgIp: string | undefined;
-    interMsgApiUrl: string | undefined;
-    interMsgRequest: string | undefined;
-    interMsgOvertime: string | undefined;
-  }
+
   // 定义基本信息
-  const Information = reactive<Information>({
-    interDirId: undefined,
+  const Information = reactive({
+    interDirId: '',
     interMsgName: '',
     interMsgSource: undefined,
     interMsgDescribe: '',
@@ -73,7 +62,7 @@
     interMsgApiUrl: '',
     interMsgRequest: undefined,
     interMsgOvertime: '',
-  });
+  }) as any;
   // 定义下拉框选项
   const filterOption = (input: string, option: any) => {
     return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -81,9 +70,9 @@
   const select_all = reactive({
     Interface_classification: [],
     Interface_source: [
-      { value: '0', label: '数据服务' },
-      { value: '1', label: '指标管理' },
-      { value: '2', label: '决策引擎' },
+      { value: 0, label: '数据服务' },
+      { value: 1, label: '指标管理' },
+      { value: 2, label: '决策引擎' },
     ],
     Interface_agreement: [
       { value: 'HTTP', label: 'HTTP' },
@@ -96,6 +85,7 @@
   });
   InterfaceSelectDirectory().then(res => {
     select_all.Interface_classification = res.data.data;
+    convertData(select_all.Interface_classification);
   });
   const fieldNames = {
     children: 'children',
@@ -145,6 +135,10 @@
     Object.keys(Information).forEach(item => {
       Information[item] = e[item];
     });
+  });
+  // 保存并退出,传送表格数据
+  emitter.on('keep', () => {
+    emitter.emit('object_form', Information);
   });
 </script>
 <style scoped lang="less">

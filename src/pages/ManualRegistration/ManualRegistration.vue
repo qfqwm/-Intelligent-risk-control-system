@@ -5,7 +5,8 @@
     </a-steps>
   </div>
   <div class="body_edit_add">
-    <EssentialInformation v-show="step_index === 0"></EssentialInformation> <div v-show="step_index === 1"><ParameterConfiguration></ParameterConfiguration></div>
+    <EssentialInformation v-show="step_index === 0"></EssentialInformation>
+    <div v-show="step_index === 1"><ParameterConfiguration :parameter_configuration="Parameter_configuration"></ParameterConfiguration></div>
   </div>
   <div class="bottom">
     <!-- 底部按钮区域 -->
@@ -19,11 +20,23 @@
 <script lang="ts" setup>
   import EssentialInformation from './EssentialInformation.vue';
   import ParameterConfiguration from './ParameterConfiguration.vue';
-  import { InterfaceDetailSelect, insertInterMsg } from '@/api/test/index';
+  import { InterfaceDetailSelect, insertInterMsg, insertInterConfig } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter, useRoute } from 'vue-router';
   import { selectMaxConfig } from '@/api/test/index';
+  import { message } from 'ant-design-vue';
   const router = useRouter();
+  interface Information {
+    interDirId: string | undefined;
+    interMsgName: string | undefined;
+    interMsgSource: string | undefined;
+    interMsgDescribe: string | undefined;
+    interMsgApiProtocol: string | undefined;
+    interMsgIp: string | undefined;
+    interMsgApiUrl: string | undefined;
+    interMsgRequest: string | undefined;
+    interMsgOvertime: string | undefined;
+  }
   const hend_titile = ref([
     {
       title: '基本信息',
@@ -38,22 +51,29 @@
   const step_up = () => {
     step_index.value--;
   };
+  // 记录后端返回最大值id
+  selectMaxConfig().then(function (res) {
+    min_id.value = res.data.data;
+  });
   // 下一步按钮方法
+  const min_id = ref(0);
   const step_down = () => {
-    selectMaxConfig().then(function (res) {
-      console.log(res.data.data);
-    });
     let object = {} as any;
     Object.keys(Basic_information).forEach(item => {
       object[item] = Basic_information[item];
     });
     // 新增
-    object.interMsgApiType = '0';
-    let object_insertInterMsg = { interfaceMsg: object };
-    insertInterMsg(object_insertInterMsg).then(function (res) {
-      console.log(res.data.data);
-    });
-    step_index.value++;
+    if (Route.query.mode === 'zc') {
+      object.interMsgApiType = '0';
+      let object_insertInterMsg = { interfaceMsg: object };
+      insertInterMsg(object_insertInterMsg).then(function (res) {
+        if (res.data.msg == '返回成功') {
+          step_index.value++;
+        } else message.error(res.data.msg);
+      });
+    } else {
+      step_index.value++;
+    }
   };
   // 取消按钮
   const cancel = () => {
@@ -70,8 +90,44 @@
       step_down();
     },
   );
+  // 递归处理数据
+  const handle_data = (data, interConfigDistinguish, number) => {
+    data.forEach(item => {
+      number++;
+      item.interConfigDistinguish = interConfigDistinguish;
+      item.interConfigId = number.toString();
+      item.configureId = '3';
+      delete item.newlyadded;
+      delete item['key'];
+      if (item.children) {
+        item.interfaceConfigMsgDTO = [...item.children];
+        delete item.children;
+        number = handle_data(item.interfaceConfigMsgDTO, interConfigDistinguish, number);
+      }
+    });
+    return number;
+  };
+
   const keep = () => {
     emitter.emit('keep');
+    let object_to_data = {
+      interMsgName: Basic_information.interMsgName,
+      interInputConfigDTO: [...input_parameter_data.value],
+      interReqConfigDTO: [...quest_body_data.value],
+      interRetConfigDTO: [...return_parameter_data.value],
+    };
+    let num = min_id.value;
+    if (object_to_data.interInputConfigDTO.length !== 0) num = handle_data(object_to_data.interInputConfigDTO, '0', num);
+    if (object_to_data.interReqConfigDTO.length !== 0) num = handle_data(object_to_data.interReqConfigDTO, '1', num);
+    if (object_to_data.interRetConfigDTO.length !== 0) handle_data(object_to_data.interRetConfigDTO, '2', num);
+    insertInterConfig(object_to_data).then(function (res) {
+      if (res.data.msg == '返回成功') {
+        message.success('新增成功！');
+        router.go(-1);
+      } else {
+        message.error(res.data.msg);
+      }
+    });
   };
   // 定义函数，处理参数配置的数据
   const change_data = val => {
@@ -100,9 +156,15 @@
     change_data(e);
     return_parameter_data.value = e;
   });
+  // 接收基础信息内容
+  emitter.on('object_form', (e: any) => {
+    Object.keys(Basic_information).forEach(item => {
+      Basic_information[item] = e[item];
+    });
+  });
 
   // 基本信息内容
-  const Basic_information = reactive({
+  const Basic_information = reactive<Information>({
     interDirId: '',
     interMsgName: '',
     interMsgSource: undefined,
@@ -113,7 +175,8 @@
     interMsgRequest: undefined,
     interMsgOvertime: '',
   });
-  // 接收路由传参
+  // 路由传参,发送点击编辑后，后端传入的基础信息数据
+  const Parameter_configuration = ref();
   const Route = useRoute();
   if (Route.query.mode !== 'zc') {
     InterfaceDetailSelect(Route.query.mode as any).then(function (res) {
@@ -121,6 +184,7 @@
         Object.keys(Basic_information).forEach(item => {
           Basic_information[item] = res.data.data.interfaceMsgs[item];
         });
+        Parameter_configuration.value = res.data.data;
         emitter.emit('Basic_information', Basic_information);
       }
     });
