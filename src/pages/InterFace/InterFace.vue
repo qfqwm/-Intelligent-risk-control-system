@@ -31,7 +31,7 @@
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
-          <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
+          <a-button type="primary" style="margin-left: 15px" @click="router_link('zc')"> 人工注册 </a-button>
         </div>
       </div>
       <!-- 表格区域 -->
@@ -61,7 +61,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
+              <a-button type="primary" size="small" @click="router_link(record.interMsgId)">编辑</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.interMsgId)">
                 <a-button type="primary" size="small">删除</a-button>
               </a-popconfirm>
@@ -79,7 +79,7 @@
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
                 <a-button type="primary" size="small">发布</a-button>
               </a-popconfirm>
-              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
+              <a-button type="primary" size="small" @click="router_link(record.interMsgId)">编辑</a-button>
             </div>
           </template>
         </template>
@@ -196,20 +196,20 @@
     allCodeTable: object;
   }
 
-  const visible = ref<boolean>(false);
+  // const visible = ref<boolean>(false);
 
-  const showDrawer = (type: string, record: any) => {
-    const sdd = reactive({
-      type: type,
-      record: record,
-      visible: visible,
-      treeData: treeData,
-    });
-    // console.log(11111222, sdd.record);
+  // const showDrawer = (type: string, record: any) => {
+  //   const sdd = reactive({
+  //     type: type,
+  //     record: record,
+  //     visible: visible,
+  //     treeData: treeData,
+  //   });
+  //   // console.log(11111222, sdd.record);
 
-    // Add();
-    emitter.emit('sendchild', sdd);
-  };
+  //   // Add();
+  //   emitter.emit('sendchild', sdd);
+  // };
 
   // 搜索功能
   const interMsgSource = ref<string>('');
@@ -334,9 +334,9 @@
   //删除
   const onDelete = (code: string) => {
     delIntfc(code).then(function (res: any) {
-      if (res.data.msg == '删除成功') {
-        dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
-      }
+      // if (res.data.msg == '删除成功') {
+      dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
+      // }
     });
   };
   // 判断弹框显示隐藏
@@ -461,6 +461,8 @@
   const showVisible = ref<boolean>(false);
   const showInterfaceTest = ref();
   const showTestDrawer = (record: any) => {
+    console.log(record, 'record');
+
     showVisible.value = true;
     showInterfaceTest.value = record;
   };
@@ -486,8 +488,8 @@
     emitter.emit('batchclass', data);
   };
   // 人工注册跳转
-  const router_link = () => {
-    router.push({ name: 'manualregistration' });
+  const router_link = (id?: any) => {
+    router.push({ name: 'manualregistration', query: { mode: id } });
   };
 </script>
 

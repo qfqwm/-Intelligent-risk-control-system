@@ -1,7 +1,7 @@
 <template>
-  <DefinitionTables :table_object="input_parameter_object"></DefinitionTables>
-  <DefinitionTables v-if="object_form_information.Interface_request === 'POST'" :table_object="quest_body_object"></DefinitionTables>
-  <DefinitionTables :table_object="return_parameter_object"></DefinitionTables>
+  <DefinitionTables :table_object="input_parameter_object" @editabledata_state="input_parameter_changeeditabledata"></DefinitionTables>
+  <div v-show="object_form_information.interMsgRequest === 'POST'"><DefinitionTables :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata"></DefinitionTables></div>
+  <DefinitionTables :table_object="return_parameter_object" @editabledata_state="return_parameter_changeeditabledata"></DefinitionTables>
   <JosnTo></JosnTo>
 </template>
 <script lang="ts" setup>
@@ -10,26 +10,39 @@
   import emitter from '@/utils/bus';
   import DefinitionTables from './DefinitionTables.vue';
   import JosnTo from './JosnTo.vue';
+  const emits = defineEmits(['editabledata']);
+  type Props = {
+    // eslint-disable-next-line vue/prop-name-casing
+    parameter_configuration: any;
+  };
+  const props = defineProps<Props>();
+  watch(
+    () => props.parameter_configuration,
+    () => {
+      input_parameter_object.value.dataSource = props.parameter_configuration.requestParameters;
+      quest_body_object.value.dataSource = props.parameter_configuration.requestBodys;
+      return_parameter_object.value.dataSource = props.parameter_configuration.backParameters;
+    },
+  );
   interface input_parameter_DataItem {
-    name: string;
-    weizhi: string;
-    leixing: string;
-    bitian: string;
-    moren: string;
-    miaoshu: string;
+    interConfigName: string;
+    interConfigPlace: string;
+    interConfigDataType: string;
+    interConfigIsNull: string;
+    interConfigDefault: string;
+    interConfigDescribe: string;
   }
   interface quest_body_DataItem {
-    name: string;
-    leixing: string;
-    bitian: string;
-    moren: string;
-    miaoshu: string;
-    shuoming: string;
+    interConfigName: string;
+    interConfigDataType: string;
+    interConfigIsNull: string;
+    interConfigDefault: string;
+    interConfigDescribe: string;
   }
   interface return_parameter_DataItem {
-    name: string;
-    leixing: string;
-    shuoming: string;
+    interConfigName: string;
+    interConfigDataType: string;
+    interConfigDescribe: string;
   }
   // 接收基本信息
   const object_form_information = ref({ Interface_request: '' }) as any;
@@ -40,7 +53,7 @@
   const input_parameter_columns = [
     {
       title: '参数名称',
-      dataIndex: 'name',
+      dataIndex: 'interConfigName',
       width: '180px',
       type: 'input',
       className: 'form-table-heard',
@@ -48,7 +61,7 @@
     },
     {
       title: '参数位置',
-      dataIndex: 'weizhi',
+      dataIndex: 'interConfigPlace',
       width: '180px',
       type: 'select',
       className: 'form-table-heard',
@@ -56,7 +69,7 @@
     },
     {
       title: '数据类型',
-      dataIndex: 'leixing',
+      dataIndex: 'interConfigDataType',
       type: 'select',
       width: '180px',
       className: 'form-table-heard',
@@ -64,7 +77,7 @@
     },
     {
       title: '是否必填',
-      dataIndex: 'bitian',
+      dataIndex: 'interConfigIsNull',
       type: 'select',
       width: '120px',
       className: 'form-table-heard',
@@ -72,14 +85,14 @@
     },
     {
       title: '默认值',
-      dataIndex: 'moren',
+      dataIndex: 'interConfigDefault',
       type: 'input',
       width: '150px',
     },
     {
       title: '参数描述',
       type: 'input',
-      dataIndex: 'miaoshu',
+      dataIndex: 'interConfigDescribe',
     },
     {
       title: '操作',
@@ -88,34 +101,25 @@
     },
   ];
 
-  const weizhi = [
+  const Place = [
     { label: 'Query', value: 'Query' },
     { label: 'Header', value: 'Header' },
   ];
   const Simple_type = [
-    { label: 'String', value: 'String' },
-    { label: 'Int', value: 'Int' },
-    { label: 'Float', value: 'Float' },
+    { label: 'String', value: '2' },
+    { label: 'Int', value: '3' },
+    { label: 'Float', value: '4' },
   ];
-  const bitian = [
-    { label: '是', value: '是' },
-    { label: '否', value: '否' },
+  const Required = [
+    { label: '是', value: '1' },
+    { label: '否', value: '0' },
   ];
   const select_parameter_options = ref({
-    weizhi: weizhi,
-    leixing: Simple_type,
-    bitian: bitian,
+    interConfigPlace: Place,
+    interConfigDataType: Simple_type,
+    interConfigIsNull: Required,
   });
-  const input_parameter_data: Ref<input_parameter_DataItem[]> = ref([
-    {
-      name: 'Edward King 0',
-      weizhi: '111',
-      leixing: 'London, Park Lane no. 0',
-      bitian: '123',
-      moren: 'dasd',
-      miaoshu: '12312',
-    },
-  ]);
+  const input_parameter_data: Ref<input_parameter_DataItem[]> = ref([]);
 
   const input_parameter_object = ref({
     title: '输入参数',
@@ -127,7 +131,7 @@
   const quest_body_columns = [
     {
       title: '参数名称',
-      dataIndex: 'name',
+      dataIndex: 'interConfigName',
       width: '16%',
       quired: true,
       type: 'input',
@@ -135,7 +139,7 @@
     },
     {
       title: '数据类型',
-      dataIndex: 'leixing',
+      dataIndex: 'interConfigDataType',
       width: '16%',
       type: 'select',
       quired: true,
@@ -143,7 +147,7 @@
     },
     {
       title: '是否必填',
-      dataIndex: 'bitian',
+      dataIndex: 'interConfigIsNull',
       width: '12%',
       type: 'select',
       quired: true,
@@ -151,13 +155,13 @@
     },
     {
       title: '默认值',
-      dataIndex: 'moren',
+      dataIndex: 'interConfigDefault',
       width: '15%',
       type: 'input',
     },
     {
       title: '	参数说明',
-      dataIndex: 'shuoming',
+      dataIndex: 'interConfigDescribe',
       width: '20%',
       type: 'input',
     },
@@ -168,26 +172,17 @@
       width: '20%',
     },
   ];
-  const quest_body_data: Ref<quest_body_DataItem[]> = ref([
-    {
-      name: 'string',
-      leixing: 'string',
-      bitian: 'string',
-      moren: 'string',
-      miaoshu: 'string',
-      shuoming: 'string',
-    },
-  ]);
+  const quest_body_data: Ref<quest_body_DataItem[]> = ref([]);
   const Complex_type = [
-    { label: 'String', value: 'String' },
-    { label: 'Int', value: 'Int' },
-    { label: 'Float', value: 'Float' },
-    { label: 'Object', value: 'Object' },
-    { label: 'Array', value: 'Array' },
+    { label: 'String', value: '2' },
+    { label: 'Int', value: '3' },
+    { label: 'Float', value: '4' },
+    { label: 'Object', value: '0' },
+    { label: 'Array', value: '1' },
   ];
   const quest_body_options = ref({
-    leixing: Complex_type,
-    bitian: bitian,
+    interConfigDataType: Complex_type,
+    interConfigIsNull: Required,
   });
 
   const quest_body_object = ref({
@@ -200,7 +195,7 @@
   const return_parameter_columns = [
     {
       title: '参数名称',
-      dataIndex: 'name',
+      dataIndex: 'interConfigName',
       width: '25%',
       type: 'input',
       quired: true,
@@ -208,7 +203,7 @@
     },
     {
       title: '数据类型',
-      dataIndex: 'leixing',
+      dataIndex: 'interConfigDataType',
       width: '25%',
       type: 'select',
       quired: true,
@@ -216,7 +211,7 @@
     },
     {
       title: '参数说明',
-      dataIndex: 'shuoming',
+      dataIndex: 'interConfigDescribe',
       type: 'input',
       width: '25%',
     },
@@ -226,30 +221,9 @@
       width: '25%',
     },
   ];
-  const return_parameter_data: Ref<return_parameter_DataItem[]> = ref([
-    {
-      name: 'Edward King 0',
-      leixing: 'aaaaaaaaaaaaaa',
-      shuoming: '12312',
-      children: [
-        {
-          name: 'Edward King 1',
-          leixing: 'aaaaaaaaaaaaaa',
-          shuoming: '12312',
-          children: [
-            {
-              name: 'Edward King 2',
-              leixing: 'aaaaaaaaaaaaaa',
-              shuoming: '12312',
-            },
-          ],
-        },
-      ],
-    },
-  ]);
-
+  const return_parameter_data: Ref<return_parameter_DataItem[]> = ref([]);
   const return_parameter_options = ref({
-    leixing: Complex_type,
+    interConfigDataType: Complex_type,
   });
   const return_parameter_object = ref({
     title: '返回参数',
@@ -257,5 +231,26 @@
     dataSource: return_parameter_data,
     options: return_parameter_options,
   });
+  const editabledata = reactive({
+    input_parameter: true,
+    quest_body: true,
+    return_parameter: true,
+  });
+  const input_parameter_changeeditabledata = e => {
+    editabledata.input_parameter = e;
+  };
+  const quest_body_changeeditabledata = e => {
+    editabledata.quest_body = e;
+  };
+  const return_parameter_changeeditabledata = e => {
+    editabledata.return_parameter = e;
+  };
+  watch(
+    () => editabledata,
+    () => {
+      emits('editabledata', editabledata);
+    },
+    { deep: true },
+  );
 </script>
 <style lang="less" scoped></style>

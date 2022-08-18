@@ -80,6 +80,9 @@
         return {};
       },
     },
+    textObject: {
+      type: Object,
+    },
     showVisible: {
       type: Boolean,
     },
@@ -128,16 +131,24 @@
       interfaceMsgs.value = p as any;
       requestUrl.value = p.interMsgApiProtocol.toLowerCase() + '://' + p.interMsgIp + p.interMsgApiUrl;
       interMsgId.value = p.interMsgId;
-      async function InterfaceDetailSelect_way() {
-        await InterfaceDetailSelect(interMsgId.value).then(res => {
-          res.data.data.requestParameters.forEach(p => {
-            p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
-            p.interConfigDataType = interConfigDataType[p.interConfigDataType];
-            if (p.interConfigDistinguish == '0') data.value.push(p);
-          });
+      if (props.textObject) {
+        props.textObject.input_parameter_data.forEach(p => {
+          p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+          p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+          data.value.push(p);
         });
+      } else {
+        async function InterfaceDetailSelect_way() {
+          await InterfaceDetailSelect(interMsgId.value).then(res => {
+            res.data.data.requestParameters.forEach(p => {
+              p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+              p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+              data.value.push(p);
+            });
+          });
+        }
+        InterfaceDetailSelect_way();
       }
-      InterfaceDetailSelect_way();
     },
   );
 

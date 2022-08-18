@@ -60,14 +60,7 @@
       </template>
     </template>
   </a-table>
-  <AddEdit
-    :add_edit_type="add_edit_type"
-    :record_object="record_object"
-    :show_drawer_number="showDrawer_number"
-    :showcode_num="num_showcode"
-    :code_details="code_details"
-    @get-data="select_CodeTable"
-  />
+  <AddEdit :add_edit_type="add_edit_type" :record_object="record_object" :show_drawer_number="showDrawer_number" :showcode_num="num_showcode" :code_details="code_details" />
 </template>
 <script lang="ts" setup>
   import { reactive, ref } from 'vue';
@@ -75,6 +68,7 @@
   import AddEdit from '@/pages/TableManagement/AddEdit.vue';
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
+  import emitter from '@/utils/bus';
   interface DataItem {
     key: string;
     codeId: string;
@@ -98,16 +92,20 @@
     size: 20,
   });
   const dataSource: Ref<DataItem[]> = ref([]);
-  const codeType_areas = [
-    { label: '未发布', value: '0' },
-    { label: '已发布', value: '1' },
-    { label: '已停用', value: '2' },
-  ];
   enum codeType {
     '未发布',
     '已发布',
     '已停用',
   }
+  //新增编辑页面调用主页面的方法
+  emitter.on('sendcode', () => {
+    select_CodeTable();
+  });
+  const codeType_areas = [
+    { label: '未发布', value: '0' },
+    { label: '已发布', value: '1' },
+    { label: '已停用', value: '2' },
+  ];
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
       if (res.data.code !== 100200) return (dataSource.value = []);
@@ -217,8 +215,9 @@
   // 删除码表
   const onDelete = (code: string) => {
     DeleteCode(code).then(function (res: any) {
-      if (res.data.msg == '删除成功') {
+      if (res.data.code == 100200) {
         dataSource.value = dataSource.value.filter((item: any) => item.codeId !== code);
+        return message.success(res.data.data);
       }
     });
   };
@@ -232,6 +231,8 @@
     selectedRowKeys: Selectall_invert,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
+      console.log(Selectall_invert.value, 'iisd');
+
       if (Selectall_invert.value != ('' as any)) {
         batch.value = false;
       }
