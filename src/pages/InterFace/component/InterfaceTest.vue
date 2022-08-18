@@ -43,7 +43,7 @@
       <a-col :span="10">
         <a-tabs v-model:activeKey="activeKey" size="large">
           <a-tab-pane key="1" tab="返回结果（JSON）">
-            <a-card class="box">{{ resultData }}</a-card>
+            <a-card id="copyData" class="box">{{ resultData }}</a-card>
           </a-tab-pane>
         </a-tabs>
       </a-col>
@@ -61,8 +61,8 @@
         borderRadius: '0 0 4px 4px',
       }"
     >
-      <a-button type="primary" style="margin-right: 8px" :disabled="interfaceTest" :loading="iconLoading" @click="faceTest">接口测试</a-button>
-      <a-button style="margin-right: 8px" :disabled="copyRuselt" @click="copy">复制返回结果</a-button>
+      <a-button type="primary" style="margin-right: 8px" :loading="iconLoading" @click="faceTest">接口测试</a-button>
+      <a-button style="margin-right: 8px" :disabled="copyRuselt" @click="copy('copyData')">复制返回结果</a-button>
       <a-button @click="onClose">关闭</a-button>
     </div>
   </a-drawer>
@@ -70,6 +70,7 @@
 <script lang="ts" setup>
   import { ref, defineProps } from 'vue';
   import { InterfaceDetailSelect, InterfaceTestc } from '@/api/test/index';
+  import { copyDomText } from '@/utils/common';
   import { message } from 'ant-design-vue';
   const emit = defineEmits(['closeDrawer']);
   const props = defineProps({
@@ -243,7 +244,7 @@
     iconLoading.value = { delay: 1000 };
     setTimeout(() => {
       iconLoading.value = false;
-    }, 400);
+    }, 6000);
     await InterfaceTestc(testData.value).then(res => {
       resultData.value = res.data;
       copyRuselt.value = false;
@@ -253,7 +254,8 @@
   //返回结果
   const resultData = ref();
   //复制结果
-  const copy = () => {
+  const copy = copyData => {
+    copyDomText(copyData);
     message.success('复制成功');
   };
   //验证规则
