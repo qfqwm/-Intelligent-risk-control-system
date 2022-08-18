@@ -503,7 +503,10 @@
   emitter.on('keep', () => {
     emitter.emit('data_' + props.table_object.title, table_data.value);
   });
-
+  // 点击测试，传送数据
+  emitter.on('text', () => {
+    emitter.emit('data_' + props.table_object.title, table_data.value);
+  });
   const visible = ref<boolean>(false);
   //码值定义模态框开关
   const showcode = (record: any) => {

@@ -17,7 +17,7 @@
     >
   </div>
   <!-- 接口测试抽屉 -->
-  <InterfaceTest :show-interface-test="showInterfaceTest" :show-visible="showVisible" @closeDrawer="closedrawer"></InterfaceTest>
+  <InterfaceTest :show-interface-test="showInterfaceTest" :show-visible="showVisible" :text-object="text_object" @close-drawer="closedrawer"></InterfaceTest>
 </template>
 <script lang="ts" setup>
   import EssentialInformation from './EssentialInformation.vue';
@@ -103,7 +103,7 @@
         item.interConfigId = item.interConfigId.toString();
       }
       item.interConfigDistinguish = interConfigDistinguish;
-      item.configureId = '3';
+      item.configureId = [3];
       delete item.newlyadded;
       delete item['key'];
       if (item.children) {
@@ -124,7 +124,6 @@
       false
     )
       return message.error('存在编辑的未保存的信息，请先保存');
-
     emitter.emit('keep');
     let object_to_data = {
       interMsgName: Basic_information.interMsgName,
@@ -157,15 +156,16 @@
 
   //接收参数配置的数据
   const input_parameter_data = ref();
-  emitter.on('data_输入参数', e => {
-    const to_e = e;
-    change_data(to_e);
-    input_parameter_data.value = to_e;
+  emitter.on('data_输入参数', (e: any) => {
+    change_data(e);
+    input_parameter_data.value = e;
+    text_object.input_parameter_data = [...e];
   });
   const quest_body_data = ref();
-  emitter.on('data_请求Body', e => {
+  emitter.on('data_请求Body', (e: any) => {
     change_data(e);
     quest_body_data.value = e;
+    text_object.quest_body_data = [...e];
   });
   const return_parameter_data = ref();
   emitter.on('data_返回参数', e => {
@@ -215,6 +215,7 @@
   const showVisible = ref<boolean>(false);
   const showInterfaceTest = ref();
   const showTestDrawer = () => {
+    emitter.emit('text');
     let record = { ...Basic_information };
     showVisible.value = true;
     showInterfaceTest.value = record;
@@ -222,6 +223,11 @@
   const closedrawer = () => {
     showVisible.value = false;
   };
+  // 传给测试接口的数据
+  const text_object = reactive<any>({
+    input_parameter_data: [],
+    quest_body_data: [],
+  });
 </script>
 <style lang="less" scoped>
   .head {
