@@ -129,8 +129,10 @@
     () => {
       if (JSON.stringify(editableData) !== '{}') {
         editableData_state.value = false;
-        emits('editabledata_state', editableData_state.value);
+      } else {
+        editableData_state.value = true;
       }
+      emits('editabledata_state', editableData_state.value);
     },
     { deep: true },
   );

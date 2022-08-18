@@ -6,7 +6,7 @@
   </div>
   <div class="body_edit_add">
     <EssentialInformation v-show="step_index === 0"></EssentialInformation>
-    <div v-show="step_index === 1"><ParameterConfiguration :parameter_configuration="Parameter_configuration"></ParameterConfiguration></div>
+    <div v-show="step_index === 1"><ParameterConfiguration :parameter_configuration="Parameter_configuration" @editabledata="editabledata_way"></ParameterConfiguration></div>
   </div>
   <div class="bottom">
     <!-- 底部按钮区域 -->
@@ -189,6 +189,12 @@
       }
     });
   }
+  const editabledata = reactive({ input_parameter: true, quest_body: true, return_parameter: true });
+  const editabledata_way = e => {
+    Object.keys(editabledata).forEach(item => {
+      editabledata[item] = e[item];
+    });
+  };
 </script>
 <style lang="less" scoped>
   .head {

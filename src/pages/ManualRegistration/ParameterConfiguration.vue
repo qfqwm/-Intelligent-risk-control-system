@@ -7,11 +7,10 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import type { Ref } from 'vue';
-
   import emitter from '@/utils/bus';
   import DefinitionTables from './DefinitionTables.vue';
   import JosnTo from './JosnTo.vue';
-
+  const emits = defineEmits(['editabledata']);
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
     parameter_configuration: any;
@@ -246,5 +245,12 @@
   const return_parameter_changeeditabledata = e => {
     editabledata.return_parameter = e;
   };
+  watch(
+    () => editabledata,
+    () => {
+      emits('editabledata', editabledata);
+    },
+    { deep: true },
+  );
 </script>
 <style lang="less" scoped></style>
