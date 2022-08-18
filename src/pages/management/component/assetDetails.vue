@@ -65,8 +65,12 @@
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     record = t.record;
     console.log(record, 'sdda');
-    showcode1(record.chineseName);
-    showcode2(record.englishName);
+    if (t.type == 'chinese') {
+      showcode1(record.chineseName);
+    }
+    if (t.type == 'english') {
+      showcode2(record.englishName);
+    }
   });
 
   // 判断弹框显示隐藏
@@ -121,7 +125,8 @@
     };
 
     rebaseTbl(object).then(function (res: any) {
-      if (res.data.msg == '查询成功') {
+      console.log(res, 'asda');
+      if (res.data.code == 100200) {
         personnelcodetable.value = res.data.data;
         console.log(personnelcodetable.value);
       }

@@ -90,6 +90,12 @@ enum Api {
   Interface_BatchClassify = '/api/batchClassify',
   // 查询接口信息
   selectApiConfig = '/api/selectApiConfig',
+  // 下一步查询最大值
+  selectMaxConfig = 'api/selectMaxConfig',
+  // 新增接口
+  insertInterMsg = 'api/insertInterMsg',
+  // 新增接口配置
+  insertInterConfig = '/api/insertInterConfig',
 
   //数据库管理
   //查询数据库管理
@@ -203,7 +209,12 @@ export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' 
 export const InterfaceTestc = (testData: object) => api.post(Api.Interface_Test, testData);
 //批量分类
 export const InterfaceBatchClassify = (batchData: object) => api.post(Api.Interface_BatchClassify, batchData);
-
+// 下一步查询最大值
+export const selectMaxConfig = () => api.get(Api.selectMaxConfig);
+// 新增接口
+export const insertInterMsg = (object: object) => api.post(Api.insertInterMsg, object);
+// 新增接口配置
+export const insertInterConfig = (object: object) => api.post(Api.insertInterConfig, object);
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
 export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);

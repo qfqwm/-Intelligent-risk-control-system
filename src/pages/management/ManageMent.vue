@@ -23,8 +23,8 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
-          <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
+          <a-button type="primary" :disabled="PublishBatch" @click="ALLonChangecode(1)">批量发布</a-button>
+          <a-button type="primary" :disabled="DeactivateBatch" @click="ALLonChangecode(2)">批量停用</a-button>
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
@@ -37,10 +37,10 @@
       <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :row-key="(dataSource: any) => { return dataSource.assetId }" :pagination="paginationOpt">
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
-            <a href="#" @click.prevent="showcode(record)">{{ record.chineseName }}</a>
+            <a href="#" @click.prevent="showcode('chinese', record)">{{ record.chineseName }}</a>
           </template>
           <template v-if="column.dataIndex === 'englishName'">
-            <a href="#" @click.prevent="showcode(record)">{{ record.englishName }}</a>
+            <a href="#" @click.prevent="showcode('english', record)">{{ record.englishName }}</a>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <!-- 未发布显示按钮 -->
@@ -116,12 +116,12 @@
 
   interface DataItem {
     key: string;
-    codeId: string;
-    codeName: string;
-    codeExplain: string;
-    codeType: any;
-    codeUpdatetime: string;
-    codeCreattime: string;
+    assetId: string;
+    chineseName: string;
+    englishName: string;
+    assetType: any;
+    creatTime: string;
+    updateTime: string;
     allCodeTable: object;
   }
 
@@ -137,8 +137,9 @@
     emitter.emit('sendchild', sdd);
   };
   //查看详情，传数据给子组件
-  const showcode = (record: any) => {
+  const showcode = (type: any, record: any) => {
     const sdds = reactive({
+      type: type,
       record: record,
     });
     emitter.emit('sendchilds', sdds);
@@ -184,7 +185,7 @@
       ellipsis: true,
       key: 'updateTime',
       //排序方法
-      sorter: (a, b) => {
+      sorter: (a: { updateTime: string | number | Date }, b: { updateTime: string | number | Date }) => {
         let aTime = new Date(a.updateTime).getTime();
         let bTime = new Date(b.updateTime).getTime();
         return aTime - bTime;
@@ -277,21 +278,46 @@
     });
   };
 
+  //批量按钮操作
+  const PublishBatch = ref<boolean>(true); //发布按钮禁用
+  const DeactivateBatch = ref<boolean>(true); //停用按钮禁用
+
   // 全选/反选
   const Selectall_invert = ref([]);
-  const rowSelection = ref({
-    checkStrictly: false,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-      // console.log(selectedRows);
-      //多选进行批量操作
-      if (Selectall_invert.value != ('' as any)) {
-        batch.value = false;
-      }
-      if (Selectall_invert.value == ('' as any)) {
-        batch.value = true;
-      }
-    },
+  const FilterData = ref([]); //通过id过滤获取数据，做按钮禁用条件
+  const rowSelection = computed(() => {
+    return {
+      checkStrictly: false,
+      selectedRowKeys: Selectall_invert,
+      onChange: (selectedRows: any) => {
+        FilterData.value = [];
+        selectedRows.forEach((id: any) => {
+          FilterData.value.push(dataSource.value.filter((item: any) => item.assetId == id)[0].assetType);
+        });
+        Selectall_invert.value = selectedRows;
+        //多选进行批量操作
+        if (Selectall_invert.value != ('' as any)) {
+          PublishBatch.value = false;
+          DeactivateBatch.value = false;
+        } else {
+          PublishBatch.value = true;
+          DeactivateBatch.value = true;
+        }
+
+        FilterData.value.forEach((item: any) => {
+          if (item == '已发布') {
+            PublishBatch.value = true;
+          }
+          return;
+        });
+        FilterData.value.forEach((item: any) => {
+          if (item == '未发布' || item == '已停用') {
+            DeactivateBatch.value = true;
+          }
+          return;
+        });
+      },
+    };
   });
   // 批量操作
   const ALLonChangecode = (state: number) => {
@@ -300,7 +326,7 @@
       let length = Selectall_invert.value.length;
       for (let i = 0; i < length; i++) {
         let temp: any = dataSource.value.find((element: any) => element.assetId === Selectall_invert.value[i]);
-        if (temp.codeType === '已发布') {
+        if (temp.assetType === '已发布') {
           return message.error('已发布状态不可在进行发布');
         }
       }
@@ -309,12 +335,12 @@
       state = 1;
       for (let i = 0; i < Selectall_invert.value.length; i++) {
         let temp: any = dataSource.value.find((element: any) => element.assetId === Selectall_invert.value[i]);
-        if (temp.codeType == '未发布') return message.error('停用失败，存在未发布的码表！');
+        if (temp.assetType == '未发布') return message.error('停用失败，存在未发布的码表！');
       }
       let length = Selectall_invert.value.length;
       for (let i = 0; i < length; i++) {
         let temp: any = dataSource.value.find((element: any) => element.assetId === Selectall_invert.value[i]);
-        if (temp.codeType === '已停用') {
+        if (temp.assetType === '已停用') {
           return message.error('已停用状态不可在进行停用');
         }
       }
@@ -328,6 +354,10 @@
     OnChange1(change_array).then(function (res: any) {
       if (res.data.code == 100200) {
         message.success('更新成功!');
+        console.log(rowSelection);
+        //批量操作后取消勾选框的勾选
+        Selectall_invert.value = [];
+        rowSelection.value.onChange(Selectall_invert.value);
         selectCodeTable_way();
       } else return message.error('更新失败！');
     });
@@ -347,9 +377,6 @@
       }
     });
   };
-
-  //批量按钮操作
-  const batch = ref<boolean>(true);
 </script>
 
 <style lang="less" scoped>

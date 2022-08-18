@@ -142,18 +142,20 @@
       if (interfaceMsgs.value.interMsgApiType == '0') interfaceMsgs.value.interMsgApiType = '未发布';
       if (interfaceMsgs.value.interMsgApiType == '1') interfaceMsgs.value.interMsgApiType = '已发布';
       if (interfaceMsgs.value.interMsgApiType == '2') interfaceMsgs.value.interMsgApiType = '已停用';
-      res.data.data.interfaceConfigs.forEach(p => {
-        if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
-        if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
-        if (p.interConfigDataType == '0') p.interConfigDataType = 'Obj';
-        if (p.interConfigDataType == '1') p.interConfigDataType = 'Array';
-        if (p.interConfigDataType == '2') p.interConfigDataType = 'String';
-        if (p.interConfigDataType == '3') p.interConfigDataType = 'Int';
-        if (p.interConfigDataType == '4') p.interConfigDataType = 'Float';
-        if (p.interConfigDistinguish == '0') data.value.push(p);
-        if (p.interConfigDistinguish == '1') data1.value.push(p);
-        if (p.interConfigDistinguish == '2') data2.value.push(p);
-      });
+      if (res.data.data.interfaceConfigs.backParameters != []) {
+        res.data.data.interfaceConfigs.backParameters.forEach(p => {
+          if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
+          if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
+          if (p.interConfigDataType == '0') p.interConfigDataType = 'Obj';
+          if (p.interConfigDataType == '1') p.interConfigDataType = 'Array';
+          if (p.interConfigDataType == '2') p.interConfigDataType = 'String';
+          if (p.interConfigDataType == '3') p.interConfigDataType = 'Int';
+          if (p.interConfigDataType == '4') p.interConfigDataType = 'Float';
+          if (p.interConfigDistinguish == '0') data.value.push(p);
+          if (p.interConfigDistinguish == '1') data1.value.push(p);
+          if (p.interConfigDistinguish == '2') data2.value.push(p);
+        });
+      }
       interfaceConfigs.value = res.data.data.interfaceConfigs;
     });
   }

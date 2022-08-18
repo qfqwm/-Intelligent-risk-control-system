@@ -56,9 +56,7 @@
     });
     batchData.value.interfaceMsgIdList = ff.value as any;
     console.log(batchData.value);
-    InterfaceBatchClassify(batchData.value).then(res => {
-      console.log();
-    });
+    InterfaceBatchClassify(batchData.value);
   };
   //接口名称
   const checked = ref(true);
@@ -99,7 +97,7 @@
     }
   };
 
-  const handleSelect = (keys: string[], { selected, node }) => {
+  const handleSelect = (keys: string[]) => {
     console.log(keys);
     batchData.value.interDirId = Number(keys[0]);
   };
