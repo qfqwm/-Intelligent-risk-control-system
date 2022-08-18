@@ -61,7 +61,7 @@
         borderRadius: '0 0 4px 4px',
       }"
     >
-      <a-button style="margin-right: 8px" :disabled="interfaceTest" @click="faceTest">接口测试</a-button>
+      <a-button type="primary" style="margin-right: 8px" :disabled="interfaceTest" :loading="iconLoading" @click="faceTest">接口测试</a-button>
       <a-button style="margin-right: 8px" :disabled="copyRuselt" @click="copy">复制返回结果</a-button>
       <a-button @click="onClose">关闭</a-button>
     </div>
@@ -234,9 +234,18 @@
   watch(interfaceMsgs, () => {
     testData.value.requestMethod = interfaceMsgs.value.interMsgRequest;
   });
+
+  interface DelayLoading {
+    delay: number;
+  }
+  const iconLoading = ref<boolean | DelayLoading>(false);
   async function faceTest() {
+    iconLoading.value = { delay: 1000 };
+    setTimeout(() => {
+      iconLoading.value = false;
+    }, 400);
     await InterfaceTestc(testData.value).then(res => {
-      resultData.value = res.data.data;
+      resultData.value = res.data;
       copyRuselt.value = false;
     });
   }
@@ -253,6 +262,7 @@
   };
   //关闭抽屉
   const onClose = () => {
+    data.value = [];
     showVisible.value = false;
     emit('closeDrawer');
   };
