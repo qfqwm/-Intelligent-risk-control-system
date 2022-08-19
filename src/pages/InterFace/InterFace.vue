@@ -21,9 +21,10 @@
           <a-button style="margin-left: 10px" type="primary" @click="query">查询</a-button>
         </a-form-item>
       </a-form>
+      <!-- 批量和新增按钮栏 -->
       <div style="display: flex; justify-content: end">
         <a-button type="primary" :disabled="!hasSelected1" @click="ALLonChangecode(0)"> 批量发布 </a-button>
-        <a-button type="primary" :disabled="hasSelected1" style="margin-left: 15px" @click="ALLonChangecode(1)"> 批量停用 </a-button>
+        <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="ALLonChangecode(1)"> 批量停用 </a-button>
         <a-button type="primary" style="margin-left: 15px"> 批量分类 </a-button>
         <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
@@ -34,18 +35,18 @@
         :row-selection="{ onChange: onSelectChange }"
         :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
-        pageSizeOptions: ['10', '15', '18', '20'], 
-        showTotal: (total: any) => `共 ${total} 条`,
-        showSizeChanger: true,
-        defaultPageSize: 10,
-        buildOptionText: (size: any) => {
-        return Number(size.value) + ' 项' + '/' + '页'
-        },
-        onChange: (current, pageSize) => {
-        current=current;
-        pageSize = pageSize;
-       }
-      }"
+          pageSizeOptions: ['10', '15', '18', '20'],
+          showTotal: (total: any) => `共 ${total} 条`,
+          showSizeChanger: true,
+          defaultPageSize: 10,
+          buildOptionText: (size: any) => {
+            return Number(size.value) + ' 项' + '/' + '页'
+          },
+          onChange: (current, pageSize) => {
+            current = current;
+            pageSize = pageSize;
+          }
+        }"
         @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
@@ -53,31 +54,19 @@
             <router-link to="/InterfaceDetail" @click.prevent="showcode(record.interMsgId)">{{ record.interMsgName }} </router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
-            <!-- 未发布显示按钮 -->
-            <div v-if="record.interMsgApiType == '未发布'">
+            <!-- 状态按钮 -->
+            <div>
               <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
-                <a-button type="primary" size="small">发布</a-button>
+                <a-button v-if="record.interMsgApiType != '已发布'" type="primary" size="small">发布</a-button>
+              </a-popconfirm>
+              <a-popconfirm v-if="dataSource.length" title="请确认否停用该码表?" @confirm="onChangecode(record.interMsgId, 1)">
+                <a-button v-if="record.interMsgApiType == '已发布'" type="primary" size="small">停用</a-button>
               </a-popconfirm>
               <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.interMsgId)">
-                <a-button type="primary" size="small">删除</a-button>
+                <a-button v-if="record.interMsgApiType == '未发布'" type="primary" size="small">删除</a-button>
               </a-popconfirm>
-            </div>
-            <!-- 已发布显示按钮 -->
-            <div v-if="record.interMsgApiType == '已发布'">
-              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
-              <a-popconfirm v-if="dataSource.length" title="请确认否停用该码表?" @confirm="onChangecode(record.interMsgId, 1)">
-                <a-button type="primary" size="small">停用</a-button>
-              </a-popconfirm>
-            </div>
-            <!-- 已停用显示按钮 -->
-            <div v-if="record.interMsgApiType == '已停用'">
-              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
-                <a-button type="primary" size="small">发布</a-button>
-              </a-popconfirm>
-              <a-button type="primary" size="small" @click="showDrawer('edit', record)">编辑</a-button>
             </div>
           </template>
         </template>
@@ -227,12 +216,11 @@
       已发布,
       已停用,
     }
-    enum interMsgApiType {
+    enum interMsgSource {
       数据服务 = 0,
       指标管理,
       决策引擎,
     }
-    interMsgApiType[0];
 
     let object1 = { ...object, ...formState };
     // console.log(object1);
@@ -244,26 +232,9 @@
       console.log(dataSource.value);
       dataSource.value.forEach((item: any) => {
         item.interMsgApiType = interMsgApiType[item.interMsgApiType];
-        if (item.interMsgApiType == 0) {
-          item.interMsgApiType = '未发布';
-        }
-        if (item.interMsgApiType == 1) {
-          item.interMsgApiType = '已发布';
-        }
-        if (item.interMsgApiType == 2) {
-          item.interMsgApiType = '已停用';
-        }
-        if (item.interMsgSource == 0) {
-          item.interMsgSource = '数据服务';
-        }
-        if (item.interMsgSource == 1) {
-          item.interMsgSource = '指标管理';
-        }
-        if (item.interMsgSource == 2) {
-          item.interMsgSource = '决策引擎';
-        }
+        item.interMsgSource = interMsgSource[item.interMsgSource];
       });
-      // total.value = dataSource.value.length;
+      total.value = dataSource.value.length;
     });
   };
   selectCodeTable_way();
