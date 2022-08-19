@@ -69,6 +69,7 @@
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
+  import { start } from 'repl';
   interface DataItem {
     key: string;
     codeId: string;
@@ -231,8 +232,6 @@
     selectedRowKeys: Selectall_invert,
     onChange: (selectedRows: any) => {
       Selectall_invert.value = selectedRows;
-      console.log(Selectall_invert.value, 'iisd');
-
       if (Selectall_invert.value != ('' as any)) {
         batch.value = false;
       }
@@ -241,19 +240,20 @@
       }
     },
   });
+
+  const change_array = reactive({
+    codeTableIdList: [],
+    codeType: '',
+  });
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
-    let object_array = [
-      {
-        codeId: codeId,
-        codeType: state,
-      },
-    ];
-    OnChange(object_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
-        message.success('更新成功!');
+    change_array.codeTableIdList.push(codeId);
+    change_array.codeType = state;
+    OnChange(change_array).then(function (res: any) {
+      if (res.data.code == 100200) {
         select_CodeTable();
-      }
+        return message.success(res.data.msg);
+      } else return message.warning(res.data.msg);
     });
   };
   // 批量操作
@@ -280,16 +280,13 @@
         }
       }
     }
-    let change_array: any = [];
     Selectall_invert.value.forEach(item => {
-      change_array.push({
-        codeId: item,
-        codeType: state,
-      });
+      change_array.codeTableIdList.push(item);
     });
-    if (change_array.length == 0) return message.error('请选择码表进行操作!');
+    change_array.codeType = state;
+    if (change_array.codeTableIdList == []) return message.error('请选择码表进行操作!');
     OnChange(change_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
+      if (res.data.code == 100200) {
         Selectall_invert.value = [];
         message.success('更新成功!');
         select_CodeTable();
