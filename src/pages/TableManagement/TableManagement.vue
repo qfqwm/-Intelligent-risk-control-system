@@ -69,7 +69,7 @@
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
-  import { start } from 'repl';
+
   interface DataItem {
     key: string;
     codeId: string;

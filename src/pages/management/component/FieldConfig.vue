@@ -154,7 +154,6 @@
       dataSource1: dataSource1.value,
       dataSource2: dataSource2.value,
     });
-
     emits('sonDataNames', datas);
   };
 

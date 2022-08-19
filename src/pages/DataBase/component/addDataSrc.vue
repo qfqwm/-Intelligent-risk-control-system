@@ -1,9 +1,9 @@
 <template>
-  <a-drawer title="新增数据源" :width="450" :visible="visible" :body-style="{ paddingBottom: '80px' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
-    <a-form :model="form" :rules="rules" layout="vertical">
+  <a-form id="form" ref="edit_and_Form" :model="form" :rules="rules" layout="vertical" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure">
+    <a-drawer title="新增数据源" :width="450" :visible="visible" :body-style="{ paddingBottom: '80px' }" :footer-style="{ textAlign: 'right' }" @close="onClose">
       <a-row :gutter="16">
-        <a-col :span="24">
-          <a-form-item label="数据库类型:" name="数据库类型:">
+        <a-col :span="20">
+          <a-form-item label="数据库类型:" name="databaseType" :rules="rules.databaseType">
             <a-select v-model:value="form.databaseType" placeholder="请输入">
               <a-select-option value="MySQL">MySQL</a-select-option>
               <a-select-option value="MongoDB">MongoDB</a-select-option>
@@ -11,50 +11,61 @@
             </a-select>
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label="数据源名称:" name="数据源名称:">
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-form-item label="数据源名称:" name="sourceName" :rules="rules.sourceName">
             <a-input v-model:value="form.sourceName" placeholder="请输入" />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label="JDBC URL:" name="JDBC URL:">
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-form-item label="连接信息:" name="connectMessage" :rules="rules.connectMessage">
             <a-input v-model:value="form.connectMessage" placeholder="请输入" />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label="驱动类名:" name="驱动类名:">
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-form-item label="驱动类名:" name="driverName" :rules="rules.driverName">
             <a-input v-model:value="form.driverName" placeholder="请输入" />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label="用户名:" name="用户名:">
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-form-item label="用户名:" name="username" :rules="rules.username">
             <a-input v-model:value="form.username" placeholder="请输入" />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label="密码:" name="密码:">
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-form-item label="密码:" name="password" :rules="rules.password">
             <a-input v-model:value="form.password" placeholder="请输入" />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item label="数据源描述:" name="数据源描述:">
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-form-item label="数据源描述:" name="sourceDescription" :rules="rules.sourceDescription">
             <a-input v-model:value="form.sourceDescription" placeholder="请输入" />
           </a-form-item>
         </a-col>
       </a-row>
-    </a-form>
-    <!-- 底部区域 -->
-    <template #footer>
-      <a-space>
-        <a-button @click="onClose">取消</a-button>
-        <a-button type="primary" @click="sure">确定</a-button>
-      </a-space>
-    </template>
-  </a-drawer>
+      <!-- 底部区域 -->
+      <template #footer>
+        <a-space>
+          <a-button @click="onClose">取消</a-button>
+          <a-button type="primary" html-type="submit" form="form">确定</a-button>
+        </a-space>
+      </template>
+    </a-drawer>
+  </a-form>
 </template>
 <script lang="ts" setup>
   import { reactive, ref } from 'vue';
-  import type { Rule } from 'ant-design-vue/es/form';
   import emitter from '@/utils/bus';
   import { AddDataSource, EditDatabase } from '@/api/test/index';
 
@@ -74,17 +85,17 @@
   //抽屉的开关控制
   const showDrawer = (type: string, record?: any) => {
     if (type == 'add') {
-      visible.value = true;
       Object.keys(form).forEach(function (key) {
         form[key] = '';
       });
+      visible.value = true;
     }
     if (type == 'edit') {
-      visible.value = true;
       databaseId.value = record.databaseId;
       Object.keys(form).forEach(function (key) {
         form[key] = record[key];
       });
+      visible.value = true;
     }
   };
 
@@ -110,15 +121,36 @@
   });
 
   //表单验证规则
-  const rules: Record<string, Rule[]> = {
+  const rules = ref({
     databaseType: [{ required: true, message: '请输入' }],
-    sourceName: [{ required: true, message: '请输入' }],
-    connectMessage: [{ required: true, message: '请输入' }],
+    sourceName: [
+      { required: true, message: '请输入' },
+      {
+        max: 30,
+        message: '长度不能大于30个字符',
+        trigger: 'blur',
+      },
+    ],
+    connectMessage: [
+      { required: true, message: '请输入' },
+      {
+        max: 200,
+        message: '长度不能大于200个字符',
+        trigger: 'blur',
+      },
+    ],
     driverName: [{ required: true, message: '请输入' }],
     username: [{ required: true, message: '请输入' }],
     password: [{ required: true, message: '请输入' }],
-    sourceDescription: [{ required: true, message: '请输入' }],
-  };
+    sourceDescription: [
+      { required: true, message: '请输入' },
+      {
+        max: 200,
+        message: '长度不能大于200个字符',
+        trigger: 'blur',
+      },
+    ],
+  });
 
   //关闭抽屉
   const onClose = () => {
@@ -152,6 +184,15 @@
       });
     }
   };
+  //监听模态框状态，清空表单错误提示
+  const edit_and_Form = ref<any>(null);
+  //监听模态框的变化，进入新增/编辑模态框清空表单验证的错误提示
+  watch(
+    () => visible.value,
+    () => {
+      if (visible.value === false) return edit_and_Form.value.resetFields();
+    },
+  );
 </script>
 <style lang="less" scoped>
   .full-modal {
