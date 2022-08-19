@@ -23,7 +23,7 @@
       </a-form>
       <div style="display: flex; justify-content: end">
         <a-button type="primary" :disabled="!hasSelected1" @click="ALLonChangecode(0)"> 批量发布 </a-button>
-        <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="ALLonChangecode(1)"> 批量停用 </a-button>
+        <a-button type="primary" :disabled="hasSelected1" style="margin-left: 15px" @click="ALLonChangecode(1)"> 批量停用 </a-button>
         <a-button type="primary" style="margin-left: 15px"> 批量分类 </a-button>
         <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
@@ -41,10 +41,10 @@
         buildOptionText: (size: any) => {
         return Number(size.value) + ' 项' + '/' + '页'
         },
-       showSizeChange: (current, pageSize) => {
+        onChange: (current, pageSize) => {
         current=current;
         pageSize = pageSize;
-       },
+       }
       }"
         @change="handleTableChange"
       >
@@ -232,6 +232,7 @@
       指标管理,
       决策引擎,
     }
+    interMsgApiType[0];
 
     let object1 = { ...object, ...formState };
     // console.log(object1);
@@ -242,6 +243,7 @@
       dataSource.value = res.data.data.interfaceMsgList;
       console.log(dataSource.value);
       dataSource.value.forEach((item: any) => {
+        item.interMsgApiType = interMsgApiType[item.interMsgApiType];
         if (item.interMsgApiType == 0) {
           item.interMsgApiType = '未发布';
         }
