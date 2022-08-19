@@ -230,32 +230,36 @@
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
-    selectedRowKeys: Selectall_invert,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-      if (Selectall_invert.value != ('' as any)) {
-        batchIssue.value = false;
+    // selectedRowKeys: Selectall_invert,
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(selectedRowKeys, selectedRows);
+      // Selectall_invert.value = selectedRows;
+      const data = ref<string[]>([]);
+      function unique(arr) {
+        return arr.filter(function (item, index, arr) {
+          return arr.indexOf(item, 0) === index;
+        });
       }
-      if (Selectall_invert.value == ('' as any)) {
+      selectedRows.forEach((p, index) => {
+        data.value[index] = p.codeType;
+      });
+      unique(data.value);
+      if (data.value == ('未发布,已停用' as any) || data.value == ('未发布' as any) || data.value == ('已停用' as any)) {
+        batchIssue.value = false;
+        batchBlockUp.value = true;
+      } else if (data.value == ('已发布' as any)) {
         batchIssue.value = true;
+        batchBlockUp.value = false;
+      } else {
+        batchIssue.value = true;
+        batchBlockUp.value = true;
+      }
+      console.log(data.value);
+      if (selectedRows == '') {
+        batchIssue.value = true;
+        batchBlockUp.value = true;
       }
     },
-    // onChange: (selectedRowKeys, selectedRows) => {
-    //   console.log(selectedRowKeys, selectedRows);
-    // Selectall_invert.value = selectedRows;
-    // selectedRows.forEach(p => {
-    //   if (p.codeType == '未发布') {
-    //     batchIssue.value = false;
-    //   } else {
-    //     batchIssue.value = true;
-    //   }
-    // if (p.codeType == '已发布') {
-    //   batchBlockUp.value = false;
-    // } else {
-    //   batchBlockUp.value = true;
-    // }
-    // });
-    // },
   });
 
   const change_array = reactive({
