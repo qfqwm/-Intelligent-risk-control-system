@@ -15,8 +15,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
-      <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
+      <a-button type="primary" :disabled="batchIssue" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
+      <a-button type="primary" :disabled="batchBlockUp" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
@@ -223,7 +223,8 @@
   };
 
   //批量按钮操作
-  const batch = ref<boolean>(true);
+  const batchIssue = ref<boolean>(true);
+  const batchBlockUp = ref<boolean>(true);
 
   // 全选/反选
   const Selectall_invert = ref([]);
@@ -234,12 +235,28 @@
       console.log(Selectall_invert.value, 'iisd');
 
       if (Selectall_invert.value != ('' as any)) {
-        batch.value = false;
+        batchIssue.value = false;
       }
       if (Selectall_invert.value == ('' as any)) {
-        batch.value = true;
+        batchIssue.value = true;
       }
     },
+    // onChange: (selectedRowKeys, selectedRows) => {
+    //   console.log(selectedRowKeys, selectedRows);
+    // Selectall_invert.value = selectedRows;
+    // selectedRows.forEach(p => {
+    //   if (p.codeType == '未发布') {
+    //     batchIssue.value = false;
+    //   } else {
+    //     batchIssue.value = true;
+    //   }
+    // if (p.codeType == '已发布') {
+    //   batchBlockUp.value = false;
+    // } else {
+    //   batchBlockUp.value = true;
+    // }
+    // });
+    // },
   });
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
@@ -326,17 +343,17 @@
     const input = e.target as HTMLInputElement;
     let files = input.files;
     if (files) {
-      console.log(files[0]);
+      // console.log(files[0]);
     }
     let forms = new FormData();
     //下面的file是后端要求的key
     importExcel(forms).then(function (res: any) {
-      console.log(res);
+      // console.log(res);
     });
   };
 
   const importexe = () => {
-    console.log(uploadInput.value);
+    // console.log(uploadInput.value);
 
     let oBtn = uploadInput.value as HTMLInputElement;
     oBtn.click();
