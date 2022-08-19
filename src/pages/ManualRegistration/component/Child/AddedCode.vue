@@ -22,7 +22,7 @@
 
   const visible = ref();
   const type = ref();
-  emitter.on('Sendchild', (t: any) => {
+  emitter.on('Sendchild_add_edit', (t: any) => {
     visible.value = t.visible;
     type.value = t.type;
     showModal();

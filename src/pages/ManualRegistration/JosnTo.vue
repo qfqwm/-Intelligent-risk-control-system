@@ -47,32 +47,32 @@
       let obj_type = '';
       type = typeof obj[item];
       if (type == 'string') console.log(obj[item]);
-      obj_type = 'String';
+      obj_type = '2';
       if (type == 'number') {
         if (Math.ceil(obj[item]) == obj[item]) {
-          obj_type = 'Int';
+          obj_type = '3';
         } else {
-          obj_type = 'Float';
+          obj_type = '4';
         }
       }
       if (type == 'object') {
         if (obj[item] instanceof Array) {
-          obj_type = 'Array';
+          obj_type = '1';
         } else {
-          obj_type = 'Object';
+          obj_type = '0';
         }
       }
       let object = {
-        name: item,
-        leixing: obj_type,
-        shuoming: '',
+        interConfigName: item,
+        interConfigDataType: obj_type,
+        interConfigDescribe: '',
       } as any;
       if (type === 'object') {
         object.children = validateJson_way(obj[item]);
       }
       if (receive_object.value.Josn_to_name.toString() === '请求Body') {
-        object.bitian = '否';
-        object.moren = ' ';
+        object.interConfigIsNull = '0';
+        object.interConfigDefault = ' ';
       }
       Json_object.push(object);
     });
@@ -90,8 +90,10 @@
         return message.warning('不是Json数据格式');
       }
     }
-    if (typeof obj == 'object' && obj) {
+    if (obj && typeof obj == 'object') {
       let flag = false;
+      console.log(receive_object.value.Josn_to_same_name, 'name');
+
       Object.keys(obj).forEach(item => {
         if (receive_object.value.Josn_to_same_name.indexOf(item) !== -1) flag = true;
       });

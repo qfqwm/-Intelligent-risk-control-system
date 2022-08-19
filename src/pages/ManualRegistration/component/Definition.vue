@@ -4,7 +4,6 @@
       <!-- 按钮区域 -->
       <div class="button">
         <a-button type="primary" size="middle" @click="showcode('add')">新增码值表</a-button>
-
         <a-button type="primary" size="middle" @click="handleAdd">新增自定义码值</a-button>
         <a-button type="primary" size="middle" @click="showcode('cite')">码表引用</a-button>
       </div>
@@ -73,7 +72,7 @@
       type: type,
       visible: visible_Add,
     });
-    emitter.emit('Sendchild', sdds);
+    emitter.emit('Sendchild_add_edit', sdds);
   };
 </script>
 <style lang="less" scoped>

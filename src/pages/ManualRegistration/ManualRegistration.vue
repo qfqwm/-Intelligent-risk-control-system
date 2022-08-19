@@ -60,22 +60,39 @@
   });
   // 下一步按钮方法
   const min_id = ref(0);
+  // 判断是否已经调用成功下一步的接口
+  const step_down_true = ref(false);
+  // 记录传递给后端的数据
+  const object_data = ref<any>({});
   const step_down = () => {
     let object = {} as any;
     Object.keys(Basic_information).forEach(item => {
       object[item] = Basic_information[item];
     });
+    // 判断是否是点击了上一步，如果已近验证过了，点击下一步，就不用调后端接口进行验证
+    if (
+      (step_down_true.value as boolean) &&
+      ((JSON.stringify(object_data.value) !== '{}') as boolean) &&
+      ((object_data.value.interfaceMsg.interMsgName == object.interMsgName) as boolean) &&
+      ((object_data.value.interfaceMsg.interMsgApiUrl == object.interMsgApiUrl) as boolean) &&
+      ((object_data.value.interfaceMsg.interMsgIp == object.interMsgIp) as boolean)
+    )
+      return step_index.value++;
+
     // 新增
     if (Route.query.mode === 'zc') {
       object.interMsgApiType = '0';
       let object_insertInterMsg = { interfaceMsg: object };
       insertInterMsg(object_insertInterMsg).then(function (res) {
         if (res.data.msg == '返回成功') {
+          step_down_true.value = true;
           step_index.value++;
+          object_data.value = { ...object_insertInterMsg };
         } else message.error(res.data.msg);
       });
     } else {
       step_index.value++;
+      step_down_true.value = true;
     }
   };
   // 取消按钮

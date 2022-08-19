@@ -142,6 +142,12 @@
   const add_data_id = (val, front: string) => {
     return val.forEach((item, index) => {
       item.key = front + index;
+      if (item.interConfigDataType) {
+        item.interConfigDataType = item.interConfigDataType.toString();
+      }
+      if (item.interConfigIsNull) {
+        item.interConfigIsNull = item.interConfigIsNull.toString();
+      }
       if (item.children) {
         let children_front = item.key + '-';
         add_data_id(item.children, children_front);
@@ -471,7 +477,7 @@
   // Josn导入
   const Josn_to = (name: string, data: any) => {
     let same_name: string[] = [];
-    data.forEach(item => same_name.push(item.name as string));
+    data.forEach(item => same_name.push(item.interConfigName as string));
     let Josn_to_object = {
       Josn_to_same_name: same_name,
       Josn_to_name: name,
