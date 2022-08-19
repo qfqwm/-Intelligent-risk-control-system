@@ -8,7 +8,7 @@
         <h2>企业基本信息表</h2>
         <h3>基本信息</h3><br />
         <span class="label"> 中文名称：</span> {{ dataAsset.chineseName }} <br />
-        <span class="label"> 英文名称：</span>{{ dataAsset.chineseName }} <br />
+        <span class="label"> 英文名称：</span>{{ dataAsset.englishName }} <br />
         <h4>数据资产表描述：</h4>
         <span class="label"> 所属目录：</span>
         <a-button>{{ personnelcodetable.directoryNames[0] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[1] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[2] }}</a-button>
@@ -36,14 +36,6 @@
             <td>{{ item.chineseName }}</td>
             <td>{{ item.fieldExplain }}</td>
             <td>{{ item.standardId }}</td>
-            <!-- <template v-for="(a, index) in item.dataStandard" :key="index">
-            <td>{{a.dataType}}</td>
-            <td>{{a.dataLength}}</td>
-            <td>{{a.dataPrecision}}</td>
-            <td>{{a.dataDefault}}</td>
-            <td>{{}}</td>
-            <td>{{a.enumRange}}</td>
-            </template> -->
             <td>{{ item.dataType }}</td>
             <td>{{ item.dataLength }}</td>
             <td>{{ item.dataPrecision }}</td>
@@ -136,26 +128,6 @@
     show.outmask = true;
     show.PersonnelGender = true;
   };
-  // //英文
-  // const showcode2 = (code2: any) => {
-  //   personnelcodetable.value = {
-  //     dataAsset: [],
-  //     directoryNames: '',
-  //     assetFieldList: [],
-  //   };
-
-  //   const object = {
-  //     englishName: code2,
-  //   };
-  //   rebaseTbl(object).then(function (res: any) {
-  //     console.log(res);
-  //     if (res.data.msg == '返回成功') {
-  //       personnelcodetable.value = res.data.data;
-  //     }
-  //   });
-  //   show.outmask = true;
-  //   show.PersonnelGender = true;
-  // };
   // 关闭人员性别编码弹框
   const closePersonnelGender = () => {
     show.outmask = false;

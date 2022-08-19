@@ -4,6 +4,7 @@
     <!-- 左边资产目录区域 -->
     <InterfaceClassification></InterfaceClassification>
     <!-- 右边数据展示区域 -->
+
     <div class="right">
       <!-- 搜索区域 -->
       <a-form ref="formRef" name="custom-validation" :model="formState" v-bind="layout" style="display: flex">
@@ -35,6 +36,7 @@
         :row-selection="{ onChange: onSelectChange }"
         :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
+       
           pageSizeOptions: ['10', '15', '18', '20'],
           showTotal: (total: any) => `共 ${total} 条`,
           showSizeChanger: true,
@@ -42,9 +44,10 @@
           buildOptionText: (size: any) => {
             return Number(size.value) + ' 项' + '/' + '页'
           },
-          onChange: (current, pageSize) => {
-            current = current;
-            pageSize = pageSize;
+          onShowSizeChange : (current, pageSize) => {
+            return current
+           
+        
           }
         }"
         @change="handleTableChange"
@@ -209,7 +212,7 @@
   const selectCodeTable_way = () => {
     let object = {
       page: 1,
-      size: 30,
+      size: 100,
     };
     enum interMsgApiType {
       未发布,
@@ -243,17 +246,19 @@
   const query = () => {
     selectCodeTable_way();
   };
-
   // 重置按钮
-  const reset = () => {
+  const setCurrentNum = current => {
+    console.log(current, '重置');
+  };
+
+  const reset = pagination => {
     formState.interMsgSource = '';
     formState.interMsgApiType = '';
     formState.interMsgName = '';
     formState.interDirId = '';
+    setCurrentNum(1);
+    console.log(pagination, '分页数据');
     selectCodeTable_way();
-    console.log(paginationdata, 'ye');
-    paginationdata = 1;
-    console.log(paginationdata, 'ye1');
   };
   //删除
   const onDelete = (code: string) => {
@@ -301,29 +306,16 @@
   const state = reactive<{ selectedRowKeys: [] }>({
     selectedRowKeys: [], // Check here to configure the default column
   });
-  const isRepeat = () => {
-    const hash = {};
-    for (let i = 0; i < reslist.value.length; i += 1) {
-      if (hash[reslist[i]]) {
-        return false;
-      }
-      // 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
-      hash[reslist[i]] = true;
-    }
-    return true;
-  };
+
   const hasSelected1 = computed(() => {
-    let someResult1 = reslist.value.every(item => item === '未发布' || item === '已停用');
-    if (state.selectedRowKeys.length > 0 && isRepeat() && someResult1) {
+    if (reslist.value.every(item => item == '未发布' || item == '已停用') && state.selectedRowKeys.length > 0) {
       return true;
     } else {
       return false;
     }
   });
   const hasSelected2 = computed(() => {
-    let someResult2 = reslist.value.every(item => item === '已发布');
-    if (state.selectedRowKeys.length > 0 && someResult2) {
-      console.log(state.selectedRowKeys.length);
+    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '已发布')) {
       return true;
     } else {
       return false;
@@ -375,10 +367,9 @@
     });
   };
   // 分页
-  let paginationdata;
+
   const handleTableChange = pagination => {
-    paginationdata = pagination.current;
-    console.log(paginationdata, '分页数据');
+    pagination.current;
   };
   // const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
