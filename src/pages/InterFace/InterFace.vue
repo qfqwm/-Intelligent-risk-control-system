@@ -34,14 +34,19 @@
         :row-selection="{ onChange: onSelectChange }"
         :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
-          pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
-          showSizeChanger: true,
-          defaultPageSize: 20,
-          buildOptionText: (size: any) => {
-            return Number(size.value) + ' 项' + '/' + '页'
-          }
-        
-        }"
+        pageSizeOptions: ['10', '15', '18', '20'], 
+        showTotal: (total: any) => `共 ${total} 条`,
+        showSizeChanger: true,
+        defaultPageSize: 10,
+        buildOptionText: (size: any) => {
+        return Number(size.value) + ' 项' + '/' + '页'
+        },
+       showSizeChange: (current, pageSize) => {
+        current=current;
+        pageSize = pageSize;
+       },
+      }"
+        @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'interMsgName'">
@@ -215,7 +220,7 @@
   const selectCodeTable_way = () => {
     let object = {
       page: 1,
-      size: 7,
+      size: 30,
     };
     enum interMsgApiType {
       未发布,
@@ -273,6 +278,9 @@
     formState.interMsgName = '';
     formState.interDirId = '';
     selectCodeTable_way();
+    console.log(paginationdata, 'ye');
+    paginationdata = 1;
+    console.log(paginationdata, 'ye1');
   };
   //删除
   const onDelete = (code: string) => {
@@ -394,6 +402,11 @@
     });
   };
   // 分页
+  let paginationdata;
+  const handleTableChange = pagination => {
+    paginationdata = pagination.current;
+    console.log(paginationdata, '分页数据');
+  };
   // const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
   // 改变编码状态 √
