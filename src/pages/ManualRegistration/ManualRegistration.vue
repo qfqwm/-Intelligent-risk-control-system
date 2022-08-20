@@ -23,23 +23,12 @@
   import EssentialInformation from './EssentialInformation.vue';
   import ParameterConfiguration from './ParameterConfiguration.vue';
   import InterfaceTest from '@/pages/InterFace/component/InterfaceTest.vue';
-  import { InterfaceDetailSelect, insertInterMsg, insertInterConfig } from '@/api/test/index';
+  import { InterfaceDetailSelect, insertInterMsg, insertInterConfig, update } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter, useRoute } from 'vue-router';
   import { selectMaxConfig } from '@/api/test/index';
   import { message } from 'ant-design-vue';
   const router = useRouter();
-  interface Information {
-    interDirId: string | undefined;
-    interMsgName: string | undefined;
-    interMsgSource: string | undefined;
-    interMsgDescribe: string | undefined;
-    interMsgApiProtocol: string | undefined;
-    interMsgIp: string | undefined;
-    interMsgApiUrl: string | undefined;
-    interMsgRequest: string | undefined;
-    interMsgOvertime: string | undefined;
-  }
   const hend_titile = ref([
     {
       title: '基本信息',
@@ -88,11 +77,11 @@
           step_down_true.value = true;
           step_index.value++;
           object_data.value = { ...object_insertInterMsg };
-        } else message.error(res.data.msg);
+        } else return message.error(res.data.msg);
       });
     } else {
       step_index.value++;
-      step_down_true.value = true;
+      object_data.value = { ...Basic_information };
     }
   };
   // 取消按钮
@@ -120,7 +109,6 @@
         item.interConfigId = item.interConfigId.toString();
       }
       item.interConfigDistinguish = interConfigDistinguish;
-      item.configureId = [3];
       delete item.newlyadded;
       delete item['key'];
       if (item.children) {
@@ -152,14 +140,29 @@
     if (object_to_data.interInputConfigDTO.length !== 0) num = handle_data(object_to_data.interInputConfigDTO, '0', num);
     if (object_to_data.interReqConfigDTO.length !== 0) num = handle_data(object_to_data.interReqConfigDTO, '1', num);
     if (object_to_data.interRetConfigDTO.length !== 0) handle_data(object_to_data.interRetConfigDTO, '2', num);
-    insertInterConfig(object_to_data).then(function (res) {
-      if (res.data.msg == '返回成功') {
-        message.success('新增成功！');
-        router.go(-1);
-      } else {
-        message.error(res.data.msg);
-      }
-    });
+    if (Route.query.mode === 'zc') {
+      insertInterConfig(object_to_data).then(function (res) {
+        if (res.data.msg == '返回成功') {
+          message.success('新增成功！');
+          router.go(-1);
+        } else {
+          message.error(res.data.msg);
+        }
+      });
+    } else {
+      if (Basic_information.interMsgCreateTime) delete Basic_information.interMsgCreateTime;
+      if (Basic_information.isDelete) delete Basic_information.isDelete;
+      if (Basic_information.interMsgUpdateTime) delete Basic_information.interMsgUpdateTime;
+      delete Basic_information.isDelete;
+      let object_insertInterMsg = { interfaceMsg: Basic_information };
+      object_insertInterMsg = Object.assign(object_insertInterMsg, object_to_data);
+      update(object_insertInterMsg).then(function (res) {
+        if (res.data.msg == '返回成功') {
+          message.success('编辑成功');
+          router.go(-1);
+        } else message.error(res.data.msg);
+      });
+    }
   };
   // 定义函数，处理参数配置的数据
   const change_data = val => {
@@ -191,13 +194,13 @@
   });
   // 接收基础信息内容
   emitter.on('object_form', (e: any) => {
-    Object.keys(Basic_information).forEach(item => {
+    Object.keys(e).forEach(item => {
       Basic_information[item] = e[item];
     });
   });
 
   // 基本信息内容
-  const Basic_information = reactive<Information>({
+  const Basic_information = reactive<any>({
     interDirId: '',
     interMsgName: '',
     interMsgSource: undefined,
@@ -214,7 +217,7 @@
   if (Route.query.mode !== 'zc') {
     InterfaceDetailSelect(Route.query.mode as any).then(function (res) {
       if (res.data.msg == '返回成功') {
-        Object.keys(Basic_information).forEach(item => {
+        Object.keys(res.data.data.interfaceMsgs).forEach(item => {
           Basic_information[item] = res.data.data.interfaceMsgs[item];
         });
         Parameter_configuration.value = res.data.data;

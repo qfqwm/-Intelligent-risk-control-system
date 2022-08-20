@@ -1,5 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
+  {{ table_data }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
@@ -436,6 +437,7 @@
     const newData = {
       key: key_length.toString(),
       newlyadded: true,
+      configureId: [],
     } as any;
     props.table_object.columns.forEach((item: any) => {
       if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
@@ -451,6 +453,7 @@
     const newData = {
       key: '',
       newlyadded: true,
+      configureId: [],
     } as any;
     props.table_object.columns.forEach((item: any) => {
       if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
@@ -517,10 +520,10 @@
   //码值定义模态框开关
   const showcode = (record: any) => {
     const sddsq = reactive({
-      record: record,
       visible: visible,
     });
-    emitter.emit('Sendchildsq', sddsq);
+    emitter.emit('Code_value_definition', sddsq);
+    emitter.emit('change_record', record);
   };
 </script>
 <style lang="less" scoped>

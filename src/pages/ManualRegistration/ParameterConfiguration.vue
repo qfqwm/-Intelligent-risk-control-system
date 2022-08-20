@@ -31,6 +31,7 @@
     interConfigIsNull: string;
     interConfigDefault: string;
     interConfigDescribe: string;
+    configureId: any;
   }
   interface quest_body_DataItem {
     interConfigName: string;
@@ -38,11 +39,13 @@
     interConfigIsNull: string;
     interConfigDefault: string;
     interConfigDescribe: string;
+    configureId: any;
   }
   interface return_parameter_DataItem {
     interConfigName: string;
     interConfigDataType: string;
     interConfigDescribe: string;
+    configureId: any;
   }
   // 接收基本信息
   const object_form_information = ref({ Interface_request: '' }) as any;
