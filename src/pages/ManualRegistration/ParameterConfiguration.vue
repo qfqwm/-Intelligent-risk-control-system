@@ -1,14 +1,18 @@
 <template>
-  <DefinitionTables :table_object="input_parameter_object" @editabledata_state="input_parameter_changeeditabledata"></DefinitionTables>
-  <div v-show="object_form_information.interMsgRequest === 'POST'"><DefinitionTables :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata"></DefinitionTables></div>
-  <DefinitionTables :table_object="return_parameter_object" @editabledata_state="return_parameter_changeeditabledata"></DefinitionTables>
+  <DefinitionTables :table_object="input_parameter_object" @editabledata_state="input_parameter_changeeditabledata" @recordindex="change_record_index"></DefinitionTables>
+  <div v-show="object_form_information.interMsgRequest === 'POST'"
+    ><DefinitionTables :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata" @recordindex="change_record_index"></DefinitionTables
+  ></div>
+  <DefinitionTables :table_object="return_parameter_object" @editabledata_state="return_parameter_changeeditabledata" @recordindex="change_record_index"></DefinitionTables>
   <JosnTo></JosnTo>
+  <Definition :recorddatasourceindex="record_dataSource_index" />
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
   import type { Ref } from 'vue';
   import emitter from '@/utils/bus';
   import DefinitionTables from './DefinitionTables.vue';
+  import Definition from './component/Definition.vue';
   import JosnTo from './JosnTo.vue';
   const emits = defineEmits(['editabledata']);
   type Props = {
@@ -255,5 +259,9 @@
     },
     { deep: true },
   );
+  const record_dataSource_index = ref([]);
+  const change_record_index = e => {
+    record_dataSource_index.value = e;
+  };
 </script>
 <style lang="less" scoped></style>

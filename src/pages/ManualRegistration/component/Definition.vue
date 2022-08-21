@@ -6,7 +6,7 @@
         <a-button type="primary" size="middle" @click="showcode">新增码值表</a-button>
       </div>
       <AddedCodeVue />
-      <AddedCustomVue />
+      <AddedCustomVue :recorddatasourceindex="props.recorddatasourceindex" />
     </a-modal>
   </div>
 </template>
@@ -14,20 +14,36 @@
   import emitter from '@/utils/bus';
   import AddedCustomVue from './Child/AddedCustom.vue';
   import AddedCodeVue from './Child/AddedCode.vue';
+  const props = defineProps({
+    recorddatasourceindex: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+  });
 
   const visible = ref();
-  emitter.on('Code_value_definition', (t: any) => {
-    visible.value = t.visible;
+  emitter.on('Code_value_definition', () => {
     showModal();
   });
 
   const showModal = () => {
     visible.value = true;
   };
-
+  // 记录下标
+  const dataSource_index = ref<any>([]);
+  emitter.on('dataSource_index', e => {
+    dataSource_index.value = e;
+  });
+  // 记录recode地址，改变他的configureId值
+  let change_record: any = {} as any;
+  emitter.on('change_record', (e: any) => {
+    change_record = e;
+  });
   const handleOk = () => {
+    change_record.configureId = dataSource_index.value;
     visible.value = false;
-    emitter.emit('notice');
   };
 
   const visible_Add = ref<boolean>(false);

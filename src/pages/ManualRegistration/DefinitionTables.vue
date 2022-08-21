@@ -1,6 +1,5 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  {{ table_data }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
@@ -67,7 +66,6 @@
               <a @click="cancel(record.key)">取消</a>
               <a v-if="record.interConfigDataType == '2' || record.interConfigDataType == '3'" @click="showcode(record)">码值定义</a>
               <a v-if="record.interConfigDataType == '0' || record.interConfigDataType == '1'" @click="add_subordinate(record)">添加下级</a>
-              <Definition />
             </span>
             <span v-else>
               <a @click="edit(record.key)">编辑</a>
@@ -89,7 +87,7 @@
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
 
-  const emits = defineEmits(['editabledata_state']);
+  const emits = defineEmits(['editabledata_state', 'recordindex']);
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
@@ -516,15 +514,18 @@
   emitter.on('text', () => {
     emitter.emit('data_' + props.table_object.title, table_data.value);
   });
-  const visible = ref<boolean>(false);
-  //码值定义模态框开关
+  const record_dataSource_index = ref([]);
   const showcode = (record: any) => {
-    const sddsq = reactive({
-      visible: visible,
-    });
-    emitter.emit('Code_value_definition', sddsq);
     emitter.emit('change_record', record);
+    record_dataSource_index.value = record.configureId;
+    emitter.emit('Code_value_definition');
   };
+  watch(
+    () => record_dataSource_index.value,
+    () => {
+      emits('recordindex', record_dataSource_index.value);
+    },
+  );
 </script>
 <style lang="less" scoped>
   .Input_parameter_table {

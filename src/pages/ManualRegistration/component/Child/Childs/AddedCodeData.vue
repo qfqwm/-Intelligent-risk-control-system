@@ -5,8 +5,11 @@
   import emitter from '@/utils/bus';
   import { ref } from 'vue';
   const props = defineProps({
-    data_table: {
+    datatable: {
       type: Array,
+      default: () => {
+        return [];
+      },
     },
   });
   //返回绑定的id
@@ -14,10 +17,10 @@
     return dataSource.configureId;
   };
   watch(
-    () => props.data_table,
+    () => props.datatable,
     () => {
       Selectall_invert.value = [];
-      data.value = props.data_table;
+      data.value = props.datatable;
     },
     { deep: true },
   );
@@ -31,7 +34,7 @@
       Code_table.value = [];
       data.value.forEach((item: any) => {
         if (Selectall_invert.value.indexOf(item.configureId) != -1) {
-          Code_table.value.push(item);
+          Code_table.value.push(item.configureId);
         }
       });
     },
@@ -55,11 +58,14 @@
   emitter.on('trigger', () => {
     emitter.emit('code_table', Code_table.value);
   });
-  const rowSelection = ref({
-    checkStrictly: false,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-    },
+  const rowSelection = computed(() => {
+    return {
+      checkStrictly: false,
+      selectedRowKeys: Selectall_invert,
+      onChange: (selectedRows: any) => {
+        Selectall_invert.value = selectedRows;
+      },
+    };
   });
 </script>
 <style lang="less" scoped>

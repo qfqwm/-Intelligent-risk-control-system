@@ -12,7 +12,7 @@
           </a-row>
         </div>
       </a-form>
-      <AddedCodeDataVue :data_table="data_table" />
+      <AddedCodeDataVue :datatable="data_table" />
     </a-modal>
   </div>
 </template>
@@ -46,7 +46,6 @@
   const option = ref<any>([]);
   selectCodeTable(Search).then(function (res: any) {
     option.value = [];
-    console.log(res.data.data.nowTable);
     res.data.data.nowTable.forEach(item =>
       option.value.push({
         value: item.codeId,

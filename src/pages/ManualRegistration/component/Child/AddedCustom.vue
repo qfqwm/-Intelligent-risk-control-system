@@ -4,6 +4,14 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import emitter from '@/utils/bus';
+  const props = defineProps({
+    recorddatasourceindex: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+  });
   const columns = [
     {
       title: '编码取值',
@@ -18,25 +26,37 @@
       dataIndex: 'configureMean',
     },
   ];
-  const dataSource = ref<any>([]);
   const dataSource_index = ref<any>([]);
+  (function () {
+    dataSource_index.value = props.recorddatasourceindex;
+  })();
+  watch(
+    () => props.recorddatasourceindex,
+    () => {
+      dataSource_index.value = props.recorddatasourceindex;
+      let duplicate_removal = new Set(dataSource_index.value);
+      dataSource_index.value = Array.from(duplicate_removal);
+    },
+    { deep: true },
+  );
   emitter.on('code_table', (e: any) => {
-    dataSource.value.push(...e);
-    let duplicate_removal = new Set(dataSource.value);
-    dataSource.value = Array.from(duplicate_removal);
-    dataSource_index.value = [];
-    dataSource.value.forEach(item => {
-      dataSource_index.value.push(item.configureId);
-    });
+    dataSource_index.value.push(...e);
+    let duplicate_removal = new Set(dataSource_index.value);
+    dataSource_index.value = Array.from(duplicate_removal);
+    emitter.emit('dataSource_index', dataSource_index.value);
   });
-  // 记录recode地址，改变他的configureId值
-  let change_record: any = null;
-  emitter.on('change_record', (e: any) => {
-    change_record = e;
-  });
-  emitter.on('notice', () => {
-    change_record.configureId = dataSource_index.value;
-  });
+  const dataSource = ref<any>([]);
+  // 调用接口请求数据，加载表格
+  watch(
+    () => dataSource_index.value,
+    () => {
+      // 写接口调用后端数据生成table
+      //
+      //
+      //
+    },
+    { deep: true },
+  );
 </script>
 <style lang="less" scoped>
   .editable-cell {

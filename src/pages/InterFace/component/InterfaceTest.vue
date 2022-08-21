@@ -81,6 +81,9 @@
     },
     textObject: {
       type: Object,
+      default: () => {
+        return {};
+      },
     },
     showVisible: {
       type: Boolean,
