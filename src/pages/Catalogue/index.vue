@@ -25,8 +25,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" :disabled="PublishBatch" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
-      <a-button type="primary" :disabled="DeactivateBatch" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
+      <a-button type="primary" :disabled="PublishBatch" :class="{ color_bule: !PublishBatch }" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
+      <a-button type="primary" :disabled="DeactivateBatch" :class="{ color_bule: !DeactivateBatch }" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
@@ -309,6 +309,10 @@
         } else {
           DeactivateBatch.value = false;
         }
+        if (FilterData.value.length == 0) {
+          DeactivateBatch.value = true;
+          PublishBatch.value = true;
+        }
       },
     };
   });
@@ -327,7 +331,11 @@
     update_StandardType(updateStandardType_object).then(function (res) {
       if (res.data.msg == '返回成功') {
         message.success('状态修改成功');
-        if (typeof id === 'object') Selectall_invert.value = [];
+        if (typeof id === 'object') {
+          Selectall_invert.value = [];
+          DeactivateBatch.value = true;
+          PublishBatch.value = true;
+        }
         query();
       } else message.error(res.data.msg);
     });
