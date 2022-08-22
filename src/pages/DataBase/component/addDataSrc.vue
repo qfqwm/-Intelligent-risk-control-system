@@ -54,6 +54,11 @@
           </a-form-item>
         </a-col>
       </a-row>
+      <a-row :gutter="16">
+        <a-col :span="20">
+          <a-button type="primary" size="small" @click="Connectivity(form)">连通测试</a-button>
+        </a-col>
+      </a-row>
       <!-- 底部区域 -->
       <template #footer>
         <a-space>
@@ -68,6 +73,14 @@
   import { reactive, ref } from 'vue';
   import emitter from '@/utils/bus';
   import { AddDataSource, EditDatabase } from '@/api/test/index';
+  import { message } from 'ant-design-vue';
+
+  const Connectivity = (form: any) => {
+    const sd = reactive({
+      form: form,
+    });
+    emitter.emit('sendchildod', sd);
+  };
 
   //弹窗气泡
   const visible = ref();
@@ -161,10 +174,12 @@
   const sure = () => {
     if (type == 'add') {
       AddDataSource(form).then(function (res) {
-        if (res.data.msg == '返回成功') {
+        if (res.data.code == 100200) {
           emitter.emit('send');
+          visible.value = false;
+          message.success(res.data.msg);
         } else {
-          alert(res.data.msg);
+          message.warning(res.data.msg);
         }
       });
     }
@@ -173,17 +188,18 @@
         form_edit[key] = form[key];
       });
       form_edit.databaseId = databaseId.value;
-      // console.log(form_edit, 'ksjd');
       EditDatabase(form_edit).then(function (res) {
-        if (res.data.msg == '修改成功') {
-          // console.log(res);
+        if (res.data.code == 100200) {
           emitter.emit('send');
+          visible.value = false;
+          message.success(res.data.msg);
         } else {
-          alert(res.data.msg);
+          message.warning(res.data.msg);
         }
       });
     }
   };
+
   //监听模态框状态，清空表单错误提示
   const edit_and_Form = ref<any>(null);
   //监听模态框的变化，进入新增/编辑模态框清空表单验证的错误提示
