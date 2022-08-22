@@ -77,7 +77,6 @@
           step_down_true.value = true;
           step_index.value++;
           deleteInter({ interMsgName: object_insertInterMsg.interfaceMsg.interMsgName }).then(function (res) {
-            console.log(res);
             if (res.data.msg !== '删除成功') {
               return message.warning(res.data.msg);
             }
@@ -119,8 +118,6 @@
       item.interConfigDistinguish = interConfigDistinguish;
       delete item.newlyadded;
       delete item['key'];
-      console.log(interMsgId);
-
       if (interMsgId !== '-1') {
         item.interMsgId = interMsgId;
       }
@@ -163,18 +160,23 @@
       let object_insertInterMsg = { interfaceMsg: object };
       insertInterMsg(object_insertInterMsg).then(function (res) {
         if (res.data.msg == '返回成功') {
-          step_down_true.value = true;
-          step_index.value++;
           insertInterConfig(object_to_data).then(function (res) {
             if (res.data.msg == '返回成功') {
               message.success('新增成功！');
               router.go(-1);
             } else {
-              message.error(res.data.msg);
+              deleteInter({ interMsgName: object_insertInterMsg.interfaceMsg.interMsgName }).then(function (res) {
+                if (res.data.msg !== '删除成功') {
+                  return message.warning(res.data.msg);
+                }
+              });
+              return message.error(res.data.msg);
             }
           });
           object_data.value = { ...object_insertInterMsg };
-        } else return message.error(res.data.msg);
+        } else {
+          return message.error(res.data.msg);
+        }
       });
     } else {
       if (Basic_information.interMsgCreateTime) delete Basic_information.interMsgCreateTime;
