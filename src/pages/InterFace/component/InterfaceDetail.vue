@@ -128,6 +128,17 @@
     interMsgId: number;
     parentId: number;
   }
+  enum interConfigIsNull {
+    '是',
+    '否',
+  }
+  enum interConfigDataType {
+    'Obj',
+    'Array',
+    'String',
+    'Int',
+    'Float',
+  }
   const formState = ref<formState>({} as any);
   const interfaceMsgs = ref<interfaceMsgs>({} as any);
   const interfaceConfigs = ref<InterfaceConfigs>({} as any);
@@ -136,26 +147,34 @@
   const data2 = ref([] as any);
   async function InterfaceDetailSelect_way() {
     await InterfaceDetailSelect(interMsgId).then(res => {
-      console.log(res.data.data);
       formState.value = res.data.data;
       interfaceMsgs.value = res.data.data.interfaceMsgs;
-      if (interfaceMsgs.value.interMsgApiType == '0') interfaceMsgs.value.interMsgApiType = '未发布';
-      if (interfaceMsgs.value.interMsgApiType == '1') interfaceMsgs.value.interMsgApiType = '已发布';
-      if (interfaceMsgs.value.interMsgApiType == '2') interfaceMsgs.value.interMsgApiType = '已停用';
-      if (res.data.data.interfaceConfigs.backParameters != []) {
-        res.data.data.interfaceConfigs.backParameters.forEach(p => {
-          if (p.interConfigIsNull == '0') p.interConfigIsNull = '是';
-          if (p.interConfigIsNull == '1') p.interConfigIsNull = '否';
-          if (p.interConfigDataType == '0') p.interConfigDataType = 'Obj';
-          if (p.interConfigDataType == '1') p.interConfigDataType = 'Array';
-          if (p.interConfigDataType == '2') p.interConfigDataType = 'String';
-          if (p.interConfigDataType == '3') p.interConfigDataType = 'Int';
-          if (p.interConfigDataType == '4') p.interConfigDataType = 'Float';
-          if (p.interConfigDistinguish == '0') data.value.push(p);
-          if (p.interConfigDistinguish == '1') data1.value.push(p);
-          if (p.interConfigDistinguish == '2') data2.value.push(p);
+      //请求参数数据处理
+      if (res.data.data.requestParameters != null && res.data.data.requestParameters != []) {
+        res.data.data.requestParameters.forEach(p => {
+          p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+          p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+          data.value.push(p);
         });
       }
+      //请求Body数据处理
+      if (res.data.data.requestBodys != null && res.data.data.requestBodys != []) {
+        res.data.data.requestBodys.forEach(p => {
+          p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+          p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+          data1.value.push(p);
+        });
+      }
+      //接口返回参数数据处理
+      if (res.data.data.backParameters != null && res.data.data.backParameters != []) {
+        res.data.data.backParameters.forEach(p => {
+          p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+          p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+          data2.value.push(p);
+        });
+      }
+      console.log(res.data.data);
+
       interfaceConfigs.value = res.data.data.interfaceConfigs;
     });
   }

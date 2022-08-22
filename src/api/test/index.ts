@@ -96,6 +96,12 @@ enum Api {
   insertInterMsg = 'api/insertInterMsg',
   // 新增接口配置
   insertInterConfig = '/api/insertInterConfig',
+  // 编辑接口
+  update = 'api/update',
+  // 删除接口
+  deleteInter = 'api/deleteInter',
+  // 码表定义查询
+  selectCodeConfigById = 'api/selectCodeConfigById',
 
   //数据库管理
   //查询数据库管理
@@ -215,6 +221,13 @@ export const selectMaxConfig = () => api.get(Api.selectMaxConfig);
 export const insertInterMsg = (object: object) => api.post(Api.insertInterMsg, object);
 // 新增接口配置
 export const insertInterConfig = (object: object) => api.post(Api.insertInterConfig, object);
+// 编辑接口
+export const update = (object: object) => api.post(Api.update, object);
+// 删除接口
+export const deleteInter = (object: object) => api.post(Api.deleteInter, object);
+// 码表定义查询
+export const selectCodeConfigById = (object: object) => api.post(Api.selectCodeConfigById, object);
+
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
 export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);

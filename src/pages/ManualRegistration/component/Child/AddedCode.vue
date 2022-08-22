@@ -1,50 +1,73 @@
 <template>
   <div>
-    <a-modal v-model:visible="visible" width="1000px" ok-text="确定" cancel-text="取消" :title="valuea" @ok="handleOk">
+    <a-modal v-model:visible="visible" width="1000px" ok-text="确定" cancel-text="取消" title="码表编码配置" @ok="handleOk">
       <a-form :model="AddCodeTable" layout="inline" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off">
         <div style="margin-bottom: 20px; padding-left: 30px">
           <a-row :gutter="16" style="margin-top: 10px">
             <a-col :span="24">
-              <a-form-item style="width: 455%" has-feedback label="码表选择：" name="CodeTableSelection" :rules="[{ required: true }]">
-                <a-select v-model:value="AddCodeTable.CodeTableSelection" placeholder="请输入码表名称" />
+              <a-form-item style="width: 1000px" label="码表选择：" name="CodeTableSelection">
+                <a-select v-model:value="AddCodeTable.CodeTableSelection" placeholder="请选择码表名称" :options="option" :filter-option="filterOption" />
               </a-form-item>
             </a-col>
           </a-row>
         </div>
       </a-form>
-      <AddedCodeDataVue />
+      <AddedCodeDataVue :datatable="data_table" />
     </a-modal>
   </div>
 </template>
 <script lang="ts" setup>
   import emitter from '@/utils/bus';
   import AddedCodeDataVue from './Childs/AddedCodeData.vue';
-
+  import { selectCodeTable, SelectCodeConfigure } from '@/api/test/index';
   const visible = ref();
-  const type = ref();
-  emitter.on('Sendchild', (t: any) => {
-    visible.value = t.visible;
-    type.value = t.type;
+  emitter.on('Sendchild_add_edit', () => {
     showModal();
   });
-
-  const AddCodeTable = reactive({
-    CodeTableSelection: '',
+  const AddCodeTable = reactive<any>({
+    CodeTableSelection: undefined,
   });
-
-  const valuea = ref();
 
   const showModal = () => {
     visible.value = true;
-    if (type.value == 'add') {
-      valuea.value = '新增码表编码';
-    }
-    if (type.value == 'cite') {
-      valuea.value = '码表引用';
-    }
+    data_table.value = [];
+    AddCodeTable.CodeTableSelection = undefined;
   };
+  const filterOption = (input: string, option: any) => {
+    return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  };
+  // 码表查询
+  const Search = {
+    codeType: '',
+    codeName: '',
+    page: 1,
+    size: 20000,
+  };
+  const option = ref<any>([]);
+  selectCodeTable(Search).then(function (res: any) {
+    option.value = [];
+    res.data.data.nowTable.forEach(item =>
+      option.value.push({
+        value: item.codeId,
+        label: item.codeName,
+      }),
+    );
+  });
+  const data_table = ref([]);
+  watch(
+    () => AddCodeTable.CodeTableSelection,
+    () => {
+      if (AddCodeTable.CodeTableSelection !== undefined)
+        SelectCodeConfigure(AddCodeTable.CodeTableSelection).then(function (res: any) {
+          if (res.data.code == 100200) {
+            data_table.value = res.data.data;
+          }
+        });
+    },
+  );
 
   const handleOk = () => {
+    emitter.emit('trigger');
     visible.value = false;
   };
 </script>
