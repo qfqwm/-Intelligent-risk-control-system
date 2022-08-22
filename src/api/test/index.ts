@@ -8,7 +8,7 @@ enum Api {
   // 新增码表
   Add_Code_Table = '/code/addCodeTable',
   // 改变码表状态
-  On_Change = '/code/updateType',
+  On_Change = '/code/updateCodeTableType',
   // 删除码表
   Delete_Code = '/code/deleteById',
   // 码表配置查询
@@ -71,11 +71,11 @@ enum Api {
   //目录查询
   Interface_Select_Directory = '/api/selectApiDirectory',
   //新增分类目录
-  Interface_Add_Contents = '/api/addContents',
+  Interface_Add_Contents = '/api/addDirectory',
   //删除目录
   Interface_Delete_Contents = '/api/deleteContents',
   //编辑分类目录
-  Interface_Rename_Contents = '/api/renameContents',
+  Interface_Rename_Contents = '/api/renameDirectory',
   //查询接口详情
   Interface_Detail_Select = '/api/selectApiConfig',
   // 接口管理查询
@@ -84,6 +84,20 @@ enum Api {
   Intfc_Rlse_Disabled = '/api/updateInterfaceApiType',
   //接口删除
   Delete_Intfc = '/api/deleteInterfaceMsg',
+  //接口测试
+  Interface_Test = '/api/test',
+  //批量分类
+  Interface_BatchClassify = '/api/batchClassify',
+  // 查询接口信息
+  selectApiConfig = '/api/selectApiConfig',
+  // 下一步查询最大值
+  selectMaxConfig = 'api/selectMaxConfig',
+  // 新增接口
+  insertInterMsg = 'api/insertInterMsg',
+  // 新增接口配置
+  insertInterConfig = '/api/insertInterConfig',
+  // 编辑接口
+  update = 'api/update',
 
   //数据库管理
   //查询数据库管理
@@ -182,7 +196,7 @@ export const InterfaceSelectDirectory = () => api.post(Api.Interface_Select_Dire
 //目录增加
 export const InterfaceAddContents = (object: object) => api.post(Api.Interface_Add_Contents, object);
 //目录删除
-export const InterfaceDeleteContents = (directoryId: string) => api.delete(Api.Interface_Delete_Contents, { params: { directoryId: directoryId } });
+export const InterfaceDeleteContents = (interDirId: string) => api.delete(Api.Interface_Delete_Contents, { params: { interDirId: interDirId } });
 //目录分类编辑
 export const InterfaceRenameContents = (object: object) => api.post(Api.Interface_Rename_Contents, object);
 //查询接口详情
@@ -193,6 +207,18 @@ export const queryIntfc = (object: object) => api.post(Api.Intfc_Management_Quer
 export const postDeactivation = (object: object) => api.post(Api.Intfc_Rlse_Disabled, object);
 //接口删除
 export const delIntfc = (interMsgId: string) => api.post(Api.Delete_Intfc + '/' + interMsgId);
+//接口测试
+export const InterfaceTestc = (testData: object) => api.post(Api.Interface_Test, testData);
+//批量分类
+export const InterfaceBatchClassify = (batchData: object) => api.post(Api.Interface_BatchClassify, batchData);
+// 下一步查询最大值
+export const selectMaxConfig = () => api.get(Api.selectMaxConfig);
+// 新增接口
+export const insertInterMsg = (object: object) => api.post(Api.insertInterMsg, object);
+// 新增接口配置
+export const insertInterConfig = (object: object) => api.post(Api.insertInterConfig, object);
+// 编辑接口
+export const update = (object: object) => api.post(Api.update, object);
 //数据库管理
 export const QueryAdministration = (object: object) => api.post(Api.Query_database_administration, object);
 export const ModifyBatabase = (object: object) => api.post(Api.Modify_the_database_state, object);

@@ -70,6 +70,7 @@
   import { message } from 'ant-design-vue';
   import CodingConfiguration from '@/pages/TableManagement/CodingConfiguration.vue';
   import { AddCodeTable, SelectCodeConfigure, UpdateCode } from '@/api/test/index';
+  import emitter from '@/utils/bus';
   const emits = defineEmits(['get-data']);
   // 接收参数
   type Props = {
@@ -122,7 +123,6 @@
       code_add_edit_table.value.codeExplain = codetable.codeExplain;
       SelectCodeConfigure(codetable.codeId).then(function (res: any) {
         if (res.data.code == 100200) {
-          console.log(res.data.data);
           code_add_edit_table.value.codeConfigureList = res.data.data;
         }
       });
@@ -149,9 +149,10 @@
     if (change_add_edit.value) {
       AddCodeTable(code_add_edit_table.value).then(function (res: any) {
         if (res.data.msg == '有重复值，请检查后重新输入') return message.error('码表名字重复');
-        if (res.data.msg == '新增码表成功') {
+        if (res.data.code == 100200) {
           message.success('码表新增成功！');
-          emits('get-data');
+          // emits('get-data');
+          emitter.emit('sendcode');
         } else {
           message.error('请输入正确的编码名称');
         }
@@ -169,9 +170,10 @@
       console.log(code_add_edit_table.value, 123);
       UpdateCode(code_add_edit_table.value).then(function (res: any) {
         if (res.data.msg == '有重复，检查后重新输入') return message.error('码表名字重复!');
-        if (res.data.msg == '更新成功') {
+        if (res.data.code == 100200) {
           message.success('码表更新成功！');
-          emits('get-data');
+          // emits('get-data');
+          emitter.emit('sendcode');
         } else {
           message.error('请输入正确的码表名称!');
         }

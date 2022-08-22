@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/v-on-event-hyphenation -->
 <template>
   <!-- 搜索区域 -->
-  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-between', minWidth: '1290px' }">
+  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-around', minWidth: '100%' }">
     <a-form-item label="来源机构" name="sourceAgencies">
       <a-select v-model:value.trim="Search.sourceAgencies" :options="standardType_sourceAgencies" :style="{ minWidth: '130px' }" placeholder="请选择" />
     </a-form-item>
@@ -25,8 +25,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
-      <a-button type="primary" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
+      <a-button type="primary" :disabled="PublishBatch" :class="{ color_bule: !PublishBatch }" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
+      <a-button type="primary" :disabled="DeactivateBatch" :class="{ color_bule: !DeactivateBatch }" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
@@ -35,7 +35,7 @@
     </div>
   </div>
   <!-- 表格区域 -->
-  <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :style="{ width: '100%', minWidth: '1290px' }" :pagination="pagination" :row-key="Record_selection">
+  <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :style="{ width: '100%' }" :pagination="pagination" :row-key="Record_selection">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'codeId'">
         <a href="#" @click.prevent="showModal(record.standardId)">{{ record.standardId }}</a>
@@ -232,6 +232,13 @@
       dataIndex: 'updateTime',
       width: '12%',
       ellipsis: true,
+      key: 'updateTime',
+      //排序方法
+      sorter: (a: { updateTime: string | number | Date }, b: { updateTime: string | number | Date }) => {
+        let aTime = new Date(a.updateTime).getTime();
+        let bTime = new Date(b.updateTime).getTime();
+        return aTime - bTime;
+      },
     },
     {
       title: '操作',
@@ -242,6 +249,7 @@
 
   // 查询功能
   Getdata();
+  //重置
   const Reset = () => {
     Object.keys(Search).forEach((item: any) => {
       Search[item] = '';
@@ -263,13 +271,50 @@
       query();
     });
   };
+
+  //批量按钮操作
+  const PublishBatch = ref<boolean>(true); //发布按钮禁用
+  const DeactivateBatch = ref<boolean>(true); //停用按钮禁用
   // 批量操作
   const Selectall_invert = ref([]);
-  const rowSelection = ref({
-    selectedRowKeys: Selectall_invert,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-    },
+  const FilterData = ref([]) as any; //通过id过滤获取数据，做按钮禁用条件
+  const rowSelection = computed(() => {
+    return {
+      checkStrictly: false,
+      selectedRowKeys: Selectall_invert,
+      onChange: (selectedRows: any) => {
+        Selectall_invert.value = selectedRows;
+        FilterData.value = [];
+        dataSource.value.forEach((item: any) => {
+          if (selectedRows.indexOf(item.standardId) !== -1) {
+            FilterData.value.push(item.standardType);
+          }
+        });
+
+        if (
+          FilterData.value.findIndex(item => {
+            return item === '已发布';
+          }) != -1
+        ) {
+          PublishBatch.value = true;
+        } else {
+          PublishBatch.value = false;
+        }
+        if (
+          FilterData.value.findIndex(item => {
+            return item === '未发布' || item === '已停用';
+          }) != -1
+        ) {
+          DeactivateBatch.value = true;
+        } else {
+          DeactivateBatch.value = false;
+        }
+        if (FilterData.value.length == 0) {
+          DeactivateBatch.value = true;
+          PublishBatch.value = true;
+        }
+      },
+    };
   });
   // 更新状态
   const updateStandardType = (id: any, mode: string) => {
@@ -286,7 +331,11 @@
     update_StandardType(updateStandardType_object).then(function (res) {
       if (res.data.msg == '返回成功') {
         message.success('状态修改成功');
-        if (typeof id === 'object') Selectall_invert.value = [];
+        if (typeof id === 'object') {
+          Selectall_invert.value = [];
+          DeactivateBatch.value = true;
+          PublishBatch.value = true;
+        }
         query();
       } else message.error(res.data.msg);
     });

@@ -58,9 +58,9 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkStairAdd"
     >
-      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="目录名称">
-          <a-input v-model:value="addStair" />
+      <a-form :model="formState" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="目录名称" :rules="rules" name="addStair">
+          <a-input v-model:value="formState.addStair" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -75,9 +75,9 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkAdd"
     >
-      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="目录名称">
-          <a-input v-model:value="addSecond" />
+      <a-form :model="formState" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="目录名称" :rules="rules" name="addSecond">
+          <a-input v-model:value="formState.addSecond" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -92,9 +92,9 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkEdit"
     >
-      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="目录名称">
-          <a-input v-model:value="editSecond" />
+      <a-form :model="formState" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="目录名称" :rules="rules" name="editSecond">
+          <a-input v-model:value="formState.editSecond" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -126,11 +126,9 @@
   };
 
   const fg = ref('');
-
+  //接受主页面传过来的值
   emitter.on('reset', (t: any) => {
-    console.log(t.keys);
     fg.value = t.keys;
-    console.log(fg.value, 'ojk');
   });
 
   //数据资产表目录按表名称或目录名称查询
@@ -161,7 +159,7 @@
 
   const Asset = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
-    editSecond.value = node.name;
+    formState.editSecond = node.name;
     Asset.value = keys[0];
     emitter.emit('sendf', Asset.value);
   };
@@ -232,6 +230,11 @@
     }
   };
 
+  const formState = reactive({
+    addStair: '',
+    addSecond: '',
+    editSecond: '',
+  });
   //数据资产表目录新增目录
   interface AddData {
     directoryName: string;
@@ -242,15 +245,14 @@
     directoryName: '',
   });
   const stair_add = ref<boolean>(false);
-  const addStair = ref<string>('');
   const stairAdd = () => {
     stair_add.value = true;
-    addStair.value = '';
+    formState.addStair = '';
   };
   async function handleOkStairAdd() {
     stair_add.value = false;
     AddData.value.parentId = '0';
-    AddData.value.directoryName = addStair.value;
+    AddData.value.directoryName = formState.addStair;
     await InsertDirectory(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功添加资产表目录');
@@ -266,15 +268,14 @@
   }
   //数据资产表目录新增下级目录
   const visible_add = ref<boolean>(false);
-  const addSecond = ref();
   const add = () => {
     visible_add.value = true;
-    addSecond.value = '';
+    formState.addSecond = '';
   };
   async function handleOkAdd() {
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
-    AddData.value.directoryName = addSecond.value;
+    AddData.value.directoryName = formState.addSecond;
     await InsertDirectory(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功新增资产表目录');
@@ -316,14 +317,13 @@
     directoryName: '',
   });
   const visible_edit = ref<boolean>(false);
-  const editSecond = ref();
   const edit = () => {
     visible_edit.value = true;
   };
   async function handleOkEdit() {
     visible_edit.value = false;
     EditData.value.directoryId = aa.value[0];
-    EditData.value.directoryName = editSecond.value;
+    EditData.value.directoryName = formState.editSecond;
     await UpdateDirectoryName(EditData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功修改资产表目录');
@@ -334,14 +334,11 @@
     });
     showDataAssetCatalog();
   }
-
-  //数据资产表目录增删改查验证规则
-  const rules = {
-    addStair: [
-      { required: true, message: '新增目录不能为空', trigger: 'blur' },
-      { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
-    ],
-  };
+  //接口管理增删改查验证规则
+  const rules = [
+    { required: true, message: '新增目录不能为空' },
+    { pattern: /^[^\s]*$/, message: '不允许输入空格' },
+  ];
 </script>
 <style lang="less" scoped>
   @import '@/pages/management/DataAssetCatalog.less';

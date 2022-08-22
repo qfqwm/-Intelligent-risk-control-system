@@ -1,6 +1,6 @@
 <template>
   <!-- 搜索区域 -->
-  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'center' }">
+  <a-form :model="Search" name="search" autocomplete="off" :style="{ display: 'flex', justifyContent: 'space-around', width: '100%' }">
     <a-form-item label="码表状态" name="codeType" :style="{ marginRight: '20px' }">
       <a-select v-model:value.trim="Search.codeType" :options="codeType_areas" :style="{ minWidth: '130px' }" />
     </a-form-item>
@@ -15,8 +15,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
-      <a-button type="primary" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
+      <a-button type="primary" :disabled="batchIssue" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
+      <a-button type="primary" :disabled="batchBlockUp" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
@@ -60,14 +60,7 @@
       </template>
     </template>
   </a-table>
-  <AddEdit
-    :add_edit_type="add_edit_type"
-    :record_object="record_object"
-    :show_drawer_number="showDrawer_number"
-    :showcode_num="num_showcode"
-    :code_details="code_details"
-    @get-data="select_CodeTable"
-  />
+  <AddEdit :add_edit_type="add_edit_type" :record_object="record_object" :show_drawer_number="showDrawer_number" :showcode_num="num_showcode" :code_details="code_details" />
 </template>
 <script lang="ts" setup>
   import { reactive, ref } from 'vue';
@@ -75,12 +68,14 @@
   import AddEdit from '@/pages/TableManagement/AddEdit.vue';
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
+  import emitter from '@/utils/bus';
+  import { start } from 'repl';
   interface DataItem {
     key: string;
     codeId: string;
     codeName: string;
     codeExplain: string;
-    codeType: any;
+    codeType: number;
     codeUpdatetime: string;
     codeCreattime: string;
     allCodeTable: object;
@@ -88,12 +83,25 @@
   interface Search {
     codeType: string;
     codeName: string;
+    page: number;
+    size: number;
   }
   const Search = reactive<Search>({
     codeType: '',
     codeName: '',
+    page: 1,
+    size: 20,
   });
   const dataSource: Ref<DataItem[]> = ref([]);
+  enum codeType {
+    '未发布',
+    '已发布',
+    '已停用',
+  }
+  //新增编辑页面调用主页面的方法
+  emitter.on('sendcode', () => {
+    select_CodeTable();
+  });
   const codeType_areas = [
     { label: '未发布', value: '0' },
     { label: '已发布', value: '1' },
@@ -102,18 +110,12 @@
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
       if (res.data.code !== 100200) return (dataSource.value = []);
-      dataSource.value = res.data.data;
+      dataSource.value = res.data.data.nowTable;
       dataSource.value.forEach((item: any) => {
-        if (item.codeType == 0) {
-          item.codeType = '未发布';
-        }
-        if (item.codeType == 1) {
-          item.codeType = '已发布';
-        }
-        if (item.codeType == 2) {
-          item.codeType = '已停用';
-        }
+        item.codeType = codeType[item.codeType];
       });
+      total.value = res.data.data.total;
+      allpage.value = res.data.data.allpage;
     });
   };
   select_CodeTable();
@@ -128,15 +130,32 @@
     select_CodeTable();
   };
   // 表格分页区
-  const pagination = {
-    pageSizeOptions: ['10', '15', '18', '20'],
-    showTotal: (total: any) => `共 ${total} 条`,
+  const total = ref<number>();
+  const allpage = ref<number>();
+  const pageSize = ref<number>(20);
+  const pagination = computed(() => ({
+    total: total.value,
+    current: allpage.value,
+    pageSize: pageSize.value,
+    showTotal: (total: any) => `总共 ${total} 项`,
+    pageSizeOptions: ['5', '10', '15', '20'],
     showSizeChanger: true,
-    defaultPageSize: 20,
+    showQuickJumper: true,
     buildOptionText: (size: any) => {
-      return Number(size.value) + ' 项' + '/' + '页';
+      return Number(size.value) + ' 项/页';
     },
-  };
+    onShowSizeChange: (current: number, size: number) => {
+      pageSize.value = size;
+      Search.page = current;
+      Search.size = size;
+      select_CodeTable();
+    },
+    onChange: (current: number, size: number) => {
+      Search.page = current;
+      Search.size = size;
+      select_CodeTable();
+    },
+  }));
   const Record_selection = (dataSource: any) => {
     return dataSource.codeId;
   };
@@ -169,6 +188,13 @@
       title: '更新时间',
       dataIndex: 'codeUpdatetime',
       ellipsis: true,
+      key: 'codeUpdatetime',
+      //排序方法
+      sorter: (a, b) => {
+        let aTime = new Date(a.codeUpdatetime).getTime();
+        let bTime = new Date(b.codeUpdatetime).getTime();
+        return aTime - bTime;
+      },
     },
     {
       title: '操作',
@@ -190,32 +216,65 @@
   // 删除码表
   const onDelete = (code: string) => {
     DeleteCode(code).then(function (res: any) {
-      if (res.data.msg == '删除成功') {
+      if (res.data.code == 100200) {
         dataSource.value = dataSource.value.filter((item: any) => item.codeId !== code);
+        return message.success(res.data.data);
       }
     });
   };
+
+  //批量按钮操作
+  const batchIssue = ref<boolean>(true);
+  const batchBlockUp = ref<boolean>(true);
+
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
-    selectedRowKeys: Selectall_invert,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
+    // selectedRowKeys: Selectall_invert,
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(selectedRowKeys, selectedRows);
+      // Selectall_invert.value = selectedRows;
+      const data = ref<string[]>([]);
+      function unique(arr) {
+        return arr.filter(function (item, index, arr) {
+          return arr.indexOf(item, 0) === index;
+        });
+      }
+      selectedRows.forEach((p, index) => {
+        data.value[index] = p.codeType;
+      });
+      unique(data.value);
+      if (data.value == ('未发布,已停用' as any) || data.value == ('未发布' as any) || data.value == ('已停用' as any)) {
+        batchIssue.value = false;
+        batchBlockUp.value = true;
+      } else if (data.value == ('已发布' as any)) {
+        batchIssue.value = true;
+        batchBlockUp.value = false;
+      } else {
+        batchIssue.value = true;
+        batchBlockUp.value = true;
+      }
+      console.log(data.value);
+      if (selectedRows == '') {
+        batchIssue.value = true;
+        batchBlockUp.value = true;
+      }
     },
+  });
+
+  const change_array = reactive({
+    codeTableIdList: [],
+    codeType: '',
   });
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
-    let object_array = [
-      {
-        codeId: codeId,
-        codeType: state,
-      },
-    ];
-    OnChange(object_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
-        message.success('更新成功!');
+    change_array.codeTableIdList.push(codeId);
+    change_array.codeType = state;
+    OnChange(change_array).then(function (res: any) {
+      if (res.data.code == 100200) {
         select_CodeTable();
-      }
+        return message.success(res.data.msg);
+      } else return message.warning(res.data.msg);
     });
   };
   // 批量操作
@@ -242,21 +301,14 @@
         }
       }
     }
-    let change_array: any = [];
     Selectall_invert.value.forEach(item => {
-      change_array.push({
-        codeId: item,
-        codeType: state,
-      });
+      change_array.codeTableIdList.push(item);
     });
-    if (change_array.length == 0) return message.error('请选择码表进行操作!');
+    change_array.codeType = state;
+    if (change_array.codeTableIdList == []) return message.error('请选择码表进行操作!');
     OnChange(change_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
-        console.log(11111);
-        console.log(Selectall_invert.value);
-
+      if (res.data.code == 100200) {
         Selectall_invert.value = [];
-        console.log(Selectall_invert.value);
         message.success('更新成功!');
         select_CodeTable();
       } else return message.error('更新失败！');
@@ -292,25 +344,20 @@
     const input = e.target as HTMLInputElement;
     let files = input.files;
     if (files) {
-      console.log(files[0]);
+      // console.log(files[0]);
     }
     let forms = new FormData();
     //下面的file是后端要求的key
-
     importExcel(forms).then(function (res: any) {
-      console.log(res);
+      // console.log(res);
     });
   };
 
   const importexe = () => {
-    console.log(uploadInput.value);
+    // console.log(uploadInput.value);
 
     let oBtn = uploadInput.value as HTMLInputElement;
     oBtn.click();
-
-    // importExcel(uploadInput.value).then(function (res: any) {
-    //   console.log(res);
-    // });
   };
 </script>
 <style lang="less" scoped>
