@@ -92,7 +92,6 @@
   // 删除
   const onDelete = (id: any) => {
     dataSource_index.value = dataSource_index.value.filter(item => {
-      console.log(item, 'item');
       return item != id;
     });
     emitter.emit('dataSource_index', dataSource_index.value);
