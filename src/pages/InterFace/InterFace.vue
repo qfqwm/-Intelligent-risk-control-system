@@ -24,8 +24,8 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(1)">批量发布</a-button>
-          <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode(2)">批量停用</a-button>
+          <a-button type="primary" :disabled="!hasSelected1" @click="onChangecode(Selectall_invert, 0)"> 批量发布 </a-button>
+          <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="onChangecode(Selectall_invert, 1)"> 批量停用 </a-button>
           <a-button type="primary" :disabled="batch" size="small" @click="batchClassification"> 批量分类 </a-button>
           <BatchClassificationVue />
         </div>
@@ -34,6 +34,7 @@
           <a-button type="primary" style="margin-left: 15px" @click="router_link('zc')"> 人工注册 </a-button>
         </div>
       </div>
+
       <!-- 表格区域 -->
       <a-table
         :data-source="dataSource"
@@ -41,11 +42,18 @@
         :row-selection="rowSelection"
         :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
-          pageSizeOptions: ['10', '15', '18', '20'], showTotal: (total: any) => `共 ${total} 条`,
+       
+          pageSizeOptions: ['10', '15', '18', '20'],
+          showTotal: (total: any) => `共 ${total} 条`,
           showSizeChanger: true,
           defaultPageSize: 20,
           buildOptionText: (size: any) => {
             return Number(size.value) + ' 项' + '/' + '页'
+          },
+          onShowSizeChange : (current, pageSize) => {
+            return current
+           
+        
           }
 
         }"
@@ -148,6 +156,7 @@
   import { SelectCodeConfigure, SelectDirectory, queryIntfc, postDeactivation, delIntfc } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter } from 'vue-router';
+  import { List } from 'lodash';
   const router = useRouter();
 
   //查询区域
@@ -195,21 +204,6 @@
     codeCreattime: string;
     allCodeTable: object;
   }
-
-  // const visible = ref<boolean>(false);
-
-  // const showDrawer = (type: string, record: any) => {
-  //   const sdd = reactive({
-  //     type: type,
-  //     record: record,
-  //     visible: visible,
-  //     treeData: treeData,
-  //   });
-  //   // console.log(11111222, sdd.record);
-
-  //   // Add();
-  //   emitter.emit('sendchild', sdd);
-  // };
 
   // 搜索功能
   const interMsgSource = ref<string>('');
@@ -283,7 +277,7 @@
 
     let object = {
       page: 1,
-      size: 7,
+      size: 100,
     };
     let object1 = { ...object, ...formState };
     // console.log(object1);
@@ -321,8 +315,11 @@
   const query = () => {
     selectCodeTable_way();
   };
-
   // 重置按钮
+  const setCurrentNum = current => {
+    console.log(current, '重置');
+  };
+
   const reset = () => {
     formState.interMsgSource = '';
     formState.interMsgApiType = '';
@@ -377,75 +374,56 @@
     show.PersonnelGender = false;
   };
 
-  // 全选/反选
-  const Selectall_invert = ref([]);
-  const batchData = ref();
-  const rowSelection = ref({
-    checkStrictly: false,
-    onChange: (selectedRows: any, record: any) => {
-      Selectall_invert.value = selectedRows;
-      batchData.value = record;
-      //多选进行批量操作
-      if (Selectall_invert.value != ('' as any)) {
-        batch.value = false;
-      }
-      if (Selectall_invert.value == ('' as any)) {
-        batch.value = true;
-      }
-    },
+  //按钮禁用
+  let reslist = ref<any>([]);
+  const state = reactive<{ selectedRowKeys: [] }>({
+    selectedRowKeys: [], // Check here to configure the default column
   });
 
-  // 批量操作
-  const ALLonChangecode = (state: number) => {
-    if (state === 1) {
-      state = 0;
-      let length = Selectall_invert.value.length;
-      for (let i = 0; i < length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.interMsgId === Selectall_invert.value[i]);
-        if (temp.codeType === '已发布') {
-          return message.error('已发布状态不可在进行发布');
-        }
-      }
+  const hasSelected1 = computed(() => {
+    if (reslist.value.every(item => item == '未发布' || item == '已停用') && state.selectedRowKeys.length > 0) {
+      return true;
+    } else {
+      return false;
     }
-    if (state === 2) {
-      state = 1;
-      for (let i = 0; i < Selectall_invert.value.length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.interMsgId === Selectall_invert.value[i]);
-        if (temp.codeType == '未发布') return message.error('停用失败，存在未发布的码表！');
-      }
-      let length = Selectall_invert.value.length;
-      for (let i = 0; i < length; i++) {
-        let temp: any = dataSource.value.find((element: any) => element.interMsgId === Selectall_invert.value[i]);
-        if (temp.codeType === '已停用') {
-          return message.error('已停用状态不可在进行停用');
-        }
-      }
+  });
+  const hasSelected2 = computed(() => {
+    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '已发布')) {
+      return true;
+    } else {
+      return false;
     }
-    // let list = Selectall_invert.value;
-    let change_array: any = {
-      statusType: state,
-      interfaceMsgList: Selectall_invert.value,
-    };
-    if (change_array.length == 0) return message.error('请选择码表进行操作!');
-    postDeactivation(change_array).then(function (res: any) {
-      console.log(res);
-      console.log(change_array);
+  });
 
-      if (res.data.code == 100200) {
-        message.success('更新成功!');
-        selectCodeTable_way();
-      } else return message.error('更新失败！');
-    });
-  };
+  // 全选/反选
+  const Selectall_invert = ref([]);
+  const rowSelection = ref({
+    checkStrictly: false,
+    selectedRowKeys: Selectall_invert,
+    onChange: (selectedRowKeys: any, record) => {
+      Selectall_invert.value = selectedRowKeys;
+      state.selectedRowKeys = selectedRowKeys;
+      reslist.value = record.map(item => {
+        return item.interMsgApiType;
+      });
+    },
+  });
   // 分页
   // const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
 
   // 改变编码状态 √
-  const onChangecode = (interMsgId: number, state: number) => {
+  const onChangecode = (interMsgId: any, state: number) => {
+    let Arr: any = [];
+    if (typeof interMsgId === 'number') {
+      Arr.push(interMsgId);
+    } else {
+      Arr = [...interMsgId];
+    }
+
     let object_array = {
       statusType: state,
-      interfaceMsgList: [interMsgId],
+      interfaceMsgList: Arr,
     };
     postDeactivation(object_array).then(function (res: any) {
       console.log(res, 'czc');
@@ -453,8 +431,9 @@
       if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
+        if (typeof interMsgId === 'object') Selectall_invert.value = [];
         selectCodeTable_way();
-      }
+      } else message.error(res.data.msg);
     });
   };
   //接口测试抽屉
