@@ -263,21 +263,20 @@
   const dataSource: Ref<DataItem[]> = ref([]);
   //调用接口加载表格
   const selectCodeTable_way = () => {
-    let state = '';
-    if (interMsgApiType.value == '未发布') state = '0';
-    if (interMsgApiType.value == '已发布') state = '1';
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (interMsgApiType.value == '已停用') state = '2';
-    let Source = '';
-    if (interMsgSource.value == '数据服务') Source = '0';
-    if (interMsgSource.value == '指标管理') Source = '1';
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (interMsgSource.value == '决策引擎') Source = '2';
-
     let object = {
       page: 1,
       size: 100,
     };
+    enum interMsgApiType {
+      未发布,
+      已发布,
+      已停用,
+    }
+    enum interMsgSource {
+      数据服务 = 0,
+      指标管理,
+      决策引擎,
+    }
     let object1 = { ...object, ...formState };
     // console.log(object1);
     queryIntfc(object1).then(function (res: any) {
@@ -286,24 +285,8 @@
       dataSource.value = res.data.data.interfaceMsgList;
       // console.log(dataSource.value);
       dataSource.value.forEach((item: any) => {
-        if (item.interMsgApiType == 0) {
-          item.interMsgApiType = '未发布';
-        }
-        if (item.interMsgApiType == 1) {
-          item.interMsgApiType = '已发布';
-        }
-        if (item.interMsgApiType == 2) {
-          item.interMsgApiType = '已停用';
-        }
-        if (item.interMsgSource == 0) {
-          item.interMsgSource = '数据服务';
-        }
-        if (item.interMsgSource == 1) {
-          item.interMsgSource = '指标管理';
-        }
-        if (item.interMsgSource == 2) {
-          item.interMsgSource = '决策引擎';
-        }
+        item.interMsgApiType = interMsgApiType[item.interMsgApiType];
+        item.interMsgSource = interMsgSource[item.interMsgSource];
       });
       total.value = dataSource.value.length;
     });
@@ -370,26 +353,23 @@
 
   //按钮禁用
   let reslist = ref<any>([]);
-  const state = reactive<{ selectedRowKeys: [] }>({
-    selectedRowKeys: [], // Check here to configure the default column
-  });
 
   const hasSelected1 = computed(() => {
-    if (reslist.value.every(item => item == '未发布' || item == '已停用') && state.selectedRowKeys.length > 0) {
+    if (reslist.value.every(item => item == '未发布' || item == '已停用') && Selectall_invert.value.length > 0) {
       return true;
     } else {
       return false;
     }
   });
   const hasSelected2 = computed(() => {
-    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '已发布')) {
+    if (Selectall_invert.value.length > 0 && reslist.value.every(item => item === '已发布')) {
       return true;
     } else {
       return false;
     }
   });
   const batch = computed(() => {
-    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '未发布')) {
+    if (Selectall_invert.value.length > 0 && reslist.value.every(item => item === '未发布')) {
       return true;
     } else {
       return false;
@@ -405,7 +385,6 @@
     onChange: (selectedRowKeys: any, record) => {
       batchData.value = record;
       Selectall_invert.value = selectedRowKeys;
-      state.selectedRowKeys = selectedRowKeys;
       reslist.value = record.map(item => {
         return item.interMsgApiType;
       });
