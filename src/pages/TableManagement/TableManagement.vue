@@ -15,8 +15,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" :disabled="batchIssue" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
-      <a-button type="primary" :disabled="batchBlockUp" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
+      <a-button type="primary" :disabled="!batchIssue" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
+      <a-button type="primary" :disabled="!batchBlockUp" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
@@ -69,7 +69,6 @@
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
-
   interface DataItem {
     key: string;
     codeId: string;
@@ -223,43 +222,33 @@
     });
   };
 
-  //批量按钮操作
-  const batchIssue = ref<boolean>(true);
-  const batchBlockUp = ref<boolean>(true);
-
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
-    // selectedRowKeys: Selectall_invert,
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(selectedRowKeys, selectedRows);
-      // Selectall_invert.value = selectedRows;
-      const data = ref<string[]>([]);
-      function unique(arr) {
-        return arr.filter(function (item, index, arr) {
-          return arr.indexOf(item, 0) === index;
-        });
-      }
-      selectedRows.forEach((p, index) => {
-        data.value[index] = p.codeType;
+    checkStrictly: false,
+    selectedRowKeys: Selectall_invert,
+    onChange: (selectedRowKeys: any, record) => {
+      Selectall_invert.value = selectedRowKeys;
+      reslist.value = record.map(item => {
+        return item.codeType;
       });
-      unique(data.value);
-      if (data.value == ('未发布,已停用' as any) || data.value == ('未发布' as any) || data.value == ('已停用' as any)) {
-        batchIssue.value = false;
-        batchBlockUp.value = true;
-      } else if (data.value == ('已发布' as any)) {
-        batchIssue.value = true;
-        batchBlockUp.value = false;
-      } else {
-        batchIssue.value = true;
-        batchBlockUp.value = true;
-      }
-      console.log(data.value);
-      if (selectedRows == '') {
-        batchIssue.value = true;
-        batchBlockUp.value = true;
-      }
     },
+  });
+  //批量按钮操作
+  let reslist = ref<any>([]);
+  const batchIssue = computed(() => {
+    if (reslist.value.every(item => item == '未发布' || item == '已停用') && Selectall_invert.value.length > 1) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  const batchBlockUp = computed(() => {
+    if (reslist.value.every(item => item == '已发布') && Selectall_invert.value.length > 1) {
+      return true;
+    } else {
+      return false;
+    }
   });
 
   const change_array = reactive({
@@ -348,9 +337,7 @@
     }
     let forms = new FormData();
     //下面的file是后端要求的key
-    importExcel(forms).then(function (res: any) {
-      // console.log(res);
-    });
+    importExcel(forms);
   };
 
   const importexe = () => {
