@@ -14,7 +14,7 @@
           <a-select v-model:value.trim="formState.interMsgApiType" :options="areas1" :style="{ minWidth: '100px' }" />
         </a-form-item>
         <a-form-item has-feedback label="接口名称:" name="checkPass">
-          <a-input v-model:value="formState.interMsgName" type="text" autocomplete="off" />
+          <a-input v-model:valuee.trim="formState.interMsgName" type="text" autocomplete="off" />
         </a-form-item>
         <a-form-item>
           <a-button html-type="submit" @click="reset">重置</a-button>
@@ -63,31 +63,19 @@
             <router-link to="/InterfaceDetail" @click.prevent="showcode(record.interMsgId)">{{ record.interMsgName }}</router-link>
           </template>
           <template v-if="column.dataIndex === 'operation'">
-            <!-- 未发布显示按钮 -->
-            <div v-if="record.interMsgApiType == '未发布'">
+            <!-- 状态按钮 -->
+            <div>
               <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
-                <a-button type="primary" size="small">发布</a-button>
+                <a-button v-if="record.interMsgApiType != '已发布'" type="primary" size="small">发布</a-button>
+              </a-popconfirm>
+              <a-popconfirm v-if="dataSource.length" title="请确认否停用该码表?" @confirm="onChangecode(record.interMsgId, 1)">
+                <a-button v-if="record.interMsgApiType == '已发布'" type="primary" size="small">停用</a-button>
               </a-popconfirm>
               <a-button type="primary" size="small" @click="router_link(record.interMsgId)">编辑</a-button>
               <a-popconfirm v-if="dataSource.length" title="请确认是否删除该码表?" @confirm="onDelete(record.interMsgId)">
-                <a-button type="primary" size="small">删除</a-button>
+                <a-button v-if="record.interMsgApiType == '未发布'" type="primary" size="small">删除</a-button>
               </a-popconfirm>
-            </div>
-            <!-- 已发布显示按钮 -->
-            <div v-if="record.interMsgApiType == '已发布'">
-              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
-              <a-popconfirm v-if="dataSource.length" title="请确认否停用该码表?" @confirm="onChangecode(record.interMsgId, 1)">
-                <a-button type="primary" size="small">停用</a-button>
-              </a-popconfirm>
-            </div>
-            <!-- 已停用显示按钮 -->
-            <div v-if="record.interMsgApiType == '已停用'">
-              <a-button type="primary" size="small" @click="showTestDrawer(record)">接口测试</a-button>
-              <a-popconfirm v-if="dataSource.length" title="请确认否发布该码表?" @confirm="onChangecode(record.interMsgId, 0)">
-                <a-button type="primary" size="small">发布</a-button>
-              </a-popconfirm>
-              <a-button type="primary" size="small" @click="router_link(record.interMsgId)">编辑</a-button>
             </div>
           </template>
         </template>
@@ -205,10 +193,6 @@
   }
 
   // 搜索功能
-  const interMsgSource = ref<string>('');
-  const interMsgApiType = ref<string>('');
-  // const interMsgName = ref<string>('');
-
   emitter.on('sendf', val => {
     formState.interDirId = val as any;
     selectCodeTable_way();
@@ -263,21 +247,20 @@
   const dataSource: Ref<DataItem[]> = ref([]);
   //调用接口加载表格
   const selectCodeTable_way = () => {
-    let state = '';
-    if (interMsgApiType.value == '未发布') state = '0';
-    if (interMsgApiType.value == '已发布') state = '1';
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (interMsgApiType.value == '已停用') state = '2';
-    let Source = '';
-    if (interMsgSource.value == '数据服务') Source = '0';
-    if (interMsgSource.value == '指标管理') Source = '1';
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (interMsgSource.value == '决策引擎') Source = '2';
-
     let object = {
       page: 1,
       size: 100,
     };
+    enum interMsgApiType {
+      未发布,
+      已发布,
+      已停用,
+    }
+    enum interMsgSource {
+      数据服务 = 0,
+      指标管理,
+      决策引擎,
+    }
     let object1 = { ...object, ...formState };
     // console.log(object1);
     queryIntfc(object1).then(function (res: any) {
@@ -286,24 +269,8 @@
       dataSource.value = res.data.data.interfaceMsgList;
       // console.log(dataSource.value);
       dataSource.value.forEach((item: any) => {
-        if (item.interMsgApiType == 0) {
-          item.interMsgApiType = '未发布';
-        }
-        if (item.interMsgApiType == 1) {
-          item.interMsgApiType = '已发布';
-        }
-        if (item.interMsgApiType == 2) {
-          item.interMsgApiType = '已停用';
-        }
-        if (item.interMsgSource == 0) {
-          item.interMsgSource = '数据服务';
-        }
-        if (item.interMsgSource == 1) {
-          item.interMsgSource = '指标管理';
-        }
-        if (item.interMsgSource == 2) {
-          item.interMsgSource = '决策引擎';
-        }
+        item.interMsgApiType = interMsgApiType[item.interMsgApiType];
+        item.interMsgSource = interMsgSource[item.interMsgSource];
       });
       total.value = dataSource.value.length;
     });
@@ -325,9 +292,10 @@
   //删除
   const onDelete = (code: string) => {
     delIntfc(code).then(function (res: any) {
-      // if (res.data.msg == '删除成功') {
-      dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
-      // }
+      console.log(res);
+      if (res.data.msg == '返回成功') {
+        dataSource.value = dataSource.value.filter((item: any) => item.interMsgId !== code);
+      }
     });
   };
   // 判断弹框显示隐藏
@@ -370,26 +338,23 @@
 
   //按钮禁用
   let reslist = ref<any>([]);
-  const state = reactive<{ selectedRowKeys: [] }>({
-    selectedRowKeys: [], // Check here to configure the default column
-  });
 
   const hasSelected1 = computed(() => {
-    if (reslist.value.every(item => item == '未发布' || item == '已停用') && state.selectedRowKeys.length > 0) {
+    if (reslist.value.every(item => item == '未发布' || item == '已停用') && Selectall_invert.value.length > 0) {
       return true;
     } else {
       return false;
     }
   });
   const hasSelected2 = computed(() => {
-    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '已发布')) {
+    if (Selectall_invert.value.length > 0 && reslist.value.every(item => item === '已发布')) {
       return true;
     } else {
       return false;
     }
   });
   const batch = computed(() => {
-    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '未发布')) {
+    if (Selectall_invert.value.length > 0 && reslist.value.every(item => item === '未发布')) {
       return true;
     } else {
       return false;
@@ -405,7 +370,6 @@
     onChange: (selectedRowKeys: any, record) => {
       batchData.value = record;
       Selectall_invert.value = selectedRowKeys;
-      state.selectedRowKeys = selectedRowKeys;
       reslist.value = record.map(item => {
         return item.interMsgApiType;
       });
