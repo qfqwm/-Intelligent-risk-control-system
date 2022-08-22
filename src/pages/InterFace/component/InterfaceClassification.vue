@@ -176,15 +176,8 @@
     console.log(AddData.value);
 
     InterfaceAddContents(AddData.value).then(res => {
-      if (res.data.msg == '返回成功') {
-        message.success('成功添加资产表目录');
-      }
-      if (res.data.msg == 'directoryName只支持中文及英文大小写') {
-        message.error('添加失败，资产表目录只支持中文及英文大小写');
-      }
-      if (res.data.msg == '请求参数错误，存在重复项') {
-        message.error('添加失败，资产表目录中有重复项');
-      }
+      if (res.data.code == 100200) message.success('成功添加资产表目录');
+      if (res.data.code == 100081) message.error('当前目录下有重复目录');
     });
     showInterfaceClassification();
   };
@@ -199,15 +192,8 @@
     AddData.value.parentId = aa.value[0];
     AddData.value.interDirName = formState.addSecond;
     InterfaceAddContents(AddData.value).then(res => {
-      if (res.data.msg == '返回成功') {
-        message.success('成功新增资产表目录');
-      }
-      if (res.data.msg == 'directoryName只支持中文及英文大小写') {
-        message.error('添加失败，资产表目录只支持中文及英文大小写');
-      }
-      if (res.data.msg == '请求参数错误，存在重复项') {
-        message.success('添加失败，资产表目录中有重复项');
-      }
+      if (res.data.code == 100200) message.success('成功添加资产表目录');
+      if (res.data.code == 100081) message.error('当前目录下有重复目录');
     });
     showInterfaceClassification();
   };
@@ -221,12 +207,8 @@
       cancelText: '否',
       onOk() {
         InterfaceDeleteContents(aa.value[0]).then(res => {
-          if (res.data.msg == '删除成功') {
-            message.success('成功删除资产表目录');
-          }
-          if (res.data.msg == '该目录下存在正在使用的资产表，不可删除') {
-            message.error(res.data.msg);
-          }
+          if (res.data.code == 100200) message.success('成功删除资产表目录');
+          if (res.data.code == 100401) message.error('该目录下存在正在使用的资产表，不可删除');
           showInterfaceClassification();
         });
       },
@@ -259,7 +241,7 @@
   //接口管理增删改查验证规则
   const rules = [
     { required: true, message: '新增目录不能为空' },
-    { pattern: /^[^\s]*$/, message: '不允许输入空格' },
+    { pattern: /^[^\s]*$/, message: '不允许输入空格，空格将会被强制去掉' },
   ];
 </script>
 <style scoped lang="less">

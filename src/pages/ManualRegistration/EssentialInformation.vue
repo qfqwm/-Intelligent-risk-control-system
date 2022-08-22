@@ -116,7 +116,15 @@
         trigger: 'blur',
       },
     ],
-    Interface_path: [{ required: true, message: '请输入Path路径' }],
+    Interface_path: [
+      { required: true, message: '请输入Path路径' },
+      {
+        pattern: /^(\/[a-zA-Z]+)+$/,
+        message: 'Path路径不符合规定',
+        trigger: 'blur',
+      },
+    ],
+
     Interface_request: [{ required: true, message: '请选择请求方式' }],
     Timeout: [
       { required: true, message: '请输入超时时间' },

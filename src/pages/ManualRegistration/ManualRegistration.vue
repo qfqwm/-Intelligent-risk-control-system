@@ -105,8 +105,9 @@
       step_down();
     },
   );
+  const interMsgId = ref('-1');
   // 递归处理数据
-  const handle_data = (data, interConfigDistinguish, number) => {
+  const handle_data = (data, interConfigDistinguish, number, interMsgId) => {
     data.forEach(item => {
       if (!item.interConfigId) {
         number++;
@@ -114,13 +115,20 @@
       } else {
         item.interConfigId = item.interConfigId.toString();
       }
+
       item.interConfigDistinguish = interConfigDistinguish;
       delete item.newlyadded;
       delete item['key'];
+      console.log(interMsgId);
+
+      if (interMsgId !== '-1') {
+        item.interMsgId = interMsgId;
+      }
+
       if (item.children) {
         item.interfaceConfigMsgDTO = [...item.children];
         delete item.children;
-        number = handle_data(item.interfaceConfigMsgDTO, interConfigDistinguish, number);
+        number = handle_data(item.interfaceConfigMsgDTO, interConfigDistinguish, number, interMsgId);
       }
     });
     return number;
@@ -143,9 +151,9 @@
       interRetConfigDTO: [...return_parameter_data.value],
     };
     let num = min_id.value;
-    if (object_to_data.interInputConfigDTO.length !== 0) num = handle_data(object_to_data.interInputConfigDTO, '0', num);
-    if (object_to_data.interReqConfigDTO.length !== 0) num = handle_data(object_to_data.interReqConfigDTO, '1', num);
-    if (object_to_data.interRetConfigDTO.length !== 0) handle_data(object_to_data.interRetConfigDTO, '2', num);
+    if (object_to_data.interInputConfigDTO.length !== 0) num = handle_data(object_to_data.interInputConfigDTO, '0', num, interMsgId.value);
+    if (object_to_data.interReqConfigDTO.length !== 0) num = handle_data(object_to_data.interReqConfigDTO, '1', num, interMsgId.value);
+    if (object_to_data.interRetConfigDTO.length !== 0) handle_data(object_to_data.interRetConfigDTO, '2', num, interMsgId.value);
     if (Route.query.mode === 'zc') {
       let object = {} as any;
       Object.keys(Basic_information).forEach(item => {
@@ -239,6 +247,16 @@
         Object.keys(res.data.data.interfaceMsgs).forEach(item => {
           Basic_information[item] = res.data.data.interfaceMsgs[item];
         });
+        if (!res.data.data.requestBodys) {
+          res.data.data.requestBodys = [];
+        }
+        if (!res.data.data.requestParameters) {
+          res.data.data.requestParameters = [];
+        }
+        if (!res.data.data.backParameters) {
+          res.data.data.backParameters = [];
+        }
+        interMsgId.value = res.data.data.interfaceMsgs.interMsgId;
         Parameter_configuration.value = res.data.data;
         emitter.emit('Basic_information', Basic_information);
       }

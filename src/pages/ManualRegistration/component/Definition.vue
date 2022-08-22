@@ -6,7 +6,7 @@
         <a-button type="primary" size="middle" @click="showcode">新增码值表</a-button>
       </div>
       <AddedCodeVue />
-      <AddedCustomVue :recorddatasourceindex="props.recorddatasourceindex" />
+      <AddedCustomVue :recorddatasourceindex="props_recorddatasourceindex" :visibleswith="visible" />
     </a-modal>
   </div>
 </template>
@@ -22,8 +22,15 @@
       },
     },
   });
-
-  const visible = ref();
+  const props_recorddatasourceindex = ref();
+  watch(
+    () => props.recorddatasourceindex,
+    () => {
+      props_recorddatasourceindex.value = props.recorddatasourceindex;
+    },
+    { deep: true, immediate: true },
+  );
+  const visible = ref<boolean>(false);
   emitter.on('Code_value_definition', () => {
     showModal();
   });

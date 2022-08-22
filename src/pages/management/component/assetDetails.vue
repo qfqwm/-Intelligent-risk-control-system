@@ -7,8 +7,8 @@
         <h1><a href="#" class="close" @click.prevent="closePersonnelGender"> X</a></h1>
         <h2>企业基本信息表</h2>
         <h3>基本信息</h3><br />
-        <span class="label"> 中文名称：</span> {{ personnelcodetable.dataAsset.chineseName }} <br />
-        <span class="label"> 英文名称：</span>{{ personnelcodetable.dataAsset.englishName }} <br />
+        <span class="label"> 中文名称：</span> {{ dataAsset.chineseName }} <br />
+        <span class="label"> 英文名称：</span>{{ dataAsset.englishName }} <br />
         <h4>数据资产表描述：</h4>
         <span class="label"> 所属目录：</span>
         <a-button>{{ personnelcodetable.directoryNames[0] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[1] }}</a-button> <a-button>{{ personnelcodetable.directoryNames[2] }}</a-button>
@@ -31,25 +31,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in personnelcodetable.assetFieldList" :key="index">
+          <tr v-for="(item, index) in list1" :key="index">
             <td>{{ item.englishName }}</td>
             <td>{{ item.chineseName }}</td>
             <td>{{ item.fieldExplain }}</td>
             <td>{{ item.standardId }}</td>
-            <!-- <template v-for="(a, index) in item.dataStandard" :key="index">
-            <td>{{a.dataType}}</td>
-            <td>{{a.dataLength}}</td>
-            <td>{{a.dataPrecision}}</td>
-            <td>{{a.dataDefault}}</td>
+            <td>{{ item.dataType }}</td>
+            <td>{{ item.dataLength }}</td>
+            <td>{{ item.dataPrecision }}</td>
+            <td>{{ item.dataDefault }}</td>
             <td>{{}}</td>
-            <td>{{a.enumRange}}</td>
-            </template> -->
-            <td>{{ item.dataStandard.dataType }}</td>
-            <td>{{ item.dataStandard.dataLength }}</td>
-            <td>{{ item.dataStandard.dataPrecision }}</td>
-            <td>{{ item.dataStandard.dataDefault }}</td>
-            <td>{{}}</td>
-            <td>{{ item.dataStandard.enumRange }}</td>
+            <td>{{ item.enumRange }}</td>
           </tr>
         </tbody>
       </table>
@@ -65,12 +57,7 @@
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     record = t.record;
     console.log(record, 'sdda');
-    if (t.type == 'chinese') {
-      showcode1(record.chineseName);
-    }
-    if (t.type == 'english') {
-      showcode2(record.englishName);
-    }
+    showcode(record.chineseName);
   });
 
   // 判断弹框显示隐藏
@@ -78,14 +65,6 @@
 
   // 人员性别编码弹框
   const personnelcodetable = ref({
-    dataAsset: [
-      {
-        chineseName: '',
-        englishName: '',
-        updateTime: '',
-      },
-    ],
-
     directoryNames: '',
     assetFieldList: [
       {
@@ -93,29 +72,34 @@
         chineseName: '',
         fieldExplain: '',
         standardId: '',
-        dataStandard: [
-          {
-            englishName: '',
-            chineseName: '',
-            standardExplain: '',
-            dataType: '',
-            dataLength: '',
-            dataPrecision: '',
-            standardId: '',
-            dataDefault: '',
-            dataMin: '',
-            dataMax: '',
-            enumRange: '',
-          },
-        ],
+        dataStandard: {
+          englishName: '',
+          chineseName: '',
+          standardExplain: '',
+          dataType: '',
+          dataLength: '',
+          dataPrecision: '',
+          standardId: '',
+          dataDefault: '',
+          dataMin: '',
+          dataMax: '',
+          enumRange: '',
+        },
       },
     ],
   });
 
+  const dataAsset = ref({
+    chineseName: '',
+    englishName: '',
+    updateTime: '',
+  });
+  const list = ref();
+  const list1 = ref();
+
   //中文
-  const showcode1 = (code1: string) => {
+  const showcode = (code1: string) => {
     personnelcodetable.value = {
-      dataAsset: [] as any[],
       directoryNames: '',
       assetFieldList: [] as any[],
     };
@@ -125,29 +109,20 @@
     };
 
     rebaseTbl(object).then(function (res: any) {
-      console.log(res, 'asda');
-      if (res.data.code == 100200) {
+      if (res.data.msg == '查询成功') {
+        dataAsset.value = res.data.data.dataAsset;
         personnelcodetable.value = res.data.data;
-        console.log(personnelcodetable.value);
-      }
-    });
-    show.outmask = true;
-    show.PersonnelGender = true;
-  };
-  //英文
-  const showcode2 = (code2: any) => {
-    personnelcodetable.value = {
-      dataAsset: [],
-      directoryNames: '',
-      assetFieldList: [],
-    };
+        list.value = res.data.data.assetFieldList;
+        //数组遍历
+        let a = ref({});
+        const listArr = ref<any>([]);
+        for (let i = 0; i < list.value.length; i++) {
+          a = { ...list.value[i], ...list.value[i].dataStandard };
+          listArr.value.push(a);
+        }
 
-    const object = {
-      englishName: code2,
-    };
-    rebaseTbl(object).then(function (res: any) {
-      if (res.data.code == 100200) {
-        personnelcodetable.value = res.data.data;
+        console.log(listArr.value, '2');
+        list1.value = listArr.value;
       }
     });
     show.outmask = true;

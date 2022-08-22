@@ -3,7 +3,7 @@
 <!-- eslint-disable vue/no-template-shadow -->
 <template>
   <div>
-    <a-form id="hhh" :model="datas" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure">
+    <a-form id="hhh" ref="edit_and_Form" :model="datas" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure">
       <a-drawer title="数据资产表基础信息" :width="800" :visible="visible" :body-style="{ backgroundColor: '#F1F1F1' }" :footer-style="{ textAlign: 'right', marginLeft: '77%' }" @close="onClose">
         <!-- <a-form :model="datas" layout="vertical" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off" @finish="sure"> -->
         <!-- 数据资产表基础信息区域 -->
@@ -61,8 +61,32 @@
 
   //定义表单验证规则
   const rules = ref({
-    chineseName: [{ required: true, message: '请输入中文名称' }],
-    englishName: [{ required: true, message: '请输入英文名称' }],
+    chineseName: [
+      { required: true, message: '请输入中文名称' },
+      {
+        pattern: /^[a-zA-Z\u4e00-\u9fa5]+$/,
+        message: '中文名称只支持中文及英文大小写',
+        trigger: 'blur',
+      },
+      {
+        max: 30,
+        message: '长度不能大于30个字符',
+        trigger: 'blur',
+      },
+    ],
+    englishName: [
+      { required: true, message: '请输入英文名称' },
+      {
+        pattern: /^[a-z][a-z0-9_]*$/g,
+        message: '英文名称只支持英文大小写、数字及下划线且只能英文小写开头',
+        trigger: 'blur',
+      },
+      {
+        max: 30,
+        message: '长度不能大于30个字符',
+        trigger: 'blur',
+      },
+    ],
   });
 
   const getdata = (value: { sights: { id: string }[]; chineseName: ['']; directoryId: { directoryId: string }[] }) => {
@@ -167,6 +191,7 @@
           emitter.emit('send');
         } else return message.error(res.data.msg);
       });
+      visible.value = false;
     }
     if (type == 'edit') {
       Object.keys(datas1).forEach(function (key) {
@@ -190,6 +215,7 @@
           return message.error(res.data.msg);
         } else return message.error(res.data.msg);
       });
+      visible.value = false;
     }
   };
 
@@ -268,6 +294,20 @@
       dataSource1.value = [];
     }
   };
+
+  //监听模态框状态，清空表单错误提示
+  const edit_and_Form = ref<any>(null);
+  //监听模态框的变化，进入新增/编辑模态框清空表单验证的错误提示
+  watch(
+    () => visible.value,
+    newval => {
+      if (newval) {
+        try {
+          return edit_and_Form.value.resetFields();
+        } catch (e) {}
+      }
+    },
+  );
 </script>
 <style lang="less" scoped>
   @import '../style.less';

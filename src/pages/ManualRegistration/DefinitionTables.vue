@@ -58,7 +58,6 @@
           </template>
         </template>
         <!-- 操作区域 -->
-
         <template v-if="column.dataIndex === 'operation'">
           <div class="editable-row-operations">
             <span v-if="editableData[record.key]">
@@ -83,7 +82,7 @@
   import { reactive } from 'vue';
   import type { UnwrapRef } from 'vue';
   import { message } from 'ant-design-vue';
-  import { cloneDeep, last } from 'lodash-es';
+  import { cloneDeep } from 'lodash-es';
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
 
