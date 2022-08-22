@@ -1,14 +1,18 @@
 <template>
-  <DefinitionTables :table_object="input_parameter_object" @editabledata_state="input_parameter_changeeditabledata"></DefinitionTables>
-  <DefinitionTables v-if="object_form_information.interMsgRequest === 'POST'" :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata"></DefinitionTables>
-  <DefinitionTables :table_object="return_parameter_object" @editabledata_state="return_parameter_changeeditabledata"></DefinitionTables>
+  <DefinitionTables :table_object="input_parameter_object" @editabledata_state="input_parameter_changeeditabledata" @recordindex="change_record_index"></DefinitionTables>
+  <div v-show="object_form_information.interMsgRequest === 'POST'"
+    ><DefinitionTables :table_object="quest_body_object" @editabledata_state="quest_body_changeeditabledata" @recordindex="change_record_index"></DefinitionTables
+  ></div>
+  <DefinitionTables :table_object="return_parameter_object" @editabledata_state="return_parameter_changeeditabledata" @recordindex="change_record_index"></DefinitionTables>
   <JosnTo></JosnTo>
+  <Definition :recorddatasourceindex="record_dataSource_index" />
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
   import type { Ref } from 'vue';
   import emitter from '@/utils/bus';
   import DefinitionTables from './DefinitionTables.vue';
+  import Definition from './component/Definition.vue';
   import JosnTo from './JosnTo.vue';
   const emits = defineEmits(['editabledata']);
   type Props = {
@@ -31,6 +35,7 @@
     interConfigIsNull: string;
     interConfigDefault: string;
     interConfigDescribe: string;
+    configureId: any;
   }
   interface quest_body_DataItem {
     interConfigName: string;
@@ -38,11 +43,13 @@
     interConfigIsNull: string;
     interConfigDefault: string;
     interConfigDescribe: string;
+    configureId: any;
   }
   interface return_parameter_DataItem {
     interConfigName: string;
     interConfigDataType: string;
     interConfigDescribe: string;
+    configureId: any;
   }
   // 接收基本信息
   const object_form_information = ref({ Interface_request: '' }) as any;
@@ -252,5 +259,9 @@
     },
     { deep: true },
   );
+  const record_dataSource_index = ref([]);
+  const change_record_index = e => {
+    record_dataSource_index.value = e;
+  };
 </script>
 <style lang="less" scoped></style>

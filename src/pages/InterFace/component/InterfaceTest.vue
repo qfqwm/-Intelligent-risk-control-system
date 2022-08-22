@@ -1,79 +1,90 @@
 <template>
   <a-drawer title="接口测试" width="1200" :closable="false" :visible="showVisible" :destroy-on-close="true" @close="onClose">
-    <a-row>
-      <a-col :span="14" :style="{ height: '88vh' }">
-        <a-row :style="{ height: '40px' }">
-          <a-col :span="5" class="inttest">接口名称：</a-col>
-          <a-col :span="19"
-            ><a-typography-text>{{ interfaceMsgs.interMsgName }}</a-typography-text></a-col
-          >
-        </a-row>
-        <a-row :style="{ height: '40px' }">
-          <a-col :span="5" class="inttest">Request URL：</a-col>
-          <a-col :span="19"
-            ><a-typography-text>{{ requestUrl }}</a-typography-text></a-col
-          >
-        </a-row>
-        <a-row :style="{ height: '40px' }">
-          <a-col :span="5" class="inttest">请求方式：</a-col>
-          <a-col :span="19"
-            ><a-typography-text>{{ interfaceMsgs.interMsgRequest }}</a-typography-text></a-col
-          >
-        </a-row>
-        <!-- 输入参数 -->
-        <a-tabs v-model:activeKey="activeKey" size="large">
-          <a-tab-pane key="1" tab="输入参数">
-            <a-table :columns="columns" :data-source="data" :pagination="false">
-              <template #bodyCell="{ column, record }">
-                <template v-if="column.dataIndex === 'testValue'">
-                  <a-input v-model:value="record.testValue" placeholder="请输入" allow-clear :rule="rules" @change="dataTest()" />
-                </template>
-              </template>
-            </a-table>
-          </a-tab-pane>
-        </a-tabs>
-        <template v-if="interfaceMsgs.interMsgRequest == 'POST'">
+    <a-form :model="formState">
+      <a-row>
+        <a-col :span="14" :style="{ height: '88vh' }">
+          <a-row :style="{ height: '40px' }">
+            <a-col :span="5" class="inttest">接口名称：</a-col>
+            <a-col :span="19"
+              ><a-typography-text>{{ interfaceMsgs.interMsgName }}</a-typography-text></a-col
+            >
+          </a-row>
+          <a-row :style="{ height: '40px' }">
+            <a-col :span="5" class="inttest">Request URL：</a-col>
+            <a-col :span="19"
+              ><a-typography-text>{{ requestUrl }}</a-typography-text></a-col
+            >
+          </a-row>
+          <a-row :style="{ height: '40px' }">
+            <a-col :span="5" class="inttest">请求方式：</a-col>
+            <a-col :span="19"
+              ><a-typography-text>{{ interfaceMsgs.interMsgRequest }}</a-typography-text></a-col
+            >
+          </a-row>
+          <!-- 输入参数 -->
           <a-tabs v-model:activeKey="activeKey" size="large">
-            <a-tab-pane key="1" tab="请求Body">
-              <a-textarea v-model:value="textArea" placeholder="请输入" :rows="15" @change="bodyText()" />
+            <a-tab-pane key="1" tab="输入参数">
+              <a-table :columns="columns" :data-source="data" :pagination="false">
+                <template #bodyCell="{ column, record }">
+                  <template v-if="column.dataIndex === 'testValue'">
+                    <a-input v-model:value="record.testValue" placeholder="请输入" allow-clear @change="dataTest()" />
+                  </template>
+                </template>
+              </a-table>
             </a-tab-pane>
           </a-tabs>
-        </template>
-      </a-col>
-      <a-col :span="10">
-        <a-tabs v-model:activeKey="activeKey" size="large">
-          <a-tab-pane key="1" tab="返回结果（JSON）">
-            <a-card class="box">{{ resultData }}</a-card>
-          </a-tab-pane>
-        </a-tabs>
-      </a-col>
-    </a-row>
-    <div
-      :style="{
-        position: 'absolute',
-        bottom: 0,
-        width: '100%',
-        borderTop: '1px solid #e8e8e8',
-        padding: '10px 16px',
-        textAlign: 'left',
-        left: 0,
-        background: '#fff',
-        borderRadius: '0 0 4px 4px',
-      }"
-    >
-      <a-button style="margin-right: 8px" :disabled="interfaceTest" @click="faceTest">接口测试</a-button>
-      <a-button style="margin-right: 8px" :disabled="copyRuselt" @click="copy">复制返回结果</a-button>
-      <a-button @click="onClose">关闭</a-button>
-    </div>
+          <template v-if="interfaceMsgs.interMsgRequest == 'POST'">
+            <a-tabs v-model:activeKey="activeKey" size="large">
+              <a-tab-pane key="1" tab="请求Body">
+                <a-textarea v-model:value="textArea" placeholder="请输入" :rows="15" @change="bodyText()" />
+              </a-tab-pane>
+            </a-tabs>
+          </template>
+        </a-col>
+        <a-col :span="10">
+          <a-tabs v-model:activeKey="activeKey" size="large">
+            <a-tab-pane key="1" tab="返回结果（JSON）">
+              <a-card id="copyData" class="box">{{ resultData }}</a-card>
+            </a-tab-pane>
+          </a-tabs>
+        </a-col>
+      </a-row>
+      <div
+        :style="{
+          position: 'absolute',
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e8e8e8',
+          padding: '10px 16px',
+          textAlign: 'left',
+          left: 0,
+          background: '#fff',
+          borderRadius: '0 0 4px 4px',
+        }"
+      >
+        <a-button type="primary" style="margin-right: 8px" :loading="iconLoading" @click="faceTest">接口测试</a-button>
+        <a-button style="margin-right: 8px" :disabled="copyRuselt" @click="copy('copyData')">复制返回结果</a-button>
+        <a-button @click="onClose">关闭</a-button>
+      </div>
+    </a-form>
   </a-drawer>
 </template>
 <script lang="ts" setup>
   import { ref, defineProps } from 'vue';
   import { InterfaceDetailSelect, InterfaceTestc } from '@/api/test/index';
+  import { copyDomText } from '@/utils/common';
   import { message } from 'ant-design-vue';
   const emit = defineEmits(['closeDrawer']);
+  const formState = ref();
   const props = defineProps({
     showInterfaceTest: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+    // eslint-disable-next-line vue/require-default-prop
+    textObject: {
       type: Object,
       default: () => {
         return {};
@@ -125,18 +136,28 @@
     () => props.showInterfaceTest,
     p => {
       interfaceMsgs.value = p as any;
-      requestUrl.value = p.interMsgApiProtocol.toLowerCase() + '://' + p.interMsgIp + p.interMsgApiUrl;
+      requestUrl.value = p.interMsgApiProtocol.toLowerCase() + '://' + p.interMsgIp + '/' + p.interMsgApiUrl;
       interMsgId.value = p.interMsgId;
-      async function InterfaceDetailSelect_way() {
-        await InterfaceDetailSelect(interMsgId.value).then(res => {
-          res.data.data.requestParameters.forEach(p => {
-            p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
-            p.interConfigDataType = interConfigDataType[p.interConfigDataType];
-            if (p.interConfigDistinguish == '0') data.value.push(p);
-          });
+      if (props.textObject) {
+        props.textObject.input_parameter_data.forEach(p => {
+          p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+          p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+          data.value.push(p);
         });
+      } else {
+        async function InterfaceDetailSelect_way() {
+          await InterfaceDetailSelect(interMsgId.value).then(res => {
+            console.log(res.data.data);
+
+            res.data.data.requestParameters.forEach(p => {
+              p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
+              p.interConfigDataType = interConfigDataType[p.interConfigDataType];
+              data.value.push(p);
+            });
+          });
+        }
+        InterfaceDetailSelect_way();
       }
-      InterfaceDetailSelect_way();
     },
   );
 
@@ -199,11 +220,11 @@
     }
     if (interfaceMsgs.value.interMsgRequest == 'POST') {
       for (let i in data.value) {
-        if (data.value[i].interConfigPlace != 'header') {
+        if (data.value[i].interConfigPlace != 'Header') {
           obj[data.value[i].interConfigName] = data.value[i].testValue;
           testData.value.requestURL = requestUrl.value;
         }
-        if (data.value[i].interConfigPlace == 'header') {
+        if (data.value[i].interConfigPlace == 'Header') {
           testData.value.requestURL = requestUrl.value + '/' + data.value[i].testValue;
         }
       }
@@ -211,11 +232,11 @@
     }
     if (interfaceMsgs.value.interMsgRequest == 'GET') {
       for (let i in data.value) {
-        if (data.value[i].interConfigPlace != 'header') {
+        if (data.value[i].interConfigPlace != 'Header') {
           obj[data.value[i].interConfigName] = data.value[i].testValue;
           testData.value.requestURL = requestUrl.value;
         }
-        if (data.value[i].interConfigPlace == 'header') {
+        if (data.value[i].interConfigPlace == 'Header') {
           testData.value.requestURL = requestUrl.value + '/' + data.value[i].testValue;
         }
       }
@@ -234,9 +255,18 @@
   watch(interfaceMsgs, () => {
     testData.value.requestMethod = interfaceMsgs.value.interMsgRequest;
   });
+
+  interface DelayLoading {
+    delay: number;
+  }
+  const iconLoading = ref<boolean | DelayLoading>(false);
   async function faceTest() {
+    iconLoading.value = { delay: 1000 };
+    setTimeout(() => {
+      iconLoading.value = false;
+    }, 6000);
     await InterfaceTestc(testData.value).then(res => {
-      resultData.value = res.data.data;
+      resultData.value = res.data;
       copyRuselt.value = false;
     });
   }
@@ -244,7 +274,8 @@
   //返回结果
   const resultData = ref();
   //复制结果
-  const copy = () => {
+  const copy = copyData => {
+    copyDomText(copyData);
     message.success('复制成功');
   };
   //验证规则
@@ -253,6 +284,7 @@
   };
   //关闭抽屉
   const onClose = () => {
+    data.value = [];
     showVisible.value = false;
     emit('closeDrawer');
   };

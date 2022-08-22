@@ -66,7 +66,6 @@
               <a @click="cancel(record.key)">取消</a>
               <a v-if="record.interConfigDataType == '2' || record.interConfigDataType == '3'" @click="showcode(record)">码值定义</a>
               <a v-if="record.interConfigDataType == '0' || record.interConfigDataType == '1'" @click="add_subordinate(record)">添加下级</a>
-              <Definition />
             </span>
             <span v-else>
               <a @click="edit(record.key)">编辑</a>
@@ -88,7 +87,7 @@
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
 
-  const emits = defineEmits(['editabledata_state']);
+  const emits = defineEmits(['editabledata_state', 'recordindex']);
   // 接收参数
   type Props = {
     // eslint-disable-next-line vue/prop-name-casing
@@ -142,9 +141,15 @@
   const add_data_id = (val, front: string) => {
     return val.forEach((item, index) => {
       item.key = front + index;
-      front = item.key + '-';
+      if (item.interConfigDataType) {
+        item.interConfigDataType = item.interConfigDataType.toString();
+      }
+      if (item.interConfigIsNull) {
+        item.interConfigIsNull = item.interConfigIsNull.toString();
+      }
       if (item.children) {
-        add_data_id(item.children, front);
+        let children_front = item.key + '-';
+        add_data_id(item.children, children_front);
       }
     });
   };
@@ -430,12 +435,13 @@
     const newData = {
       key: key_length.toString(),
       newlyadded: true,
+      configureId: [],
     } as any;
     props.table_object.columns.forEach((item: any) => {
       if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
       if (select.value.includes(item.dataIndex)) newData[item.dataIndex] = undefined;
     });
-    console.log(newData);
+
     table_data.value.push(newData);
     key_length++;
     edit((key_length - 1).toString());
@@ -445,6 +451,7 @@
     const newData = {
       key: '',
       newlyadded: true,
+      configureId: [],
     } as any;
     props.table_object.columns.forEach((item: any) => {
       if (item.dataIndex !== 'operation') newData[item.dataIndex] = '';
@@ -471,7 +478,7 @@
   // Josn导入
   const Josn_to = (name: string, data: any) => {
     let same_name: string[] = [];
-    data.forEach(item => same_name.push(item.name as string));
+    data.forEach(item => same_name.push(item.interConfigName as string));
     let Josn_to_object = {
       Josn_to_same_name: same_name,
       Josn_to_name: name,
@@ -501,21 +508,24 @@
   });
   // 保存并退出,传送表格数据
   emitter.on('keep', () => {
-    if (JSON.stringify(editableData) !== '{}') {
-      return message.warning('存在未保存的正在编辑内容，请先保存');
-    }
     emitter.emit('data_' + props.table_object.title, table_data.value);
   });
-
-  const visible = ref<boolean>(false);
-  //码值定义模态框开关
+  // 点击测试，传送数据
+  emitter.on('text', () => {
+    emitter.emit('data_' + props.table_object.title, table_data.value);
+  });
+  const record_dataSource_index = ref([]);
   const showcode = (record: any) => {
-    const sddsq = reactive({
-      record: record,
-      visible: visible,
-    });
-    emitter.emit('Sendchildsq', sddsq);
+    emitter.emit('change_record', record);
+    record_dataSource_index.value = record.configureId;
+    emitter.emit('Code_value_definition');
   };
+  watch(
+    () => record_dataSource_index.value,
+    () => {
+      emits('recordindex', record_dataSource_index.value);
+    },
+  );
 </script>
 <style lang="less" scoped>
   .Input_parameter_table {

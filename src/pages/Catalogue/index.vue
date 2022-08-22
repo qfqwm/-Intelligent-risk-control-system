@@ -25,8 +25,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" :disabled="batch" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
-      <a-button type="primary" :disabled="batch" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
+      <a-button type="primary" :disabled="PublishBatch" :class="{ color_bule: !PublishBatch }" size="small" @click="updateStandardType(Selectall_invert, '1')">批量发布</a-button>
+      <a-button type="primary" :disabled="DeactivateBatch" :class="{ color_bule: !DeactivateBatch }" size="small" @click="updateStandardType(Selectall_invert, '2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small">导入模板下载</a-button>
@@ -155,11 +155,7 @@
   // 请求表格标准数据
   const dataSource: Ref<DataItem[]> = ref([]);
   const Getdata = function () {
-    console.log(Search);
-
     Catalog(Search).then(function (res) {
-      console.log(res);
-
       dataSource.value = res.data.data;
 
       dataSource.value.forEach((item: any) => {
@@ -277,21 +273,48 @@
   };
 
   //批量按钮操作
-  const batch = ref<boolean>(true);
+  const PublishBatch = ref<boolean>(true); //发布按钮禁用
+  const DeactivateBatch = ref<boolean>(true); //停用按钮禁用
   // 批量操作
   const Selectall_invert = ref([]);
-  const rowSelection = ref({
-    selectedRowKeys: Selectall_invert,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-      //多选进行批量操作
-      if (Selectall_invert.value != ('' as any)) {
-        batch.value = false;
-      }
-      if (Selectall_invert.value == ('' as any)) {
-        batch.value = true;
-      }
-    },
+  const FilterData = ref([]) as any; //通过id过滤获取数据，做按钮禁用条件
+  const rowSelection = computed(() => {
+    return {
+      checkStrictly: false,
+      selectedRowKeys: Selectall_invert,
+      onChange: (selectedRows: any) => {
+        Selectall_invert.value = selectedRows;
+        FilterData.value = [];
+        dataSource.value.forEach((item: any) => {
+          if (selectedRows.indexOf(item.standardId) !== -1) {
+            FilterData.value.push(item.standardType);
+          }
+        });
+
+        if (
+          FilterData.value.findIndex(item => {
+            return item === '已发布';
+          }) != -1
+        ) {
+          PublishBatch.value = true;
+        } else {
+          PublishBatch.value = false;
+        }
+        if (
+          FilterData.value.findIndex(item => {
+            return item === '未发布' || item === '已停用';
+          }) != -1
+        ) {
+          DeactivateBatch.value = true;
+        } else {
+          DeactivateBatch.value = false;
+        }
+        if (FilterData.value.length == 0) {
+          DeactivateBatch.value = true;
+          PublishBatch.value = true;
+        }
+      },
+    };
   });
   // 更新状态
   const updateStandardType = (id: any, mode: string) => {
@@ -308,7 +331,11 @@
     update_StandardType(updateStandardType_object).then(function (res) {
       if (res.data.msg == '返回成功') {
         message.success('状态修改成功');
-        if (typeof id === 'object') Selectall_invert.value = [];
+        if (typeof id === 'object') {
+          Selectall_invert.value = [];
+          DeactivateBatch.value = true;
+          PublishBatch.value = true;
+        }
         query();
       } else message.error(res.data.msg);
     });

@@ -15,8 +15,8 @@
   <!-- 五个按钮区域 -->
   <div class="button">
     <div class="left">
-      <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
-      <a-button type="primary" :disabled="batch" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
+      <a-button type="primary" :disabled="batchIssue" size="small" @click="ALLonChangecode('1')">批量发布</a-button>
+      <a-button type="primary" :disabled="batchBlockUp" size="small" @click="ALLonChangecode('2')">批量停用</a-button>
     </div>
     <div class="right">
       <a-button type="primary" size="small" @click="downexecel()">码表模板下载</a-button>
@@ -69,6 +69,7 @@
   import { selectCodeTable, OnChange, DeleteCode, down, importExcel } from '@/api/test/index';
   import { message } from 'ant-design-vue';
   import emitter from '@/utils/bus';
+  import { start } from 'repl';
   interface DataItem {
     key: string;
     codeId: string;
@@ -223,37 +224,57 @@
   };
 
   //批量按钮操作
-  const batch = ref<boolean>(true);
+  const batchIssue = ref<boolean>(true);
+  const batchBlockUp = ref<boolean>(true);
 
   // 全选/反选
   const Selectall_invert = ref([]);
   const rowSelection = ref({
-    selectedRowKeys: Selectall_invert,
-    onChange: (selectedRows: any) => {
-      Selectall_invert.value = selectedRows;
-      console.log(Selectall_invert.value, 'iisd');
-
-      if (Selectall_invert.value != ('' as any)) {
-        batch.value = false;
+    // selectedRowKeys: Selectall_invert,
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(selectedRowKeys, selectedRows);
+      // Selectall_invert.value = selectedRows;
+      const data = ref<string[]>([]);
+      function unique(arr) {
+        return arr.filter(function (item, index, arr) {
+          return arr.indexOf(item, 0) === index;
+        });
       }
-      if (Selectall_invert.value == ('' as any)) {
-        batch.value = true;
+      selectedRows.forEach((p, index) => {
+        data.value[index] = p.codeType;
+      });
+      unique(data.value);
+      if (data.value == ('未发布,已停用' as any) || data.value == ('未发布' as any) || data.value == ('已停用' as any)) {
+        batchIssue.value = false;
+        batchBlockUp.value = true;
+      } else if (data.value == ('已发布' as any)) {
+        batchIssue.value = true;
+        batchBlockUp.value = false;
+      } else {
+        batchIssue.value = true;
+        batchBlockUp.value = true;
+      }
+      console.log(data.value);
+      if (selectedRows == '') {
+        batchIssue.value = true;
+        batchBlockUp.value = true;
       }
     },
   });
+
+  const change_array = reactive({
+    codeTableIdList: [],
+    codeType: '',
+  });
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
-    let object_array = [
-      {
-        codeId: codeId,
-        codeType: state,
-      },
-    ];
-    OnChange(object_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
-        message.success('更新成功!');
+    change_array.codeTableIdList.push(codeId);
+    change_array.codeType = state;
+    OnChange(change_array).then(function (res: any) {
+      if (res.data.code == 100200) {
         select_CodeTable();
-      }
+        return message.success(res.data.msg);
+      } else return message.warning(res.data.msg);
     });
   };
   // 批量操作
@@ -280,16 +301,13 @@
         }
       }
     }
-    let change_array: any = [];
     Selectall_invert.value.forEach(item => {
-      change_array.push({
-        codeId: item,
-        codeType: state,
-      });
+      change_array.codeTableIdList.push(item);
     });
-    if (change_array.length == 0) return message.error('请选择码表进行操作!');
+    change_array.codeType = state;
+    if (change_array.codeTableIdList == []) return message.error('请选择码表进行操作!');
     OnChange(change_array).then(function (res: any) {
-      if (res.data.msg == '更新成功') {
+      if (res.data.code == 100200) {
         Selectall_invert.value = [];
         message.success('更新成功!');
         select_CodeTable();
@@ -326,17 +344,17 @@
     const input = e.target as HTMLInputElement;
     let files = input.files;
     if (files) {
-      console.log(files[0]);
+      // console.log(files[0]);
     }
     let forms = new FormData();
     //下面的file是后端要求的key
     importExcel(forms).then(function (res: any) {
-      console.log(res);
+      // console.log(res);
     });
   };
 
   const importexe = () => {
-    console.log(uploadInput.value);
+    // console.log(uploadInput.value);
 
     let oBtn = uploadInput.value as HTMLInputElement;
     oBtn.click();
