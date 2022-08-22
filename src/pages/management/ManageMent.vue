@@ -227,18 +227,14 @@
     pageSizeOptions: ['5', '10', '15', '20'],
     showTotal: (total: any) => `共 ${total} 条`, // 显示总数
     onShowSizeChange: (current: any, pageSize: number) => {
-      paginationOpt.defaultCurrent = current;
+      paginationOpt.defaultCurrent = 1;
       paginationOpt.defaultPageSize = pageSize;
-      Search.pageNum = current;
-      Search.pageSize = pageSize as any;
-      selectCodeTable_way(); //显示列表的接口名称
+      selectCodeTable_way();
     },
-    // 改变每页数量时更新显示
+    // 改变页码时更新显示
     onChange: (current: any, size: any) => {
       paginationOpt.defaultCurrent = current;
       paginationOpt.defaultPageSize = size;
-      Search.pageNum = current;
-      Search.pageSize = size;
       selectCodeTable_way();
     },
   });
@@ -255,10 +251,12 @@
       keys: [],
     });
     emitter.emit('reset', sdsd.value);
+    paginationOpt.defaultCurrent = 1;
     selectCodeTable_way();
   };
   // 查询按钮
   const query = () => {
+    paginationOpt.defaultCurrent = 1;
     selectCodeTable_way();
   };
 

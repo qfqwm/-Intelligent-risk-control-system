@@ -191,6 +191,7 @@
           emitter.emit('send');
         } else return message.error(res.data.msg);
       });
+      visible.value = false;
     }
     if (type == 'edit') {
       Object.keys(datas1).forEach(function (key) {
@@ -214,6 +215,7 @@
           return message.error(res.data.msg);
         } else return message.error(res.data.msg);
       });
+      visible.value = false;
     }
   };
 
