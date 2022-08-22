@@ -86,7 +86,16 @@
   import AssetDetails from './component/assetDetails.vue';
   import emitter from '@/utils/bus';
 
-  // 搜索区域
+  interface DataItem {
+    key: string;
+    assetId: string;
+    chineseName: string;
+    englishName: string;
+    assetType: any;
+    creatTime: string;
+    updateTime: string;
+    allCodeTable: object;
+  }
   interface Search {
     chineseName: string;
     englishName: string;
@@ -95,6 +104,8 @@
     pageNum: string;
     pageSize: string;
   }
+
+  // 搜索区域
   const Search = reactive<Search>({
     chineseName: '',
     englishName: '',
@@ -108,23 +119,12 @@
     { label: '已发布', value: '1' },
     { label: '已停用', value: '2' },
   ];
-
+  //从后端获取资产目录表的数据
   const treeData = ref<any>([]);
   SelectDirectory().then(res => {
     treeData.value = res.data.data;
   });
-
-  interface DataItem {
-    key: string;
-    assetId: string;
-    chineseName: string;
-    englishName: string;
-    assetType: any;
-    creatTime: string;
-    updateTime: string;
-    allCodeTable: object;
-  }
-
+  //抽屉开关按钮
   const visible = ref<boolean>(false);
   //点击事件，用事件总线将数据传给子组件，打开抽屉
   const showDrawer = (type: string, record: any) => {
@@ -153,25 +153,21 @@
     Search.directoryId = val as any;
     selectCodeTable_way();
   });
-
   // 表格
   const columns = [
     {
       title: '数据资产表中文名称',
       dataIndex: 'chineseName',
-      width: '13%',
       ellipsis: true,
     },
     {
       title: '数据资产表英文名称',
       dataIndex: 'englishName',
-      width: '13%',
       ellipsis: true,
     },
     {
       title: '数据资产表描述',
       dataIndex: 'assetExplain',
-      width: '20%',
       ellipsis: true,
     },
     {
@@ -194,7 +190,6 @@
     {
       title: '操作',
       dataIndex: 'operation',
-      width: '20%',
       ellipsis: true,
     },
   ];
@@ -270,7 +265,6 @@
   //删除按钮  √
   const onDelete = (codeId: any) => {
     deleteAsset(codeId).then(function (res: any) {
-      // console.log(res);
       if (res.data.code == 100200) {
         dataSource.value = dataSource.value.filter((item: any) => item.assetId !== codeId);
         return message.success('删除成功');
@@ -345,7 +339,6 @@
         }
       }
     }
-    // let list = Selectall_invert.value;
     let change_array: any = {
       statusType: state,
       assetList: Selectall_invert.value,
@@ -354,7 +347,6 @@
     OnChange1(change_array).then(function (res: any) {
       if (res.data.code == 100200) {
         message.success('更新成功!');
-        console.log(rowSelection);
         //批量操作后取消勾选框的勾选
         Selectall_invert.value = [];
         rowSelection.value.onChange(Selectall_invert.value);

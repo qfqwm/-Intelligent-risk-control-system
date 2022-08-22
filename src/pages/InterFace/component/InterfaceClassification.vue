@@ -55,10 +55,8 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkStairAdd"
     >
-      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="目录名称">
-          <a-input v-model:value="addStair" />
-        </a-form-item>
+      <a-form :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :model="formState">
+        <a-form-item label="目录名称" name="addStair" :rules="rules"> <a-input v-model:value="formState.addStair" /> </a-form-item>
       </a-form>
     </a-modal>
     <!-- 数据资产表目录新增下级目录弹框 -->
@@ -72,9 +70,9 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkAdd"
     >
-      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="目录名称">
-          <a-input v-model:value="addSecond" />
+      <a-form :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :model="formState">
+        <a-form-item label="目录名称" :rules="rules" name="addSecond">
+          <a-input v-model:value="formState.addSecond" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -89,9 +87,9 @@
       :ok-button-props="{ style: { marginRight: '31vh' } }"
       @ok="handleOkEdit"
     >
-      <a-form ref="formRef" :rules="rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="目录名称">
-          <a-input v-model:value="editSecond" />
+      <a-form :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :model="formState">
+        <a-form-item label="目录名称" :rules="rules" name="editSecond">
+          <a-input v-model:value="formState.editSecond" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -147,7 +145,7 @@
   const intfc = ref('');
   const handleSelect = (keys: string[], { selected, node }) => {
     console.log(keys, selected, 'fff');
-    editSecond.value = node.interDirName;
+    formState.editSecond = node.interDirName;
     intfc.value = keys[0];
     emitter.emit('sendf', intfc.value);
   };
@@ -162,15 +160,19 @@
     interDirName: '',
   });
   const stair_add = ref<boolean>(false);
-  const addStair = ref<string>('');
   const stairAdd = () => {
     stair_add.value = true;
-    addStair.value = '';
+    formState.addStair = '';
   };
+  const formState = reactive({
+    addStair: '',
+    addSecond: '',
+    editSecond: '',
+  });
   const handleOkStairAdd = () => {
     stair_add.value = false;
     AddData.value.parentId = null as any;
-    AddData.value.interDirName = addStair.value;
+    AddData.value.interDirName = formState.addStair;
     console.log(AddData.value);
 
     InterfaceAddContents(AddData.value).then(res => {
@@ -188,15 +190,14 @@
   };
   //数据资产表目录新增下级目录
   const visible_add = ref<boolean>(false);
-  const addSecond = ref();
   const add = () => {
     visible_add.value = true;
-    addSecond.value = '';
+    formState.addSecond = '';
   };
   const handleOkAdd = () => {
     visible_add.value = false;
     AddData.value.parentId = aa.value[0];
-    AddData.value.interDirName = addSecond.value;
+    AddData.value.interDirName = formState.addSecond;
     InterfaceAddContents(AddData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功新增资产表目录');
@@ -238,14 +239,13 @@
     interDirName: '',
   });
   const visible_edit = ref<boolean>(false);
-  const editSecond = ref();
   const edit = () => {
     visible_edit.value = true;
   };
   const handleOkEdit = () => {
     visible_edit.value = false;
     EditData.value.interDirId = aa.value[0];
-    EditData.value.interDirName = editSecond.value;
+    EditData.value.interDirName = formState.editSecond;
     InterfaceRenameContents(EditData.value).then(res => {
       if (res.data.msg == '返回成功') {
         message.success('成功修改资产表目录');
@@ -257,12 +257,10 @@
     showInterfaceClassification();
   };
   //接口管理增删改查验证规则
-  const rules = {
-    addStair: [
-      { required: true, message: '新增目录不能为空', trigger: 'blur' },
-      { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
-    ],
-  };
+  const rules = [
+    { required: true, message: '新增目录不能为空' },
+    { pattern: /^[^\s]*$/, message: '不允许输入空格' },
+  ];
 </script>
 <style scoped lang="less">
   @import '@/pages/InterFace/css/InterfaceClassification.less';

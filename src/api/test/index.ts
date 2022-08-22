@@ -8,7 +8,7 @@ enum Api {
   // 新增码表
   Add_Code_Table = '/code/addCodeTable',
   // 改变码表状态
-  On_Change = '/code/updateType',
+  On_Change = '/code/updateCodeTableType',
   // 删除码表
   Delete_Code = '/code/deleteById',
   // 码表配置查询
