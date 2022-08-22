@@ -23,7 +23,7 @@
   import EssentialInformation from './EssentialInformation.vue';
   import ParameterConfiguration from './ParameterConfiguration.vue';
   import InterfaceTest from '@/pages/InterFace/component/InterfaceTest.vue';
-  import { InterfaceDetailSelect, insertInterMsg, insertInterConfig, update } from '@/api/test/index';
+  import { InterfaceDetailSelect, insertInterMsg, insertInterConfig, update, deleteInter } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter, useRoute } from 'vue-router';
   import { selectMaxConfig } from '@/api/test/index';
@@ -76,6 +76,12 @@
         if (res.data.msg == '返回成功') {
           step_down_true.value = true;
           step_index.value++;
+          deleteInter({ interMsgName: object_insertInterMsg.interfaceMsg.interMsgName }).then(function (res) {
+            console.log(res);
+            if (res.data.msg !== '删除成功') {
+              return message.warning(res.data.msg);
+            }
+          });
           object_data.value = { ...object_insertInterMsg };
         } else return message.error(res.data.msg);
       });
@@ -141,13 +147,26 @@
     if (object_to_data.interReqConfigDTO.length !== 0) num = handle_data(object_to_data.interReqConfigDTO, '1', num);
     if (object_to_data.interRetConfigDTO.length !== 0) handle_data(object_to_data.interRetConfigDTO, '2', num);
     if (Route.query.mode === 'zc') {
-      insertInterConfig(object_to_data).then(function (res) {
+      let object = {} as any;
+      Object.keys(Basic_information).forEach(item => {
+        object[item] = Basic_information[item];
+      });
+      object.interMsgApiType = '0';
+      let object_insertInterMsg = { interfaceMsg: object };
+      insertInterMsg(object_insertInterMsg).then(function (res) {
         if (res.data.msg == '返回成功') {
-          message.success('新增成功！');
-          router.go(-1);
-        } else {
-          message.error(res.data.msg);
-        }
+          step_down_true.value = true;
+          step_index.value++;
+          insertInterConfig(object_to_data).then(function (res) {
+            if (res.data.msg == '返回成功') {
+              message.success('新增成功！');
+              router.go(-1);
+            } else {
+              message.error(res.data.msg);
+            }
+          });
+          object_data.value = { ...object_insertInterMsg };
+        } else return message.error(res.data.msg);
       });
     } else {
       if (Basic_information.interMsgCreateTime) delete Basic_information.interMsgCreateTime;
