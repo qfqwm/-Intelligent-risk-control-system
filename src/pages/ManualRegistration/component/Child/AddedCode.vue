@@ -41,7 +41,7 @@
     codeType: '',
     codeName: '',
     page: 1,
-    size: 20,
+    size: 20000,
   };
   const option = ref<any>([]);
   selectCodeTable(Search).then(function (res: any) {
