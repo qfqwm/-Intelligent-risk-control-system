@@ -1,6 +1,5 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  {{ table_data }}
   <div class="Input_parameter_table">
     <!--表格头部 -->
     <div class="border_title"
