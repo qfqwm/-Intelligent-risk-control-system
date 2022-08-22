@@ -24,8 +24,8 @@
       </a-form>
       <!-- 批量和新增按钮栏 -->
       <div style="display: flex; justify-content: end">
-        <a-button type="primary" :disabled="!hasSelected1" @click="ALLonChangecode(0)"> 批量发布 </a-button>
-        <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="ALLonChangecode(1)"> 批量停用 </a-button>
+        <a-button type="primary" :disabled="!hasSelected1" @click="onChangecode(Selectall_invert, 0)"> 批量发布 </a-button>
+        <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="onChangecode(Selectall_invert, 1)"> 批量停用 </a-button>
         <a-button type="primary" style="margin-left: 15px"> 批量分类 </a-button>
         <a-button type="primary" style="margin-left: 15px" @click="router_link"> 人工注册 </a-button>
       </div>
@@ -33,10 +33,10 @@
       <a-table
         :data-source="dataSource"
         :columns="columns1"
-        :row-selection="{ onChange: onSelectChange }"
+        :row-selection="rowSelection"
         :row-key="(dataSource: any) => { return dataSource.interMsgId }"
         :pagination="{
-       
+        
           pageSizeOptions: ['10', '15', '18', '20'],
           showTotal: (total: any) => `共 ${total} 条`,
           showSizeChanger: true,
@@ -44,9 +44,9 @@
           buildOptionText: (size: any) => {
             return Number(size.value) + ' 项' + '/' + '页'
           },
-          onShowSizeChange : (current, pageSize) => {
+          onShowSizeChange: (current, pageSize) => {
             return current
-           
+        
         
           }
         }"
@@ -91,6 +91,7 @@
   import emitter from '@/utils/bus';
   import { useRouter } from 'vue-router';
   import { List } from 'lodash';
+  import { number } from 'vue-types';
   const router = useRouter();
 
   //查询区域
@@ -251,13 +252,12 @@
     console.log(current, '重置');
   };
 
-  const reset = pagination => {
+  const reset = () => {
     formState.interMsgSource = '';
     formState.interMsgApiType = '';
     formState.interMsgName = '';
     formState.interDirId = '';
-    setCurrentNum(1);
-    console.log(pagination, '分页数据');
+
     selectCodeTable_way();
   };
   //删除
@@ -324,48 +324,40 @@
 
   // 全选/反选
   const Selectall_invert = ref([]);
-  const onSelectChange = (selectedRowKeys: any, record) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
-    Selectall_invert.value = selectedRowKeys;
-    state.selectedRowKeys = selectedRowKeys;
-    console.log(record);
-    reslist.value = record.map(item => {
-      return item.interMsgApiType;
-    });
-  };
-
-  // const rowSelection = ref({
-  //   checkStrictly: false,
-  //   onChange: (selectedRows: any, record) => {
-  //     Selectall_invert.value = selectedRows;
-  //      console.log(selectedRows,'key');
-  //      console.log(record,'数据');
-  //   },
-  //   getCheckboxProps:(record)=>{
-  //     console.log(record);
-  //     prop:{
-  //          disabled: true
-
-  //     }
-  //   }
-
-  // });
+  const rowSelection = ref({
+    checkStrictly: false,
+    selectedRowKeys: Selectall_invert,
+    onChange: (selectedRowKeys: any, record) => {
+      Selectall_invert.value = selectedRowKeys;
+      state.selectedRowKeys = selectedRowKeys;
+      reslist.value = record.map(item => {
+        return item.interMsgApiType;
+      });
+    },
+  });
 
   // 批量操作 √
-  const ALLonChangecode = (state: number) => {
-    // let list = Selectall_invert.value;
-    const change_array: any = {
-      statusType: state,
-      interfaceMsgList: Selectall_invert.value,
-    };
-
-    postDeactivation(change_array).then(function (res: any) {
-      if (res.data.code == 100200) {
-        message.success('更新成功!');
-        selectCodeTable_way();
-      } else return message.error('更新失败！');
-    });
-  };
+  // const ALLonChangecode = async (state: number) => {
+  //   // let list = Selectall_invert.value;
+  //   const change_array: any = {
+  //     statusType: state,
+  //     interfaceMsgList: Selectall_invert.value,
+  //   };
+  //   await postDeactivation(change_array).then(
+  //     //   function (res: any) {
+  //     //   if (res.data.code == 100200) {
+  //     //     message.success('更新成功!');
+  //     //     selectCodeTable_way();
+  //     //   } else return message.error('更新失败！');
+  //     // }
+  //     (res: any) => {
+  //       if (res.data.code == 100200) {
+  //         message.success('更新成功!');
+  //         selectCodeTable_way();
+  //       } else return message.error('更新失败！');
+  //     }
+  //   );
+  // };
   // 分页
 
   const handleTableChange = pagination => {
@@ -373,18 +365,27 @@
   };
   // const pageSizeRef = ref(20);
   const total = ref(dataSource.value.length);
+
   // 改变编码状态 √
-  const onChangecode = (interMsgId: number, state: number) => {
+  const onChangecode = (interMsgId: any, state: number) => {
+    let Arr: any = [];
+    if (typeof interMsgId === 'number') {
+      Arr.push(interMsgId);
+    } else {
+      Arr = [...interMsgId];
+    }
+
     let object_array = {
       statusType: state,
-      interfaceMsgList: [interMsgId],
+      interfaceMsgList: Arr,
     };
     postDeactivation(object_array).then(function (res: any) {
       if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
+        if (typeof interMsgId === 'object') Selectall_invert.value = [];
         selectCodeTable_way();
-      }
+      } else message.error(res.data.msg);
     });
   };
   //接口测试抽屉
