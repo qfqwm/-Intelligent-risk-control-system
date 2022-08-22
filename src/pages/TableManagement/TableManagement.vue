@@ -257,6 +257,7 @@
   });
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
+    change_array.codeTableIdList = [];
     change_array.codeTableIdList.push(codeId);
     change_array.codeType = state;
     OnChange(change_array).then(function (res: any) {
@@ -338,7 +339,7 @@
     let forms = new FormData();
     //下面的file是后端要求的key
     importExcel(forms).then(function (res: any) {
-      // console.log(res);
+      console.log(res);
     });
   };
 
