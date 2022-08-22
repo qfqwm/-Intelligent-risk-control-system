@@ -1,15 +1,28 @@
 <template>
-  <a-table bordered :data-source="dataSource" :columns="columns" :pagination="false"> </a-table>
+  {{ dataSource_index }}---1
+  <a-table bordered :data-source="dataSource" :columns="columns" :pagination="false">
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'delete'">
+        <a-popconfirm v-if="dataSource.length" title="是否删除?" @confirm="onDelete(record.configureId)">
+          <a>删除</a>
+        </a-popconfirm>
+      </template>
+    </template>
+  </a-table>
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
   import emitter from '@/utils/bus';
+  import { selectCodeConfigById } from '@/api/test/index';
   const props = defineProps({
     recorddatasourceindex: {
       type: Array,
       default: () => {
         return [];
       },
+    },
+    visibleswith: {
+      type: Boolean,
     },
   });
   const columns = [
@@ -25,11 +38,26 @@
       title: '编码含义',
       dataIndex: 'configureMean',
     },
+    {
+      title: '操作',
+      dataIndex: 'delete',
+    },
   ];
   const dataSource_index = ref<any>([]);
-  (function () {
-    dataSource_index.value = props.recorddatasourceindex;
-  })();
+
+  watch(
+    () => props.visibleswith,
+    () => {
+      if (props.visibleswith == true) {
+        (function () {
+          dataSource_index.value = null;
+          dataSource_index.value = props.recorddatasourceindex;
+        })();
+      }
+    },
+    { immediate: true },
+  );
+
   watch(
     () => props.recorddatasourceindex,
     () => {
@@ -37,7 +65,7 @@
       let duplicate_removal = new Set(dataSource_index.value);
       dataSource_index.value = Array.from(duplicate_removal);
     },
-    { deep: true },
+    { deep: true, immediate: true },
   );
   emitter.on('code_table', (e: any) => {
     dataSource_index.value.push(...e);
@@ -50,13 +78,25 @@
   watch(
     () => dataSource_index.value,
     () => {
-      // 写接口调用后端数据生成table
-      //
-      //
-      //
+      selectCodeConfigById({ configureIds: dataSource_index.value }).then(function (res) {
+        if (res.data.msg == '返回成功') {
+          dataSource.value = res.data.data;
+        } else {
+          dataSource.value = [];
+        }
+      });
     },
-    { deep: true },
+    { deep: true, immediate: true },
   );
+
+  // 删除
+  const onDelete = (id: any) => {
+    dataSource_index.value = dataSource_index.value.filter(item => {
+      console.log(item, 'item');
+      return item != id;
+    });
+    emitter.emit('dataSource_index', dataSource_index.value);
+  };
 </script>
 <style lang="less" scoped>
   .editable-cell {
