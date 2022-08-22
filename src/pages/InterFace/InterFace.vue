@@ -46,8 +46,6 @@
           },
           onShowSizeChange: (current, pageSize) => {
             return current
-        
-        
           }
         }"
         @change="handleTableChange"
@@ -210,7 +208,7 @@
 
   const dataSource: Ref<DataItem[]> = ref([]);
   //调用接口加载表格
-  const selectCodeTable_way = () => {
+  const selectCodeTable_way = async () => {
     let object = {
       page: 1,
       size: 100,
@@ -228,7 +226,7 @@
 
     let object1 = { ...object, ...formState };
     // console.log(object1);
-    queryIntfc(object1).then(function (res: any) {
+    await queryIntfc(object1).then(function (res: any) {
       console.log(res.data.data);
 
       if (res.data.msg !== '返回成功') return (dataSource.value = []);
@@ -303,19 +301,16 @@
 
   //按钮禁用
   let reslist = ref<any>([]);
-  const state = reactive<{ selectedRowKeys: [] }>({
-    selectedRowKeys: [], // Check here to configure the default column
-  });
 
   const hasSelected1 = computed(() => {
-    if (reslist.value.every(item => item == '未发布' || item == '已停用') && state.selectedRowKeys.length > 0) {
+    if (reslist.value.every(item => item == '未发布' || item == '已停用') && Selectall_invert.value.length > 0) {
       return true;
     } else {
       return false;
     }
   });
   const hasSelected2 = computed(() => {
-    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '已发布')) {
+    if (Selectall_invert.value.length > 0 && reslist.value.every(item => item === '已发布')) {
       return true;
     } else {
       return false;
@@ -329,37 +324,12 @@
     selectedRowKeys: Selectall_invert,
     onChange: (selectedRowKeys: any, record) => {
       Selectall_invert.value = selectedRowKeys;
-      state.selectedRowKeys = selectedRowKeys;
       reslist.value = record.map(item => {
         return item.interMsgApiType;
       });
     },
   });
-
-  // 批量操作 √
-  // const ALLonChangecode = async (state: number) => {
-  //   // let list = Selectall_invert.value;
-  //   const change_array: any = {
-  //     statusType: state,
-  //     interfaceMsgList: Selectall_invert.value,
-  //   };
-  //   await postDeactivation(change_array).then(
-  //     //   function (res: any) {
-  //     //   if (res.data.code == 100200) {
-  //     //     message.success('更新成功!');
-  //     //     selectCodeTable_way();
-  //     //   } else return message.error('更新失败！');
-  //     // }
-  //     (res: any) => {
-  //       if (res.data.code == 100200) {
-  //         message.success('更新成功!');
-  //         selectCodeTable_way();
-  //       } else return message.error('更新失败！');
-  //     }
-  //   );
-  // };
   // 分页
-
   const handleTableChange = pagination => {
     pagination.current;
   };
@@ -383,8 +353,10 @@
       if (res.data.code == 100200) {
         // 有时间前端进行改进 关于重新请求
         message.success('更新成功!');
-        if (typeof interMsgId === 'object') Selectall_invert.value = [];
-        selectCodeTable_way();
+        if (typeof interMsgId === 'object') {
+          Selectall_invert.value = [];
+          selectCodeTable_way();
+        }
       } else message.error(res.data.msg);
     });
   };
