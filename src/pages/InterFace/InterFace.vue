@@ -24,14 +24,14 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" :disabled="!hasSelected1" @click="onChangecode(Selectall_invert, 0)"> 批量发布 </a-button>
-          <a-button type="primary" :disabled="!hasSelected2" style="margin-left: 15px" @click="onChangecode(Selectall_invert, 1)"> 批量停用 </a-button>
-          <a-button type="primary" :disabled="batch" size="small" @click="batchClassification"> 批量分类 </a-button>
+          <a-button type="primary" :disabled="!hasSelected1" size="small" @click="onChangecode(Selectall_invert, 0)"> 批量发布 </a-button>
+          <a-button type="primary" :disabled="!hasSelected2" size="small" style="margin-left: 15px" @click="onChangecode(Selectall_invert, 1)"> 批量停用 </a-button>
+          <a-button type="primary" :disabled="!batch" size="small" @click="batchClassification"> 批量分类 </a-button>
           <BatchClassificationVue />
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
-          <a-button type="primary" style="margin-left: 15px" @click="router_link('zc')"> 人工注册 </a-button>
+          <a-button type="primary" size="small" style="margin-left: 15px" @click="router_link('zc')"> 人工注册 </a-button>
         </div>
       </div>
 
@@ -156,7 +156,6 @@
   import { SelectCodeConfigure, SelectDirectory, queryIntfc, postDeactivation, delIntfc } from '@/api/test/index';
   import emitter from '@/utils/bus';
   import { useRouter } from 'vue-router';
-  import { List } from 'lodash';
   const router = useRouter();
 
   //查询区域
@@ -216,7 +215,7 @@
   });
 
   //批量按钮操作
-  const batch = ref<boolean>(true);
+  // const batch = ref<boolean>(false);
 
   //表格
   const columns1 = [
@@ -316,16 +315,11 @@
     selectCodeTable_way();
   };
   // 重置按钮
-  const setCurrentNum = current => {
-    console.log(current, '重置');
-  };
-
   const reset = () => {
     formState.interMsgSource = '';
     formState.interMsgApiType = '';
     formState.interMsgName = '';
     formState.interDirId = '';
-
     selectCodeTable_way();
   };
   //删除
@@ -394,13 +388,22 @@
       return false;
     }
   });
+  const batch = computed(() => {
+    if (state.selectedRowKeys.length > 0 && reslist.value.every(item => item === '未发布')) {
+      return true;
+    } else {
+      return false;
+    }
+  });
 
   // 全选/反选
   const Selectall_invert = ref([]);
+  const batchData = ref();
   const rowSelection = ref({
     checkStrictly: false,
     selectedRowKeys: Selectall_invert,
     onChange: (selectedRowKeys: any, record) => {
+      batchData.value = record;
       Selectall_invert.value = selectedRowKeys;
       state.selectedRowKeys = selectedRowKeys;
       reslist.value = record.map(item => {
