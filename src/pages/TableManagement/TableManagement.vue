@@ -120,6 +120,7 @@
   select_CodeTable();
   // 重置
   const Reset = () => {
+    current.value = 1;
     Search.codeType = '';
     Search.codeName = '';
     select_CodeTable();
