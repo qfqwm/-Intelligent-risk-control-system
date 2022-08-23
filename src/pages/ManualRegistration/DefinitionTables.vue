@@ -85,6 +85,7 @@
   import { cloneDeep } from 'lodash-es';
   import Definition from './component/Definition.vue';
   import emitter from '@/utils/bus';
+  import { log } from 'console';
 
   const emits = defineEmits(['editabledata_state', 'recordindex']);
   // 接收参数
@@ -498,7 +499,12 @@
   };
   emitter.on(props.table_object.title, (e: any) => {
     // 为传过来的json参数，添加key值
-    let last_key = parseInt(table_data.value[table_data.value.length - 1].key) + 1;
+    let last_key;
+    if (table_data.value.length != 0) {
+      last_key = parseInt(table_data.value[table_data.value.length - 1].key) + 1;
+    } else {
+      last_key = 0;
+    }
     e.forEach((item, index) => {
       item.key = (last_key + index).toString();
     });

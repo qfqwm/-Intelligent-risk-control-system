@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-modal v-model:visible="visible" :width="1000" title="JOSN数据导入">
-      <a-form ref="Json_Form" :model="formState" layout="vertical" :label-col="{ span: 2 }" :wrapper-col="{ span: 25 }" autocomplete="off" @finish="validateJson">
+      <a-form ref="JsonForm" :model="formState" layout="vertical" :label-col="{ span: 2 }" :wrapper-col="{ span: 25 }" autocomplete="off" @finish="validateJson">
         <a-form-item label="Josn数据" name="jsonValue" :rules="[{ required: true, message: '请输入Josn数据!' }]">
           <a-textarea v-model:value="formState.jsonValue" :rows="10" placeholder="请导入参数" />
         </a-form-item>
@@ -21,12 +21,14 @@
     jsonValue: string;
   }
   // 定义接收参数
-  const Json_Form: any = ref();
+  const JsonForm: any = ref(null);
   const receive_object = ref();
   emitter.on('Josn', e => {
     visible.value = true;
     receive_object.value = e;
-    Json_Form._rawValue.resetFields();
+    try {
+      JsonForm._rawValue.resetFields();
+    } catch (err) {}
   });
   const visible = ref<boolean>(false);
 
@@ -46,7 +48,6 @@
       let type = '';
       let obj_type = '';
       type = typeof obj[item];
-      if (type == 'string') console.log(obj[item]);
       obj_type = '2';
       if (type == 'number') {
         if (Math.ceil(obj[item]) == obj[item]) {
@@ -92,8 +93,6 @@
     }
     if (obj && typeof obj == 'object') {
       let flag = false;
-      console.log(receive_object.value.Josn_to_same_name, 'name');
-
       Object.keys(obj).forEach(item => {
         if (receive_object.value.Josn_to_same_name.indexOf(item) !== -1) flag = true;
       });
