@@ -34,7 +34,7 @@
       </div>
 
       <!-- 表格区域 -->
-      <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :row-key="(dataSource: any) => { return dataSource.assetId }" :pagination="paginationOpt">
+      <a-table :data-source="dataSource" :columns="columns" :row-selection="rowSelection" :row-key="(dataSource: any) => { return dataSource.assetId }" :pagination="pagination">
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'chineseName'">
             <a href="#" @click.prevent="showcode('chinese', record)">{{ record.chineseName }}</a>
@@ -101,8 +101,8 @@
     englishName: string;
     assetType: string;
     directoryId: string;
-    pageNum: string;
-    pageSize: string;
+    pageNum: number;
+    pageSize: number;
   }
 
   // 搜索区域
@@ -111,8 +111,8 @@
     englishName: '',
     assetType: '',
     directoryId: '',
-    pageNum: '',
-    pageSize: '',
+    pageNum: 1,
+    pageSize: 20,
   });
   const standardType_areas = [
     { label: '未发布', value: '0' },
@@ -197,8 +197,6 @@
   const dataSource: Ref<DataItem[]> = ref([]);
   // 调用接口加载表格
   const selectCodeTable_way = () => {
-    Search.pageNum = paginationOpt.defaultCurrent as any;
-    Search.pageSize = paginationOpt.defaultPageSize as any;
     SelectDataAsset(Search).then(function (res: any) {
       if (res.data.code !== 100200) return (dataSource.value = []);
       dataSource.value = res.data.data.list;
@@ -213,31 +211,33 @@
           item.assetType = '已停用';
         }
       });
-      paginationOpt.total = res.data.data.total;
+      total.value = res.data.data.total;
     });
   };
 
-  // 分页
-  const paginationOpt = reactive({
-    defaultCurrent: 1, // 默认当前页数
-    defaultPageSize: 20, // 默认当前页显示数据的大小
-    total: 0, // 总数，必须先有
+  // 表格分页区
+  const total = ref<number>();
+  const current = ref<number>();
+  const pageSize = ref<number>(20);
+  const pagination = computed(() => ({
+    total: total.value, //数据总和
+    current: current.value, //当前页数
+    pageSize: pageSize.value, //每页条数
+    showTotal: (total: any) => `总共 ${total} 项`,
+    pageSizeOptions: ['5', '10', '15', '20'],
     showSizeChanger: true,
     showQuickJumper: true,
-    pageSizeOptions: ['5', '10', '15', '20'],
-    showTotal: (total: any) => `共 ${total} 条`, // 显示总数
-    onShowSizeChange: (current: any, pageSize: number) => {
-      paginationOpt.defaultCurrent = 1;
-      paginationOpt.defaultPageSize = pageSize;
+    buildOptionText: (size: any) => {
+      return Number(size.value) + ' 项/页';
+    },
+    onChange: (cur: any, size: any) => {
+      current.value = cur;
+      pageSize.value = size;
+      Search.pageNum = cur;
+      Search.pageSize = size;
       selectCodeTable_way();
     },
-    // 改变页码时更新显示
-    onChange: (current: any, size: any) => {
-      paginationOpt.defaultCurrent = current;
-      paginationOpt.defaultPageSize = size;
-      selectCodeTable_way();
-    },
-  });
+  }));
 
   selectCodeTable_way();
   // 重置
@@ -251,12 +251,14 @@
       keys: [],
     });
     emitter.emit('reset', sdsd.value);
-    paginationOpt.defaultCurrent = 1;
+    Search.pageNum = 1;
+    current.value = 1;
     selectCodeTable_way();
   };
   // 查询按钮
   const query = () => {
-    paginationOpt.defaultCurrent = 1;
+    Search.pageNum = 1;
+    current.value = 1;
     selectCodeTable_way();
   };
 

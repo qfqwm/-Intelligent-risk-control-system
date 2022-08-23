@@ -143,6 +143,7 @@
         message: '长度不能大于30个字符',
         trigger: 'blur',
       },
+      { pattern: /^[^\s]*$/, message: '不允许输入空格' },
     ],
     connectMessage: [
       { required: true, message: '请输入' },
@@ -151,10 +152,20 @@
         message: '长度不能大于200个字符',
         trigger: 'blur',
       },
+      { pattern: /^[^\s]*$/, message: '不允许输入空格' },
     ],
-    driverName: [{ required: true, message: '请输入' }],
-    username: [{ required: true, message: '请输入' }],
-    password: [{ required: true, message: '请输入' }],
+    driverName: [
+      { required: true, message: '请输入' },
+      { pattern: /^[^\s]*$/, message: '不允许输入空格' },
+    ],
+    username: [
+      { required: true, message: '请输入' },
+      { pattern: /^[^\s]*$/, message: '不允许输入空格' },
+    ],
+    password: [
+      { required: true, message: '请输入' },
+      { pattern: /^[^\s]*$/, message: '不允许输入空格' },
+    ],
     sourceDescription: [
       { required: true, message: '请输入' },
       {
@@ -162,6 +173,7 @@
         message: '长度不能大于200个字符',
         trigger: 'blur',
       },
+      { pattern: /^[^\s]*$/, message: '不允许输入空格' },
     ],
   });
 
