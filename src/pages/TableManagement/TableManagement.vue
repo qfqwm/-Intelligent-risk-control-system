@@ -255,6 +255,7 @@
   });
   // 改变编码状态
   const onChangecode = (codeId: any, state: string) => {
+    change_array.codeTableIdList = [];
     change_array.codeTableIdList.push(codeId);
     change_array.codeType = state;
     OnChange(change_array).then(function (res: any) {
@@ -325,7 +326,6 @@
       window.URL.revokeObjectURL(href); //释放掉blob对象
     });
   };
-
   const uploadInput = ref<HTMLElement | null>(null);
   const dealfilechange = (e: Event) => {
     const input = e.target as HTMLInputElement;
