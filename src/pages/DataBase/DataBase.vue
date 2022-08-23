@@ -68,6 +68,12 @@
     show();
   });
 
+  const forms = ref();
+  emitter.on('sendchildod', (t: any) => {
+    forms.value = t.form;
+    Connectivity(forms.value);
+  });
+
   // 搜索区域
   interface Search {
     sourceName: string;
