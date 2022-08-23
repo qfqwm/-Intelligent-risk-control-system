@@ -266,6 +266,19 @@
   // 确定按钮——向后端发送数据进行新增、编辑标准
   const add_edit_couse = () => {
     if (edit_add_title.value == '新增标准') {
+      if (add_edit_object.value.dataType !== '1' && add_edit_object.value.dataType !== '2') {
+        add_edit_object.value.dataMax = null;
+        add_edit_object.value.dataMin = null;
+      }
+      if (add_edit_object.value.dataType !== '2') {
+        add_edit_object.value.dataPrecision = null;
+      }
+      if (add_edit_object.value.dataType !== '3') {
+        add_edit_object.value.enumRange = null;
+      }
+      if (add_edit_object.value.dataType !== '4') {
+        add_edit_object.value.dataLength = null;
+      }
       AddStandard(add_edit_object.value).then(function (res) {
         if (res.data.msg == '新增成功') {
           message.success('新增成功！');
@@ -281,6 +294,20 @@
       } as any;
       object.standardId = data_storage_edit.standardId;
       object.standardType = data_storage_edit.standardType;
+      if (object.dataType !== '1' && object.dataType !== '2') {
+        object.dataMax = null;
+        object.dataMin = null;
+      }
+      if (object.dataType !== '2') {
+        object.dataPrecision = null;
+      }
+      if (object.dataType !== '3') {
+        object.enumRange = null;
+      }
+      if (object.dataType !== '4') {
+        object.dataLength = null;
+      }
+
       UpdateStandard(object).then(function (res) {
         if (res.data.msg == '返回成功') {
           message.success('编辑成功！');
