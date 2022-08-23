@@ -189,6 +189,7 @@
       AssetSheet(datas).then(function (res) {
         if (res.data.code == 100200) {
           emitter.emit('send');
+          return message.success(res.data.msg);
         } else return message.error(res.data.msg);
       });
       visible.value = false;
@@ -212,7 +213,7 @@
       EditData1(datas1).then(function (res) {
         if (res.data.code == 100200) {
           emitter.emit('send');
-          return message.error(res.data.msg);
+          return message.success(res.data.msg);
         } else return message.error(res.data.msg);
       });
       visible.value = false;
