@@ -108,13 +108,13 @@
   ];
   const select_CodeTable = () => {
     selectCodeTable(Search).then(function (res: any) {
+      console.log(res.data.data);
       if (res.data.code !== 100200) return (dataSource.value = []);
       dataSource.value = res.data.data.nowTable;
       dataSource.value.forEach((item: any) => {
         item.codeType = codeType[item.codeType];
       });
       total.value = res.data.data.total;
-      allpage.value = res.data.data.allpage;
     });
   };
   select_CodeTable();
@@ -126,16 +126,18 @@
   };
   // 查询
   const query = () => {
+    Search.page = 1;
+    current.value = 1;
     select_CodeTable();
   };
   // 表格分页区
   const total = ref<number>();
-  const allpage = ref<number>();
+  const current = ref<number>();
   const pageSize = ref<number>(20);
   const pagination = computed(() => ({
-    total: total.value,
-    current: allpage.value,
-    pageSize: pageSize.value,
+    total: total.value, //数据总和
+    current: current.value, //当前页数
+    pageSize: pageSize.value, //每页条数
     showTotal: (total: any) => `总共 ${total} 项`,
     pageSizeOptions: ['5', '10', '15', '20'],
     showSizeChanger: true,
@@ -143,14 +145,10 @@
     buildOptionText: (size: any) => {
       return Number(size.value) + ' 项/页';
     },
-    onShowSizeChange: (current: number, size: number) => {
+    onChange: (cur: number, size: number) => {
+      current.value = cur;
       pageSize.value = size;
-      Search.page = current;
-      Search.size = size;
-      select_CodeTable();
-    },
-    onChange: (current: number, size: number) => {
-      Search.page = current;
+      Search.page = cur;
       Search.size = size;
       select_CodeTable();
     },
