@@ -1,5 +1,4 @@
 <template>
-  {{ dataSource_index }}---1
   <a-table bordered :data-source="dataSource" :columns="columns" :pagination="false">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'delete'">
