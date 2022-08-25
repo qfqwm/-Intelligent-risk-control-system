@@ -23,12 +23,12 @@
       <!-- 五个按钮区域 -->
       <div class="button">
         <div class="left1">
-          <a-button type="primary" :disabled="PublishBatch" @click="ALLonChangecode(1)">批量发布</a-button>
-          <a-button type="primary" :disabled="DeactivateBatch" @click="ALLonChangecode(2)">批量停用</a-button>
+          <a-button type="primary" size="small" :disabled="PublishBatch" @click="ALLonChangecode(1)">批量发布</a-button>
+          <a-button type="primary" size="small" :disabled="DeactivateBatch" @click="ALLonChangecode(2)">批量停用</a-button>
         </div>
         <div class="right1">
           <!-- 抽屉区域 -->
-          <a-button type="primary" @click="showDrawer('add', {})"> 新增资产表 </a-button>
+          <a-button type="primary" size="small" @click="showDrawer('add', {})"> 新增资产表 </a-button>
           <FiveButtons />
         </div>
       </div>
