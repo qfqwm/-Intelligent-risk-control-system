@@ -138,7 +138,7 @@
       interfaceMsgs.value = p as any;
       requestUrl.value = p.interMsgApiProtocol.toLowerCase() + '://' + p.interMsgIp + '/' + p.interMsgApiUrl;
       interMsgId.value = p.interMsgId;
-      if (props.textObject) {
+      if (props.textObject.input_parameter_data) {
         props.textObject.input_parameter_data.forEach(p => {
           p.interConfigIsNull = interConfigIsNull[p.interConfigIsNull];
           p.interConfigDataType = interConfigDataType[p.interConfigDataType];
