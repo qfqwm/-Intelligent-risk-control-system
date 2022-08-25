@@ -67,6 +67,7 @@
         interConfigName: item,
         interConfigDataType: obj_type,
         interConfigDescribe: '',
+        configureId: [],
       } as any;
       if (type === 'object') {
         object.children = validateJson_way(obj[item]);
